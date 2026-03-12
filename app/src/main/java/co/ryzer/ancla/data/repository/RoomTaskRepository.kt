@@ -4,10 +4,11 @@ import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.data.local.task.TaskDao
 import co.ryzer.ancla.data.local.task.toDomain
 import co.ryzer.ancla.data.local.task.toEntity
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class RoomTaskRepository(
+class RoomTaskRepository @Inject constructor(
     private val taskDao: TaskDao
 ) : TaskRepository {
 

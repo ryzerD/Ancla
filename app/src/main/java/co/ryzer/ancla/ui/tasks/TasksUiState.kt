@@ -7,5 +7,8 @@ data class TasksUiState(
     val newTitle: String = "",
     val newDescription: String = "",
     val newTime: String = ""
-)
+) {
+    val pendingTasks: List<Task>
+        get() = tasks.filterNot { it.isCompleted }
+}
 

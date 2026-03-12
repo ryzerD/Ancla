@@ -121,7 +121,7 @@ fun MainScreen(
             ) {
                 composable("home") {
                     HomeScreen(
-                        currentTasks = tasksUiState.tasks,
+                        currentTasks = tasksUiState.pendingTasks,
                         onTaskComplete = { taskId ->
                             tasksViewModel.setTaskCompleted(taskId = taskId, isCompleted = true)
                         },
