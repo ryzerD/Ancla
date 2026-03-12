@@ -1,3 +1,42 @@
 <resources>
     <string name="app_name">Ancla</string>
+
+    <!-- HomeScreen -->
+    <string name="greeting">Hola</string>
+    <string name="greeting_user">Hola, %1$s</string>
+    <string name="current_task_label">Mi Tarea Actual</string>
+    <string name="task_time_format">Hora: %1$s</string>
+    <string name="btn_complete">Terminar</string>
+    <string name="empty_tasks_title">Todo está en orden</string>
+    <string name="empty_tasks_subtitle">No tienes tareas pendientes por ahora.\nDisfruta de tu tiempo libre.</string>
+
+    <!-- ToolsScreen -->
+    <string name="tools_support_label">Mi Apoyo</string>
+    <string name="tools_title">Caja de Herramientas</string>
+    <string name="tool_decoder_title">Decodificador</string>
+    <string name="tool_decoder_subtitle">Analizar un mensaje</string>
+    <string name="tool_tasks_title">Mis tareas diarias</string>
+    <string name="tool_tasks_subtitle">Agregar y organizar mis tareas</string>
+    <string name="tool_scripts_title">Mis Guiones</string>
+    <string name="tool_scripts_subtitle">Pedir ayuda rápido</string>
+    <string name="tool_breathing_title">Respira</string>
+    <string name="tool_breathing_subtitle">Guía de calma visual</string>
+    <string name="tool_sos_title">SOS Sobrecarga</string>
+    <string name="tool_sos_subtitle">Activar calma total</string>
+    <string name="tool_move_up">Subir</string>
+    <string name="tool_move_down">Bajar</string>
+
+    <!-- SettingsScreen -->
+    <string name="settings_tools_order_label">Personalizacion</string>
+    <string name="settings_tools_order_title">Orden de caja de herramientas</string>
+    <string name="settings_tools_order_description">Puedes ajustar el orden cuando te sientas en calma. Este orden se reflejara en Herramientas.</string>
+
+    <!-- TaskManagementScreen -->
+    <string name="tasks_screen_title">Mis tareas diarias</string>
+    <string name="tasks_screen_subtitle">Guarda las tareas que quieres tener presentes cada dia.</string>
+    <string name="tasks_field_title">Titulo de la tarea</string>
+    <string name="tasks_field_description">Descripcion (opcional)</string>
+    <string name="tasks_field_time">Hora (ej: 08:00 AM)</string>
+    <string name="tasks_add_button">Agregar tarea</string>
+    <string name="tasks_delete_content_description">Eliminar tarea</string>
 </resources>
