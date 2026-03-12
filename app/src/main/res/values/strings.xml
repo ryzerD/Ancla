@@ -38,5 +38,17 @@
     <string name="tasks_field_description">Descripcion (opcional)</string>
     <string name="tasks_field_time">Hora (ej: 08:00 AM)</string>
     <string name="tasks_add_button">Agregar tarea</string>
+    <string name="tasks_save_button">Guardar cambios</string>
+    <string name="tasks_cancel_edit_button">Cancelar edicion</string>
+    <string name="tasks_delete_completed_button">Borrar tareas completadas</string>
+    <string name="tasks_remaining_characters">Quedan %1$d caracteres</string>
+    <string name="tasks_edit_content_description">Editar tarea</string>
     <string name="tasks_delete_content_description">Eliminar tarea</string>
+    <string name="tasks_delete_dialog_title">Eliminar tarea</string>
+    <string name="tasks_delete_dialog_message">Deseas eliminar "%1$s"?</string>
+    <string name="tasks_time_picker_description">Seleccionar hora</string>
+
+    <!-- Generic dialog actions -->
+    <string name="dialog_confirm">Aceptar</string>
+    <string name="dialog_cancel">Cancelar</string>
 </resources>

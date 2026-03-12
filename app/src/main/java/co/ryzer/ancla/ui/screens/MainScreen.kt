@@ -10,7 +10,11 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowHeightSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -156,8 +160,11 @@ fun MainScreen(
                         onDescriptionChange = tasksViewModel::onDescriptionChange,
                         onTimeChange = tasksViewModel::onTimeChange,
                         onAddTask = tasksViewModel::addTask,
+                        isEditing = tasksUiState.isEditing,
                         onToggleCompleted = tasksViewModel::setTaskCompleted,
-                        onDeleteTask = tasksViewModel::deleteTask
+                        onDeleteTask = tasksViewModel::deleteTask,
+                        onStartEditTask = tasksViewModel::startEditing,
+                        onCancelEditing = tasksViewModel::cancelEditing,
                     )
                 }
             }
