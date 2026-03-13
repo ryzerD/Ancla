@@ -1,6 +1,7 @@
 package co.ryzer.ancla.ui.theme
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  * Dimension tokens for HomeScreen.
@@ -73,9 +74,55 @@ object ToolsScreenDimens {
     val cardContentPadding = 16.dp
     val iconPlaceholderSize = 48.dp
     val iconPlaceholderCornerRadius = 12.dp
-    val iconPlaceholderAlpha = 0.05f
+    const val iconPlaceholderAlpha = 0.05f
     val iconToTextSpacer = 12.dp
-    val orderControlsTopSpacer = 10.dp
     val orderControlsSpacing = 8.dp
+}
+
+/**
+ * Dimension tokens for ScriptReaderScreen.
+ * Compact = phone portrait · Expanded = tablet or wide landscape.
+ */
+object ScriptReaderScreenDimens {
+
+    // -- Layout --
+    val horizontalPadding = 28.dp
+    val verticalPadding = 24.dp
+    val emergencyTextTopSpacer = 28.dp
+
+    // -- Button --
+    val closeButtonCornerRadius = 20.dp
+
+    // -- Typography --
+    val mainTextFontSize = 60.sp
+    val mainTextLineHeight = 72.sp
+    val emergencyTextFontSize = 48.sp
+    val emergencyTextLineHeight = 54.sp
+    val closeButtonTextFontSize = 20.sp
+    val closeButtonTextLineHeight = 28.sp
+}
+
+/**
+ * Dimension tokens for NewScriptScreen.
+ * Compact = phone portrait · Expanded = tablet or wide landscape.
+ */
+object NewScriptScreenDimens {
+
+    // -- Layout --
+    val textFieldMinHeight = 120.dp
+    val sectionSpacing = 20.dp
+    val chipSpacing = 12.dp
+    val swatchSpacing = 12.dp
+    val buttonTopSpacing = 28.dp
+    val closeActionTopSpacing = 8.dp
+
+    // -- Shapes --
+    val inputCornerRadius = 24.dp
+    val chipCornerRadius = 18.dp
+    val swatchCornerRadius = 18.dp
+    val swatchBorderWidth = 3.dp
+
+    // -- Elements --
+    val swatchSize = 72.dp
 }
 

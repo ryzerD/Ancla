@@ -4,6 +4,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
 // TODO: Replace with a custom font that reinforces Ancla's visual identity
@@ -204,5 +205,32 @@ object AnclaTextStyles {
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
         lineHeight = 20.sp
+    )
+
+    /** Giant headline used in assisted reading mode */
+    val scriptReaderHeadline = TextStyle(
+        fontFamily = AnclaFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = ScriptReaderScreenDimens.mainTextFontSize,
+        lineHeight = ScriptReaderScreenDimens.mainTextLineHeight,
+        textAlign = TextAlign.Center
+    )
+
+    /** Emergency/supporting message used in assisted reading mode */
+    val scriptReaderEmergency = TextStyle(
+        fontFamily = AnclaFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = ScriptReaderScreenDimens.emergencyTextFontSize,
+        lineHeight = ScriptReaderScreenDimens.emergencyTextLineHeight,
+        textAlign = TextAlign.Center
+    )
+
+    /** Close button label used in assisted reading mode */
+    val scriptReaderCloseButton = TextStyle(
+        fontFamily = AnclaFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = ScriptReaderScreenDimens.closeButtonTextFontSize,
+        lineHeight = ScriptReaderScreenDimens.closeButtonTextLineHeight,
+        textAlign = TextAlign.Center
     )
 }

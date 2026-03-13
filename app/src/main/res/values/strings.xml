@@ -48,6 +48,48 @@
     <string name="tasks_delete_dialog_message">Deseas eliminar "%1$s"?</string>
     <string name="tasks_time_picker_description">Seleccionar hora</string>
 
+    <!-- ScriptsScreen -->
+    <string name="scripts_screen_title">Mis guiones</string>
+    <string name="scripts_screen_subtitle">Palabras listas para cuando las necesites.</string>
+    <string name="scripts_card_ask_help_title">Pedir ayuda</string>
+    <string name="scripts_card_ask_help_subtitle">Toca para pedir ayuda rapidamente.</string>
+    <string name="scripts_card_noise_title">Hay mucho ruido</string>
+    <string name="scripts_card_noise_subtitle">Muestra esto si hay sobrecarga sonora.</string>
+    <string name="scripts_card_shopping_title">Comprar algo</string>
+    <string name="scripts_card_shopping_subtitle">Muestra para interacciones en tiendas.</string>
+    <string name="scripts_card_cannot_talk_title">No puedo hablar ahora</string>
+    <string name="scripts_card_cannot_talk_subtitle">Usa en momentos de bloqueo comunicativo.</string>
+    <string name="scripts_new_button">Nuevo guion</string>
+
+    <!-- NewScriptScreen -->
+    <string name="new_script_screen_title">Nuevo guion</string>
+    <string name="new_script_screen_subtitle">Describe tu guion y elige cómo se verá.</string>
+    <string name="new_script_section_description">1. Describe tu guion</string>
+    <string name="new_script_phrase_placeholder">Escribe tu frase aquí…
+(ej: Necesito salir)</string>
+    <string name="new_script_section_category">2. Elige una categoría</string>
+    <string name="new_script_category_social">Social</string>
+    <string name="new_script_category_needs">Necesidades</string>
+    <string name="new_script_category_limits">Límites</string>
+    <string name="new_script_category_errands">Trámites</string>
+    <string name="new_script_section_visual_style">3. Personaliza el estilo visual</string>
+    <string name="new_script_save_button">Guardar guion</string>
+    <string name="new_script_close_without_saving">Cerrar sin guardar</string>
+    <string name="new_script_style_mixed">Estilo multicolor</string>
+    <string name="new_script_style_lavender">Estilo lavanda</string>
+    <string name="new_script_style_rose">Estilo rosa</string>
+    <string name="new_script_style_sand">Estilo arena</string>
+
+    <!-- ScriptReaderScreen -->
+    <string name="scripts_reader_ask_help_main">NECESITO AYUDA</string>
+    <string name="scripts_reader_ask_help_emergency">No puedo hablar.\nLlame al: %1$s</string>
+    <string name="scripts_reader_noise_main">HAY MUCHO RUIDO\nNECESITO UN LUGAR TRANQUILO</string>
+    <string name="scripts_reader_shopping_main">QUIERO COMPRAR ESTO\nPOR FAVOR</string>
+    <string name="scripts_reader_cannot_talk_main">NO PUEDO HABLAR\nAHORA</string>
+    <string name="scripts_reader_cannot_talk_emergency">No puedo hablar.\nLlame al: %1$s</string>
+    <string name="scripts_reader_default_main">NECESITO APOYO</string>
+    <string name="scripts_reader_close">Cerrar</string>
+
     <!-- Generic dialog actions -->
     <string name="dialog_confirm">Aceptar</string>
     <string name="dialog_cancel">Cancelar</string>

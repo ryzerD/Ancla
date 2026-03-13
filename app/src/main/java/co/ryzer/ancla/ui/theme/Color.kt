@@ -16,6 +16,7 @@ val CardGreen = Color(0xFFD4E4D8)    // Decoder Tool
 val CardLavender = Color(0xFFE2E2F0) // Scripts Tool
 val CardPeach = Color(0xFFF9E6D6)    // Breathing Tool
 val CardRose = Color(0xFFF2D7D7)     // SOS Overload Tool
+val ScriptReaderButton = Color(0xFFA4C4AE) // Assisted reading close action
 
 /**
  * Typography and Iconography

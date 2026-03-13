@@ -25,15 +25,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import co.ryzer.ancla.data.DefaultToolOrder
 import co.ryzer.ancla.data.ToolOrderEntry
 import co.ryzer.ancla.ui.components.AnclaNavigationBar
 import co.ryzer.ancla.ui.components.NavigationItem
 import co.ryzer.ancla.ui.tasks.TasksViewModel
+
+private const val ROUTE_HOME = "home"
+private const val ROUTE_TOOLS = "tools"
+private const val ROUTE_SETTINGS = "settings"
+private const val ROUTE_DECODER = "decoder"
+private const val ROUTE_TASKS = "tasks"
+private const val ROUTE_SCRIPTS = "scripts"
+private const val ROUTE_NEW_SCRIPT = "new_script"
+private const val ROUTE_SCRIPT_READER = "script_reader/{scriptId}"
+private const val ARG_SCRIPT_ID = "scriptId"
+private const val EMERGENCY_CONTACT_DEFAULT = "123-456-789"
 
 @Composable
 fun MainScreen(
@@ -43,6 +56,7 @@ fun MainScreen(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val hidesNavigationChrome = currentRoute == ROUTE_SCRIPT_READER || currentRoute == ROUTE_NEW_SCRIPT
     var toolOrder by remember {
         mutableStateOf(DefaultToolOrder)
     }
@@ -50,27 +64,27 @@ fun MainScreen(
 
     val navigationItems = listOf(
         NavigationItem(
-            route = "home",
+            route = ROUTE_HOME,
             label = "Inicio",
             icon = Icons.Outlined.Home,
             selectedIcon = Icons.Filled.Home
         ),
         NavigationItem(
-            route = "tools",
+            route = ROUTE_TOOLS,
             label = "Herramientas",
             icon = Icons.Outlined.Build,
             selectedIcon = Icons.Filled.Build
         ),
         NavigationItem(
-            route = "settings",
+            route = ROUTE_SETTINGS,
             label = "Ajustes",
             icon = Icons.Outlined.Settings,
             selectedIcon = Icons.Filled.Settings
         )
     )
 
-    val showBottomBar = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact ||
-            windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact
+    val showBottomBar = (windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact ||
+            windowSizeClass.heightSizeClass == WindowHeightSizeClass.Compact) && !hidesNavigationChrome
 
     Scaffold(
         bottomBar = {
@@ -80,7 +94,7 @@ fun MainScreen(
                     currentRoute = currentRoute,
                     onItemClick = { item ->
                         navController.navigate(item.route) {
-                            popUpTo("home") { saveState = true }
+                            popUpTo(ROUTE_HOME) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -95,13 +109,14 @@ fun MainScreen(
                 .padding(innerPadding)
         ) {
             if (!showBottomBar) {
-                NavigationRail {
+                if (!hidesNavigationChrome) {
+                    NavigationRail {
                     navigationItems.forEach { item ->
                         NavigationRailItem(
                             selected = currentRoute == item.route,
                             onClick = {
                                 navController.navigate(item.route) {
-                                    popUpTo("home") { saveState = true }
+                                    popUpTo(ROUTE_HOME) { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
@@ -115,15 +130,16 @@ fun MainScreen(
                             label = { Text(item.label) }
                         )
                     }
+                    }
                 }
             }
 
             NavHost(
                 navController = navController,
-                startDestination = "home",
+                startDestination = ROUTE_HOME,
                 modifier = Modifier.weight(1f)
             ) {
-                composable("home") {
+                composable(ROUTE_HOME) {
                     HomeScreen(
                         currentTasks = tasksUiState.pendingTasks,
                         onTaskComplete = { taskId ->
@@ -132,15 +148,16 @@ fun MainScreen(
                         windowSizeClass = windowSizeClass
                     )
                 }
-                composable("tools") {
+                composable(ROUTE_TOOLS) {
                     ToolsScreen(
-                        onNavigateToDecoder = { navController.navigate("decoder") },
-                        onNavigateToTasks = { navController.navigate("tasks") },
+                        onNavigateToDecoder = { navController.navigate(ROUTE_DECODER) },
+                        onNavigateToTasks = { navController.navigate(ROUTE_TASKS) },
+                        onNavigateToScripts = { navController.navigate(ROUTE_SCRIPTS) },
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder
                     )
                 }
-                composable("settings") {
+                composable(ROUTE_SETTINGS) {
                     SettingsScreen(
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder,
@@ -149,8 +166,8 @@ fun MainScreen(
                         }
                     )
                 }
-                composable("decoder") { DecoderScreen() }
-                composable("tasks") {
+                composable(ROUTE_DECODER) { DecoderScreen() }
+                composable(ROUTE_TASKS) {
                     TaskManagementScreen(
                         title = tasksUiState.newTitle,
                         description = tasksUiState.newDescription,
@@ -165,6 +182,33 @@ fun MainScreen(
                         onDeleteTask = tasksViewModel::deleteTask,
                         onStartEditTask = tasksViewModel::startEditing,
                         onCancelEditing = tasksViewModel::cancelEditing,
+                    )
+                }
+                composable(ROUTE_SCRIPTS) {
+                    ScriptsScreen(
+                        windowSizeClass = windowSizeClass,
+                        onScriptClick = { scriptId ->
+                            navController.navigate("script_reader/$scriptId")
+                        },
+                        onNewScriptClick = { navController.navigate(ROUTE_NEW_SCRIPT) }
+                    )
+                }
+                composable(ROUTE_NEW_SCRIPT) {
+                    NewScriptScreen(
+                        windowSizeClass = windowSizeClass,
+                        onSaveScript = { _, _, _ -> navController.popBackStack() },
+                        onCloseWithoutSaving = { navController.popBackStack() }
+                    )
+                }
+                composable(
+                    route = ROUTE_SCRIPT_READER,
+                    arguments = listOf(navArgument(ARG_SCRIPT_ID) { type = NavType.StringType })
+                ) { backStackEntry ->
+                    val scriptId = backStackEntry.arguments?.getString(ARG_SCRIPT_ID).orEmpty()
+                    ScriptReaderScreen(
+                        scriptId = scriptId,
+                        emergencyContact = EMERGENCY_CONTACT_DEFAULT,
+                        onClose = { navController.popBackStack() }
                     )
                 }
             }

@@ -55,6 +55,7 @@ private data class ToolItemUi(
 fun ToolsScreen(
     onNavigateToDecoder: () -> Unit,
     onNavigateToTasks: () -> Unit,
+    onNavigateToScripts: () -> Unit,
     windowSizeClass: WindowSizeClass? = null,
     toolOrder: List<ToolOrderEntry> = DefaultToolOrder
 ) {
@@ -90,7 +91,7 @@ fun ToolsScreen(
             titleResId = R.string.tool_scripts_title,
             subtitleResId = R.string.tool_scripts_subtitle,
             color = CardLavender,
-            onClick = {}
+            onClick = onNavigateToScripts
         ),
         ToolItemUi(
             toolId = ToolIds.BREATHING,
@@ -207,7 +208,7 @@ fun ToolCard(
 @Composable
 fun ToolsScreenCompactPreview() {
     AnclaTheme {
-        ToolsScreen(onNavigateToDecoder = {}, onNavigateToTasks = {})
+        ToolsScreen(onNavigateToDecoder = {}, onNavigateToTasks = {}, onNavigateToScripts = {})
     }
 }
 
@@ -215,7 +216,7 @@ fun ToolsScreenCompactPreview() {
 @Composable
 fun ToolsScreenExpandedPreview() {
     AnclaTheme {
-        ToolsScreen(onNavigateToDecoder = {}, onNavigateToTasks = {})
+        ToolsScreen(onNavigateToDecoder = {}, onNavigateToTasks = {}, onNavigateToScripts = {})
     }
 }
 
