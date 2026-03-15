@@ -57,6 +57,24 @@ internal fun resolveStartDestination(profileUiState: ProfileUiState): String? {
     return if (profileUiState.requiresOnboarding) ROUTE_ONBOARDING else ROUTE_HOME
 }
 
+private fun navigateFromNavItem(navController: NavHostController, route: String) {
+    if (route == ROUTE_TOOLS) {
+        // Always open toolbox root, never restore a previous tool sub-screen.
+        navController.navigate(ROUTE_TOOLS) {
+            launchSingleTop = true
+            restoreState = false
+            popUpTo(ROUTE_HOME) { saveState = false }
+        }
+        return
+    }
+
+    navController.navigate(route) {
+        popUpTo(ROUTE_HOME) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
 @Composable
 fun MainScreen(
     navController: NavHostController,
@@ -110,11 +128,7 @@ fun MainScreen(
                     items = navigationItems,
                     currentRoute = currentRoute,
                     onItemClick = { item ->
-                        navController.navigate(item.route) {
-                            popUpTo(ROUTE_HOME) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navigateFromNavItem(navController = navController, route = item.route)
                     }
                 )
             }
@@ -132,11 +146,7 @@ fun MainScreen(
                         NavigationRailItem(
                             selected = currentRoute == item.route,
                             onClick = {
-                                navController.navigate(item.route) {
-                                    popUpTo(ROUTE_HOME) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
+                                navigateFromNavItem(navController = navController, route = item.route)
                             },
                             icon = {
                                 Icon(
