@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -58,6 +59,19 @@ internal fun resolveStartDestination(profileUiState: ProfileUiState): String? {
 }
 
 private fun navigateFromNavItem(navController: NavHostController, route: String) {
+    if (route == ROUTE_HOME) {
+        // Always go straight to Home root without restoring previous tool stack.
+        navController.navigate(ROUTE_HOME) {
+            launchSingleTop = true
+            restoreState = false
+            popUpTo(navController.graph.findStartDestination().id) {
+                inclusive = false
+                saveState = false
+            }
+        }
+        return
+    }
+
     if (route == ROUTE_TOOLS) {
         // Always open toolbox root, never restore a previous tool sub-screen.
         navController.navigate(ROUTE_TOOLS) {
