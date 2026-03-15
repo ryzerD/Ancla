@@ -156,3 +156,13 @@ object OnboardingSensorialDimens {
     val ctaMinHeight = 56.dp
 }
 
+/**
+ * Dimension tokens for BreathingScreen.
+ */
+object BreathingScreenDimens {
+    val screenPadding = 24.dp
+    val topTextBottomSpacing = 24.dp
+    val circleSize = 220.dp
+    val exitIconSize = 22.dp
+}
+

@@ -66,6 +66,7 @@ fun ToolsScreen(
     onNavigateToDecoder: () -> Unit,
     onNavigateToTasks: () -> Unit,
     onNavigateToScripts: () -> Unit,
+    onNavigateToBreathing: () -> Unit,
     windowSizeClass: WindowSizeClass? = null,
     toolOrder: List<ToolOrderEntry> = DefaultToolOrder
 ) {
@@ -112,7 +113,7 @@ fun ToolsScreen(
             subtitleResId = R.string.tool_breathing_subtitle,
             icon = Icons.Outlined.Air,
             color = CardPeach,
-            onClick = {}
+            onClick = onNavigateToBreathing
         ),
         ToolItemUi(
             toolId = ToolIds.SOS,
@@ -232,7 +233,12 @@ fun ToolCard(
 @Composable
 fun ToolsScreenCompactPreview() {
     AnclaTheme {
-        ToolsScreen(onNavigateToDecoder = {}, onNavigateToTasks = {}, onNavigateToScripts = {})
+        ToolsScreen(
+            onNavigateToDecoder = {},
+            onNavigateToTasks = {},
+            onNavigateToScripts = {},
+            onNavigateToBreathing = {}
+        )
     }
 }
 
@@ -240,7 +246,12 @@ fun ToolsScreenCompactPreview() {
 @Composable
 fun ToolsScreenExpandedPreview() {
     AnclaTheme {
-        ToolsScreen(onNavigateToDecoder = {}, onNavigateToTasks = {}, onNavigateToScripts = {})
+        ToolsScreen(
+            onNavigateToDecoder = {},
+            onNavigateToTasks = {},
+            onNavigateToScripts = {},
+            onNavigateToBreathing = {}
+        )
     }
 }
 

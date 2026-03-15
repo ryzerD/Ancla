@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.NavHostController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -48,6 +47,7 @@ private const val ROUTE_SETTINGS = "settings"
 private const val ROUTE_DECODER = "decoder"
 private const val ROUTE_TASKS = "tasks"
 private const val ROUTE_SCRIPTS = "scripts"
+private const val ROUTE_BREATHING = "breathing"
 private const val ROUTE_NEW_SCRIPT = "new_script"
 private const val ROUTE_SCRIPT_READER = "script_reader/{scriptId}"
 private const val ARG_SCRIPT_ID = "scriptId"
@@ -60,14 +60,10 @@ internal fun resolveStartDestination(profileUiState: ProfileUiState): String? {
 
 private fun navigateFromNavItem(navController: NavHostController, route: String) {
     if (route == ROUTE_HOME) {
-        // Always go straight to Home root without restoring previous tool stack.
+        // Keep this path simple so Home is always reachable with one tap.
         navController.navigate(ROUTE_HOME) {
             launchSingleTop = true
             restoreState = false
-            popUpTo(navController.graph.findStartDestination().id) {
-                inclusive = false
-                saveState = false
-            }
         }
         return
     }
@@ -101,6 +97,7 @@ fun MainScreen(
     val currentRoute = navBackStackEntry?.destination?.route
     val hidesNavigationChrome = currentRoute == ROUTE_SCRIPT_READER ||
             currentRoute == ROUTE_NEW_SCRIPT ||
+            currentRoute == ROUTE_BREATHING ||
             currentRoute == ROUTE_ONBOARDING
     var toolOrder by remember {
         mutableStateOf(DefaultToolOrder)
@@ -205,6 +202,7 @@ fun MainScreen(
                         onNavigateToDecoder = { navController.navigate(ROUTE_DECODER) },
                         onNavigateToTasks = { navController.navigate(ROUTE_TASKS) },
                         onNavigateToScripts = { navController.navigate(ROUTE_SCRIPTS) },
+                        onNavigateToBreathing = { navController.navigate(ROUTE_BREATHING) },
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder
                     )
@@ -234,6 +232,9 @@ fun MainScreen(
                     )
                 }
                 composable(ROUTE_DECODER) { DecoderScreen() }
+                composable(ROUTE_BREATHING) {
+                    BreathingScreen(onExit = { navController.popBackStack() })
+                }
                 composable(ROUTE_TASKS) {
                     TaskManagementScreen(
                         title = tasksUiState.newTitle,
