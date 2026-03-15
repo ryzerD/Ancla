@@ -31,9 +31,11 @@ import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import co.ryzer.ancla.R
+import co.ryzer.ancla.data.Script
 import co.ryzer.ancla.ui.model.ScriptCardUi
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
@@ -49,6 +51,7 @@ import co.ryzer.ancla.ui.theme.ToolsScreenDimens
 @Composable
 fun ScriptsScreen(
     windowSizeClass: WindowSizeClass? = null,
+    scripts: List<Script> = emptyList(),
     onScriptClick: (String) -> Unit = {},
     onNewScriptClick: () -> Unit = {}
 ) {
@@ -59,37 +62,16 @@ fun ScriptsScreen(
         ToolsScreenDimens.horizontalPaddingCompact
     }
 
-    val scripts = listOf(
+    val scriptCards = scripts.map { script ->
         ScriptCardUi(
-            id = "ask_help",
-            title = stringResource(R.string.scripts_card_ask_help_title),
-            subtitle = stringResource(R.string.scripts_card_ask_help_subtitle),
-            icon = Icons.Outlined.ChatBubbleOutline,
-            backgroundColor = CardLavender,
-            showsAddIndicator = true
-        ),
-        ScriptCardUi(
-            id = "noise",
-            title = stringResource(R.string.scripts_card_noise_title),
-            subtitle = stringResource(R.string.scripts_card_noise_subtitle),
-            icon = Icons.Outlined.NotificationsOff,
-            backgroundColor = CardRose
-        ),
-        ScriptCardUi(
-            id = "shopping",
-            title = stringResource(R.string.scripts_card_shopping_title),
-            subtitle = stringResource(R.string.scripts_card_shopping_subtitle),
-            icon = Icons.Outlined.ShoppingBag,
-            backgroundColor = CardGreen
-        ),
-        ScriptCardUi(
-            id = "cannot_talk",
-            title = stringResource(R.string.scripts_card_cannot_talk_title),
-            subtitle = stringResource(R.string.scripts_card_cannot_talk_subtitle),
-            icon = Icons.Outlined.PanToolAlt,
-            backgroundColor = CardPeach
+            id = script.id,
+            title = script.title,
+            subtitle = script.subtitle,
+            icon = scriptIconForCategory(script.categoryId),
+            backgroundColor = scriptColorForStyle(script.styleId),
+            showsAddIndicator = script.id == "ask_help"
         )
-    )
+    }
 
     Column(
         modifier = Modifier
@@ -119,7 +101,7 @@ fun ScriptsScreen(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            items(items = scripts, key = { it.id }) { script ->
+            items(items = scriptCards, key = { it.id }) { script ->
                 ScriptCard(
                     script = script,
                     onClick = { onScriptClick(script.id) }
@@ -148,6 +130,22 @@ fun ScriptsScreen(
             )
         }
     }
+}
+
+private fun scriptIconForCategory(categoryId: String) = when (categoryId) {
+    "social" -> Icons.Outlined.ChatBubbleOutline
+    "needs" -> Icons.Outlined.PanToolAlt
+    "limits" -> Icons.Outlined.NotificationsOff
+    "errands" -> Icons.Outlined.ShoppingBag
+    else -> Icons.Outlined.ChatBubbleOutline
+}
+
+private fun scriptColorForStyle(styleId: String): Color = when (styleId) {
+    "lavender" -> CardLavender
+    "rose" -> CardRose
+    "sand" -> CardPeach
+    "mixed" -> CardGreen
+    else -> CardLavender
 }
 
 @Composable

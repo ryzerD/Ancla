@@ -198,13 +198,16 @@ fun NewScriptScreen(
         }
 
         item {
-            Spacer(modifier = Modifier.height(NewScriptScreenDimens.buttonTopSpacing))
+            Spacer(
+                modifier = Modifier
+                    .height(NewScriptScreenDimens.buttonTopSpacing)
+            )
             Button(
                 onClick = { onSaveScript(phrase.trim(), selectedCategoryId, selectedStyleId) },
                 enabled = phrase.isNotBlank(),
                 shape = RoundedCornerShape(ToolsScreenDimens.cardCornerRadius),
                 colors = ButtonDefaults.buttonColors(containerColor = CardGreen),
-                modifier = Modifier.fillMaxWidth(actionWidthFraction)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
                     text = stringResource(R.string.new_script_save_button),
@@ -213,7 +216,7 @@ fun NewScriptScreen(
                 )
             }
             Spacer(modifier = Modifier.height(NewScriptScreenDimens.closeActionTopSpacing))
-            TextButton(onClick = onCloseWithoutSaving) {
+            TextButton(onClick = onCloseWithoutSaving, modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(R.string.new_script_close_without_saving),
                     style = AnclaTextStyles.toolCardSubtitle,

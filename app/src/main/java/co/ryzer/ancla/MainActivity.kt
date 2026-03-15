@@ -9,6 +9,7 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import co.ryzer.ancla.ui.screens.MainScreen
+import co.ryzer.ancla.ui.scripts.ScriptsViewModel
 import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,12 +23,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             val tasksViewModel: TasksViewModel = viewModel()
+            val scriptsViewModel: ScriptsViewModel = viewModel()
             AnclaTheme {
                 val navController = rememberNavController()
                 MainScreen(
                     navController = navController,
                     windowSizeClass = windowSizeClass,
-                    tasksViewModel = tasksViewModel
+                    tasksViewModel = tasksViewModel,
+                    scriptsViewModel = scriptsViewModel
                 )
             }
         }

@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import co.ryzer.ancla.R
+import co.ryzer.ancla.data.Script
 import co.ryzer.ancla.data.DefaultToolOrder
 import co.ryzer.ancla.data.ToolIds
 import co.ryzer.ancla.data.ToolOrderEntry
@@ -35,6 +36,11 @@ import co.ryzer.ancla.ui.theme.ToolsScreenDimens
 private data class SettingsToolItem(
     val toolId: String,
     val titleResId: Int
+)
+
+private data class SettingsScriptItem(
+    val scriptId: String,
+    val title: String
 )
 
 private fun moveTool(order: List<String>, fromIndex: Int, toIndex: Int): List<String> {
@@ -51,7 +57,9 @@ private fun moveTool(order: List<String>, fromIndex: Int, toIndex: Int): List<St
 fun SettingsScreen(
     windowSizeClass: WindowSizeClass? = null,
     toolOrder: List<ToolOrderEntry> = DefaultToolOrder,
-    onToolsOrderChanged: (List<ToolOrderEntry>) -> Unit = {}
+    scripts: List<Script> = emptyList(),
+    onToolsOrderChanged: (List<ToolOrderEntry>) -> Unit = {},
+    onScriptsOrderChanged: (List<String>) -> Unit = {}
 ) {
     val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     val horizontalPadding = if (isExpanded) {
@@ -70,6 +78,10 @@ fun SettingsScreen(
     val orderedToolIds = toolOrder.sortedBy { it.position }.map { it.toolId }
     val catalogById = catalog.associateBy { it.toolId }
     val orderedTools = orderedToolIds.mapNotNull { catalogById[it] }
+    val orderedScripts = scripts
+        .sortedBy { it.position }
+        .map { script -> SettingsScriptItem(scriptId = script.id, title = script.title) }
+    val orderedScriptIds = orderedScripts.map { it.scriptId }
 
     Column(
         modifier = Modifier
@@ -135,6 +147,61 @@ fun SettingsScreen(
                                 onToolsOrderChanged(newOrder.mapIndexed { index, toolId ->
                                     ToolOrderEntry(toolId = toolId, position = index)
                                 })
+                            }, enabled = canMoveDown) {
+                                Text(text = stringResource(R.string.tool_move_down))
+                            }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(ToolsScreenDimens.headerBottomSpacer))
+                Text(
+                    text = stringResource(R.string.settings_scripts_order_title),
+                    style = AnclaTextStyles.toolCardTitle,
+                    color = TextPrimary
+                )
+                Spacer(modifier = Modifier.height(ToolsScreenDimens.iconToTextSpacer))
+                Text(
+                    text = stringResource(R.string.settings_scripts_order_description),
+                    style = AnclaTextStyles.toolCardSubtitle,
+                    color = TextSecondary
+                )
+            }
+
+            items(items = orderedScripts, key = { it.scriptId }) { script ->
+                val currentIndex = orderedScriptIds.indexOf(script.scriptId)
+                val canMoveUp = currentIndex > 0
+                val canMoveDown = currentIndex < orderedScriptIds.lastIndex
+
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
+                    shape = RoundedCornerShape(ToolsScreenDimens.cardCornerRadius),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(ToolsScreenDimens.cardContentPadding),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = script.title,
+                            style = AnclaTextStyles.toolCardTitle,
+                            color = TextPrimary,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(ToolsScreenDimens.orderControlsSpacing)) {
+                            TextButton(onClick = {
+                                val newOrder = moveTool(orderedScriptIds, currentIndex, currentIndex - 1)
+                                onScriptsOrderChanged(newOrder)
+                            }, enabled = canMoveUp) {
+                                Text(text = stringResource(R.string.tool_move_up))
+                            }
+                            TextButton(onClick = {
+                                val newOrder = moveTool(orderedScriptIds, currentIndex, currentIndex + 1)
+                                onScriptsOrderChanged(newOrder)
                             }, enabled = canMoveDown) {
                                 Text(text = stringResource(R.string.tool_move_down))
                             }

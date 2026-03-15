@@ -21,32 +21,26 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import co.ryzer.ancla.R
-import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
 import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.theme.ScriptReaderButton
 import co.ryzer.ancla.ui.theme.ScriptReaderScreenDimens
+import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
-
-private data class ScriptReaderContent(
-    val mainTextResId: Int,
-    val emergencyLineResId: Int?
-)
 
 @Composable
 fun ScriptReaderScreen(
-    scriptId: String,
+    mainText: String,
     emergencyContact: String?,
-    showEmergencyInfo: Boolean = true,
+    showEmergencyInfo: Boolean,
     onClose: () -> Unit
 ) {
     val hapticFeedback = LocalHapticFeedback.current
-    val content = contentForScript(scriptId = scriptId)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(AnclaBackground)
+            .background(SurfaceWhite)
             .padding(
                 horizontal = ScriptReaderScreenDimens.horizontalPadding,
                 vertical = ScriptReaderScreenDimens.verticalPadding
@@ -60,15 +54,15 @@ fun ScriptReaderScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = stringResource(content.mainTextResId),
+                text = mainText,
                 style = AnclaTextStyles.scriptReaderHeadline,
                 color = TextPrimary
             )
 
-            if (showEmergencyInfo && !emergencyContact.isNullOrBlank() && content.emergencyLineResId != null) {
+            if (showEmergencyInfo && !emergencyContact.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(ScriptReaderScreenDimens.emergencyTextTopSpacer))
                 Text(
-                    text = stringResource(content.emergencyLineResId, emergencyContact),
+                    text = stringResource(R.string.scripts_reader_contact_line, emergencyContact),
                     style = AnclaTextStyles.scriptReaderEmergency,
                     color = TextPrimary
                 )
@@ -95,42 +89,14 @@ fun ScriptReaderScreen(
     }
 }
 
-private fun contentForScript(scriptId: String): ScriptReaderContent {
-    return when (scriptId) {
-        "ask_help" -> ScriptReaderContent(
-            mainTextResId = R.string.scripts_reader_ask_help_main,
-            emergencyLineResId = R.string.scripts_reader_ask_help_emergency
-        )
-
-        "noise" -> ScriptReaderContent(
-            mainTextResId = R.string.scripts_reader_noise_main,
-            emergencyLineResId = null
-        )
-
-        "shopping" -> ScriptReaderContent(
-            mainTextResId = R.string.scripts_reader_shopping_main,
-            emergencyLineResId = null
-        )
-
-        "cannot_talk" -> ScriptReaderContent(
-            mainTextResId = R.string.scripts_reader_cannot_talk_main,
-            emergencyLineResId = R.string.scripts_reader_cannot_talk_emergency
-        )
-
-        else -> ScriptReaderContent(
-            mainTextResId = R.string.scripts_reader_default_main,
-            emergencyLineResId = null
-        )
-    }
-}
-
 @Preview(showBackground = true, widthDp = 412, heightDp = 915)
 @Composable
 private fun ScriptReaderScreenPreview() {
     AnclaTheme {
         ScriptReaderScreen(
-            scriptId = "ask_help",
+            mainText = "NECESITO AYUDA",
             emergencyContact = "123-456-789",
+            showEmergencyInfo = true,
             onClose = {}
         )
     }

@@ -12,6 +12,17 @@ data class Task(
     val isCompleted: Boolean = false
 )
 
+data class Script(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val title: String,
+    val subtitle: String,
+    val message: String,
+    val categoryId: String,
+    val styleId: String,
+    val position: Int,
+    val showEmergencyContact: Boolean = false
+)
+
 object ToolIds {
     const val DECODER = "decoder"
     const val TASKS = "tasks"

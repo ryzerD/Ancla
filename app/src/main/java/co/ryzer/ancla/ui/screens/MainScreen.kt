@@ -35,6 +35,7 @@ import co.ryzer.ancla.data.DefaultToolOrder
 import co.ryzer.ancla.data.ToolOrderEntry
 import co.ryzer.ancla.ui.components.AnclaNavigationBar
 import co.ryzer.ancla.ui.components.NavigationItem
+import co.ryzer.ancla.ui.scripts.ScriptsViewModel
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 
 private const val ROUTE_HOME = "home"
@@ -52,7 +53,8 @@ private const val EMERGENCY_CONTACT_DEFAULT = "123-456-789"
 fun MainScreen(
     navController: NavHostController,
     windowSizeClass: WindowSizeClass,
-    tasksViewModel: TasksViewModel
+    tasksViewModel: TasksViewModel,
+    scriptsViewModel: ScriptsViewModel
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -61,6 +63,7 @@ fun MainScreen(
         mutableStateOf(DefaultToolOrder)
     }
     val tasksUiState by tasksViewModel.uiState.collectAsState()
+    val scriptsUiState by scriptsViewModel.uiState.collectAsState()
 
     val navigationItems = listOf(
         NavigationItem(
@@ -161,8 +164,12 @@ fun MainScreen(
                     SettingsScreen(
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder,
+                        scripts = scriptsUiState.scripts,
                         onToolsOrderChanged = { updatedOrder: List<ToolOrderEntry> ->
                             toolOrder = updatedOrder
+                        },
+                        onScriptsOrderChanged = { orderedScriptIds ->
+                            scriptsViewModel.reorderScripts(orderedScriptIds)
                         }
                     )
                 }
@@ -187,6 +194,7 @@ fun MainScreen(
                 composable(ROUTE_SCRIPTS) {
                     ScriptsScreen(
                         windowSizeClass = windowSizeClass,
+                        scripts = scriptsUiState.scripts,
                         onScriptClick = { scriptId ->
                             navController.navigate("script_reader/$scriptId")
                         },
@@ -196,7 +204,14 @@ fun MainScreen(
                 composable(ROUTE_NEW_SCRIPT) {
                     NewScriptScreen(
                         windowSizeClass = windowSizeClass,
-                        onSaveScript = { _, _, _ -> navController.popBackStack() },
+                        onSaveScript = { phrase, categoryId, styleId ->
+                            scriptsViewModel.addScript(
+                                phrase = phrase,
+                                categoryId = categoryId,
+                                styleId = styleId
+                            )
+                            navController.popBackStack()
+                        },
                         onCloseWithoutSaving = { navController.popBackStack() }
                     )
                 }
@@ -205,8 +220,10 @@ fun MainScreen(
                     arguments = listOf(navArgument(ARG_SCRIPT_ID) { type = NavType.StringType })
                 ) { backStackEntry ->
                     val scriptId = backStackEntry.arguments?.getString(ARG_SCRIPT_ID).orEmpty()
+                    val selectedScript = scriptsViewModel.getScriptById(scriptId)
                     ScriptReaderScreen(
-                        scriptId = scriptId,
+                        mainText = selectedScript?.message ?: "NECESITO APOYO",
+                        showEmergencyInfo = selectedScript?.showEmergencyContact ?: false,
                         emergencyContact = EMERGENCY_CONTACT_DEFAULT,
                         onClose = { navController.popBackStack() }
                     )

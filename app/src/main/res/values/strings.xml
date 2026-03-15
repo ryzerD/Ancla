@@ -30,6 +30,8 @@
     <string name="settings_tools_order_label">Personalizacion</string>
     <string name="settings_tools_order_title">Orden de caja de herramientas</string>
     <string name="settings_tools_order_description">Puedes ajustar el orden cuando te sientas en calma. Este orden se reflejara en Herramientas.</string>
+    <string name="settings_scripts_order_title">Orden de mis guiones</string>
+    <string name="settings_scripts_order_description">Reordena tus tarjetas para que aparezcan primero las frases que usas mas seguido.</string>
 
     <!-- TaskManagementScreen -->
     <string name="tasks_screen_title">Mis tareas diarias</string>
@@ -88,6 +90,7 @@
     <string name="scripts_reader_cannot_talk_main">NO PUEDO HABLAR\nAHORA</string>
     <string name="scripts_reader_cannot_talk_emergency">No puedo hablar.\nLlame al: %1$s</string>
     <string name="scripts_reader_default_main">NECESITO APOYO</string>
+    <string name="scripts_reader_contact_line">No puedo hablar.\nLlame al: %1$s</string>
     <string name="scripts_reader_close">Cerrar</string>
 
     <!-- Generic dialog actions -->
