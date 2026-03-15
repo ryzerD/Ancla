@@ -4,6 +4,13 @@ data class UserProfile(
     val name: String = ""
 )
 
+data class SensoryProfile(
+    val id: Int = 1,
+    val name: String = "",
+    val emergencyContact: String = "",
+    val selectedColorId: String = "lavender"
+)
+
 data class Task(
     val id: String = java.util.UUID.randomUUID().toString(),
     val title: String,

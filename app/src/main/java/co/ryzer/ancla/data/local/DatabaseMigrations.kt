@@ -3,6 +3,20 @@ package co.ryzer.ancla.data.local
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
+private fun createSensoryProfileTable(db: SupportSQLiteDatabase) {
+    db.execSQL(
+        """
+        CREATE TABLE IF NOT EXISTS sensory_profile (
+            id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            emergencyContact TEXT NOT NULL,
+            selectedColorId TEXT NOT NULL,
+            PRIMARY KEY(id)
+        )
+        """.trimIndent()
+    )
+}
+
 private fun createScriptsTable(db: SupportSQLiteDatabase) {
     db.execSQL(
         """
@@ -17,6 +31,15 @@ private fun createScriptsTable(db: SupportSQLiteDatabase) {
             showEmergencyContact INTEGER NOT NULL,
             PRIMARY KEY(id)
         )
+        """.trimIndent()
+    )
+}
+
+fun seedDefaultSensoryProfile(db: SupportSQLiteDatabase) {
+    db.execSQL(
+        """
+        INSERT OR REPLACE INTO sensory_profile (id, name, emergencyContact, selectedColorId)
+        VALUES (1, '', '', 'lavender')
         """.trimIndent()
     )
 }
@@ -39,6 +62,13 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
     override fun migrate(db: SupportSQLiteDatabase) {
         createScriptsTable(db)
         seedDefaultScripts(db)
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        createSensoryProfileTable(db)
+        seedDefaultSensoryProfile(db)
     }
 }
 

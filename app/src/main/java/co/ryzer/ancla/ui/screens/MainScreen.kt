@@ -33,12 +33,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import co.ryzer.ancla.data.DefaultToolOrder
 import co.ryzer.ancla.data.ToolOrderEntry
+import co.ryzer.ancla.ui.profile.ProfileUiState
 import co.ryzer.ancla.ui.components.AnclaNavigationBar
 import co.ryzer.ancla.ui.components.NavigationItem
+import co.ryzer.ancla.ui.profile.ProfileViewModel
 import co.ryzer.ancla.ui.scripts.ScriptsViewModel
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 
 private const val ROUTE_HOME = "home"
+private const val ROUTE_ONBOARDING = "onboarding"
 private const val ROUTE_TOOLS = "tools"
 private const val ROUTE_SETTINGS = "settings"
 private const val ROUTE_DECODER = "decoder"
@@ -49,21 +52,32 @@ private const val ROUTE_SCRIPT_READER = "script_reader/{scriptId}"
 private const val ARG_SCRIPT_ID = "scriptId"
 private const val EMERGENCY_CONTACT_DEFAULT = "123-456-789"
 
+internal fun resolveStartDestination(profileUiState: ProfileUiState): String? {
+    if (!profileUiState.isLoaded) return null
+    return if (profileUiState.requiresOnboarding) ROUTE_ONBOARDING else ROUTE_HOME
+}
+
 @Composable
 fun MainScreen(
     navController: NavHostController,
     windowSizeClass: WindowSizeClass,
     tasksViewModel: TasksViewModel,
-    scriptsViewModel: ScriptsViewModel
+    scriptsViewModel: ScriptsViewModel,
+    profileViewModel: ProfileViewModel
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val hidesNavigationChrome = currentRoute == ROUTE_SCRIPT_READER || currentRoute == ROUTE_NEW_SCRIPT
+    val hidesNavigationChrome = currentRoute == ROUTE_SCRIPT_READER ||
+            currentRoute == ROUTE_NEW_SCRIPT ||
+            currentRoute == ROUTE_ONBOARDING
     var toolOrder by remember {
         mutableStateOf(DefaultToolOrder)
     }
     val tasksUiState by tasksViewModel.uiState.collectAsState()
     val scriptsUiState by scriptsViewModel.uiState.collectAsState()
+    val profileUiState by profileViewModel.uiState.collectAsState()
+
+    val startDestination = resolveStartDestination(profileUiState) ?: return
 
     val navigationItems = listOf(
         NavigationItem(
@@ -139,11 +153,22 @@ fun MainScreen(
 
             NavHost(
                 navController = navController,
-                startDestination = ROUTE_HOME,
+                startDestination = startDestination,
                 modifier = Modifier.weight(1f)
             ) {
+                composable(ROUTE_ONBOARDING) {
+                    OnboardingSensorialScreen(
+                        onContinue = {
+                            navController.navigate(ROUTE_HOME) {
+                                popUpTo(ROUTE_ONBOARDING) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
+                    )
+                }
                 composable(ROUTE_HOME) {
                     HomeScreen(
+                        userName = profileUiState.name,
                         currentTasks = tasksUiState.pendingTasks,
                         onTaskComplete = { taskId ->
                             tasksViewModel.setTaskCompleted(taskId = taskId, isCompleted = true)
@@ -165,11 +190,22 @@ fun MainScreen(
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder,
                         scripts = scriptsUiState.scripts,
+                        selectedColorId = profileUiState.effectiveSelectedColorId,
+                        hasPendingPaletteChanges = profileUiState.hasPendingPaletteChanges,
                         onToolsOrderChanged = { updatedOrder: List<ToolOrderEntry> ->
                             toolOrder = updatedOrder
                         },
                         onScriptsOrderChanged = { orderedScriptIds ->
                             scriptsViewModel.reorderScripts(orderedScriptIds)
+                        },
+                        onPalettePreviewChanged = { colorId ->
+                            profileViewModel.onPalettePreviewSelected(colorId)
+                        },
+                        onSavePalette = {
+                            profileViewModel.savePaletteSelection()
+                        },
+                        onDiscardPalettePreview = {
+                            profileViewModel.discardPalettePreview()
                         }
                     )
                 }
@@ -224,7 +260,9 @@ fun MainScreen(
                     ScriptReaderScreen(
                         mainText = selectedScript?.message ?: "NECESITO APOYO",
                         showEmergencyInfo = selectedScript?.showEmergencyContact ?: false,
-                        emergencyContact = EMERGENCY_CONTACT_DEFAULT,
+                        emergencyContact = profileUiState.emergencyContact.ifBlank {
+                            EMERGENCY_CONTACT_DEFAULT
+                        },
                         onClose = { navController.popBackStack() }
                     )
                 }

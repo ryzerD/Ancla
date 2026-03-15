@@ -126,3 +126,33 @@ object NewScriptScreenDimens {
     val swatchSize = 72.dp
 }
 
+/**
+ * Dimension tokens for OnboardingSensorialScreen.
+ */
+object OnboardingSensorialDimens {
+    val screenPadding = 24.dp
+    val sectionSpacing = 24.dp
+    val titleToSubtitleSpacing = 8.dp
+    val sectionTitleToFieldSpacing = 10.dp
+    val fieldToHintSpacing = 8.dp
+    val hintToSectionSpacing = 18.dp
+
+    val textFieldCornerRadius = 12.dp
+    val textFieldMinHeight = 58.dp
+
+    val pickerItemSize = 92.dp
+    val pickerItemCornerRadius = 16.dp
+    val pickerGridSpacing = 12.dp
+    val pickerSelectedBorderWidth = 3.dp
+    val pickerUnselectedBorderWidth = 1.dp
+    val pickerIconSize = 30.dp
+
+    val logoSize = 56.dp
+    val logoCornerRadius = 14.dp
+    val logoInnerSpacing = 6.dp
+
+    val ctaTopSpacing = 24.dp
+    val ctaBottomSpacing = 8.dp
+    val ctaMinHeight = 56.dp
+}
+
