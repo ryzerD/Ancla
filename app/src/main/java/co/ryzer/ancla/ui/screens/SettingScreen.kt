@@ -1,10 +1,7 @@
 package co.ryzer.ancla.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,39 +9,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ChatBubble
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.DefaultToolOrder
 import co.ryzer.ancla.data.Script
 import co.ryzer.ancla.data.ToolIds
 import co.ryzer.ancla.data.ToolOrderEntry
+import co.ryzer.ancla.ui.components.SensoryPalettePicker
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
-import co.ryzer.ancla.ui.theme.CardLavender
-import co.ryzer.ancla.ui.theme.CardPeach
-import co.ryzer.ancla.ui.theme.CardRose
-import co.ryzer.ancla.ui.theme.OnboardingSensorialDimens
 import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
 import co.ryzer.ancla.ui.theme.TextSecondary
@@ -59,12 +46,6 @@ private data class SettingsToolItem(
 private data class SettingsScriptItem(
     val scriptId: String,
     val title: String
-)
-
-private data class PaletteOption(
-    val id: String,
-    val labelResId: Int,
-    val color: Color
 )
 
 private fun moveTool(order: List<String>, fromIndex: Int, toIndex: Int): List<String> {
@@ -115,12 +96,6 @@ fun SettingsScreen(
         .sortedBy { it.position }
         .map { script -> SettingsScriptItem(scriptId = script.id, title = script.title) }
     val orderedScriptIds = orderedScripts.map { it.scriptId }
-    val paletteOptions = listOf(
-        PaletteOption(id = "lavender", labelResId = R.string.palette_lavender, color = CardLavender),
-        PaletteOption(id = "rose", labelResId = R.string.palette_rose, color = CardRose),
-        PaletteOption(id = "sage", labelResId = R.string.palette_sage, color = CardGreen),
-        PaletteOption(id = "peach", labelResId = R.string.palette_peach, color = CardPeach)
-    )
 
     Column(
         modifier = Modifier
@@ -264,44 +239,10 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.height(ToolsScreenDimens.gridSpacing))
 
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.pickerGridSpacing)
-                ) {
-                    paletteOptions.chunked(2).forEach { rowOptions ->
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.pickerGridSpacing)
-                        ) {
-                            rowOptions.forEach { option ->
-                                val isSelected = option.id == selectedColorId
-                                Box(
-                                    modifier = Modifier
-                                        .size(OnboardingSensorialDimens.pickerItemSize)
-                                        .clip(RoundedCornerShape(OnboardingSensorialDimens.pickerItemCornerRadius))
-                                        .background(option.color)
-                                        .border(
-                                            width = if (isSelected) {
-                                                OnboardingSensorialDimens.pickerSelectedBorderWidth
-                                            } else {
-                                                OnboardingSensorialDimens.pickerUnselectedBorderWidth
-                                            },
-                                            color = if (isSelected) TextPrimary else Color.Transparent,
-                                            shape = RoundedCornerShape(OnboardingSensorialDimens.pickerItemCornerRadius)
-                                        )
-                                        .clickable { onPalettePreviewChanged(option.id) },
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.ChatBubble,
-                                        contentDescription = stringResource(option.labelResId),
-                                        tint = TextPrimary,
-                                        modifier = Modifier
-                                            .size(OnboardingSensorialDimens.pickerIconSize)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
+                SensoryPalettePicker(
+                    selectedColorId = selectedColorId,
+                    onColorSelected = onPalettePreviewChanged
+                )
 
                 Spacer(modifier = Modifier.height(ToolsScreenDimens.iconToTextSpacer))
                 Text(

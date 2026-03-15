@@ -13,8 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import co.ryzer.ancla.ui.components.AnclaTextField
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.CardGreen
 import co.ryzer.ancla.ui.theme.CardLavender
@@ -61,21 +60,15 @@ fun DecoderScreen() {
         Spacer(modifier = Modifier.height(24.dp))
 
         // Text input area
-        OutlinedTextField(
+        AnclaTextField(
             value = textToAnalyze,
             onValueChange = { textToAnalyze = it },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp),
             placeholder = { Text("Pega el texto aquí...", color = TextSecondary) },
-            shape = RoundedCornerShape(20.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = SurfaceWhite,
-                unfocusedContainerColor = SurfaceWhite,
-                focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent,
-                cursorColor = TextPrimary
-            )
+            minLines = 5,
+            maxLines = 8
         )
 
         Spacer(modifier = Modifier.height(24.dp))

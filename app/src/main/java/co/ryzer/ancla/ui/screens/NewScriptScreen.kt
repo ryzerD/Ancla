@@ -21,8 +21,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -41,6 +39,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import co.ryzer.ancla.R
+import co.ryzer.ancla.ui.components.AnclaTextField
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
 import co.ryzer.ancla.ui.theme.AnclaTheme
@@ -50,7 +49,6 @@ import co.ryzer.ancla.ui.theme.CardPeach
 import co.ryzer.ancla.ui.theme.CardRose
 import co.ryzer.ancla.ui.theme.NewScriptScreenDimens
 import co.ryzer.ancla.ui.theme.ScriptReaderButton
-import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
 import co.ryzer.ancla.ui.theme.TextSecondary
 import co.ryzer.ancla.ui.theme.ToolsScreenDimens
@@ -114,18 +112,6 @@ fun NewScriptScreen(
         )
     )
 
-    val fieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = TextPrimary,
-        unfocusedTextColor = TextPrimary,
-        focusedContainerColor = SurfaceWhite,
-        unfocusedContainerColor = SurfaceWhite,
-        focusedBorderColor = Color.Transparent,
-        unfocusedBorderColor = Color.Transparent,
-        cursorColor = TextPrimary,
-        focusedPlaceholderColor = TextSecondary,
-        unfocusedPlaceholderColor = TextSecondary
-    )
-
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(NewScriptScreenDimens.sectionSpacing),
         modifier = Modifier
@@ -152,7 +138,7 @@ fun NewScriptScreen(
         item {
             SectionTitle(text = stringResource(R.string.new_script_section_description))
             Spacer(modifier = Modifier.height(ToolsScreenDimens.iconToTextSpacer))
-            OutlinedTextField(
+            AnclaTextField(
                 value = phrase,
                 onValueChange = { phrase = it },
                 modifier = Modifier
@@ -166,8 +152,6 @@ fun NewScriptScreen(
                         color = TextSecondary
                     )
                 },
-                colors = fieldColors,
-                shape = RoundedCornerShape(NewScriptScreenDimens.inputCornerRadius),
                 minLines = 3,
                 maxLines = 4
             )

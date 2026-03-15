@@ -25,8 +25,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimePicker
@@ -43,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
+import co.ryzer.ancla.ui.components.AnclaTextField
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
@@ -71,17 +70,6 @@ fun TaskManagementScreen(
     val titleRemaining = TasksViewModel.TITLE_MAX_LENGTH - title.length
     val descriptionRemaining = TasksViewModel.DESCRIPTION_MAX_LENGTH - description.length
     var taskPendingDelete by remember { mutableStateOf<Task?>(null) }
-    val taskFieldColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = TextPrimary,
-        unfocusedTextColor = TextPrimary,
-        focusedLabelColor = TextPrimary,
-        unfocusedLabelColor = TextSecondary,
-        focusedBorderColor = TextPrimary,
-        unfocusedBorderColor = TextSecondary,
-        cursorColor = TextPrimary,
-        focusedSupportingTextColor = TextSecondary,
-        unfocusedSupportingTextColor = TextSecondary
-    )
 
     Column(
         modifier = Modifier
@@ -105,7 +93,7 @@ fun TaskManagementScreen(
 
         Spacer(modifier = Modifier.height(ToolsScreenDimens.headerBottomSpacer))
 
-        OutlinedTextField(
+        AnclaTextField(
             value = title,
             onValueChange = { value ->
                 if (value.length <= TasksViewModel.TITLE_MAX_LENGTH) {
@@ -120,11 +108,10 @@ fun TaskManagementScreen(
             } else {
                 null
             },
-            colors = taskFieldColors,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(ToolsScreenDimens.orderControlsSpacing))
-        OutlinedTextField(
+        AnclaTextField(
             value = description,
             onValueChange = { value ->
                 if (value.length <= TasksViewModel.DESCRIPTION_MAX_LENGTH) {
@@ -139,7 +126,6 @@ fun TaskManagementScreen(
             } else {
                 null
             },
-            colors = taskFieldColors,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(ToolsScreenDimens.orderControlsSpacing))
@@ -148,7 +134,6 @@ fun TaskManagementScreen(
         TimePickerField(
             time = time,
             onTimeSelected = onTimeChange,
-            colors = taskFieldColors,
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -212,7 +197,6 @@ fun TaskManagementScreen(
 private fun TimePickerField(
     time: String,
     onTimeSelected: (String) -> Unit,
-    colors: androidx.compose.material3.TextFieldColors,
     modifier: Modifier = Modifier
 ) {
     var showPicker by remember { mutableStateOf(false) }
@@ -230,10 +214,11 @@ private fun TimePickerField(
         is24Hour = true
     )
 
-    OutlinedTextField(
+    AnclaTextField(
         value = time,
         onValueChange = {},
         readOnly = true,
+        singleLine = true,
         label = { Text(stringResource(R.string.tasks_field_time)) },
         trailingIcon = {
             IconButton(onClick = { showPicker = true }) {
@@ -244,7 +229,6 @@ private fun TimePickerField(
                 )
             }
         },
-        colors = colors,
         modifier = modifier
     )
 

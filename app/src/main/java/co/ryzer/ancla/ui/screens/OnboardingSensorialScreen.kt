@@ -15,14 +15,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ChatBubble
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -58,26 +54,10 @@ import kotlinx.coroutines.launch
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.compose.material3.Icon
+import co.ryzer.ancla.ui.components.AnclaTextField
+import co.ryzer.ancla.ui.components.SensoryPalettePicker
 
-private val ColorLavender = Color(0xFFE2E2F0)
-private val ColorRose = Color(0xFFF2D7D7)
-private val ColorSageGreen = Color(0xFFD4E4D8)
-private val ColorPeach = Color(0xFFF9E6D6)
 private val ColorSageAction = Color(0xFFA3C1AD)
-
-private val onboardingColorOptions = listOf(
-    SensoryColorOption(id = "lavender", label = "Lavender", color = ColorLavender),
-    SensoryColorOption(id = "rose", label = "Rose", color = ColorRose),
-    SensoryColorOption(id = "sage", label = "Sage", color = ColorSageGreen),
-    SensoryColorOption(id = "peach", label = "Peach", color = ColorPeach)
-)
-
-data class SensoryColorOption(
-    val id: String,
-    val label: String,
-    val color: Color
-)
 
 data class OnboardingSensorialUiState(
     val name: String = "",
@@ -240,7 +220,7 @@ fun OnboardingSensorialContent(
 
         Text(text = "3. Tu Preferencia Sensorial", style = sectionTitleStyle)
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
-        SensoryColorPickerGrid(
+        SensoryPalettePicker(
             selectedColorId = state.selectedColorId,
             onColorSelected = onColorSelected
         )
@@ -289,12 +269,11 @@ fun CalmTextField(
     placeholder: String,
     modifier: Modifier = Modifier
 ) {
-    TextField(
+    AnclaTextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(OnboardingSensorialDimens.textFieldMinHeight),
+        modifier = modifier,
+        minHeight = OnboardingSensorialDimens.textFieldMinHeight,
         singleLine = true,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             fontFamily = FontFamily.SansSerif,
@@ -310,66 +289,8 @@ fun CalmTextField(
                     color = TextPrimary.copy(alpha = 0.78f)
                 )
             )
-        },
-        shape = RoundedCornerShape(OnboardingSensorialDimens.textFieldCornerRadius),
-        colors = TextFieldDefaults.colors(
-            focusedContainerColor = SurfaceWhite.copy(alpha = 0.8f),
-            unfocusedContainerColor = SurfaceWhite.copy(alpha = 0.8f),
-            disabledContainerColor = SurfaceWhite.copy(alpha = 0.6f),
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent,
-            focusedTextColor = TextPrimary,
-            unfocusedTextColor = TextPrimary,
-            cursorColor = TextPrimary
-        )
-    )
-}
-
-@Composable
-fun SensoryColorPickerGrid(
-    selectedColorId: String,
-    onColorSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.pickerGridSpacing)
-    ) {
-        onboardingColorOptions.chunked(2).forEach { rowItems ->
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.pickerGridSpacing)
-            ) {
-                rowItems.forEach { option ->
-                    val isSelected = option.id == selectedColorId
-                    Box(
-                        modifier = Modifier
-                            .size(OnboardingSensorialDimens.pickerItemSize)
-                            .clip(RoundedCornerShape(OnboardingSensorialDimens.pickerItemCornerRadius))
-                            .background(option.color)
-                            .border(
-                                width = if (isSelected) {
-                                    OnboardingSensorialDimens.pickerSelectedBorderWidth
-                                } else {
-                                    OnboardingSensorialDimens.pickerUnselectedBorderWidth
-                                },
-                                color = if (isSelected) TextPrimary else Color.Transparent,
-                                shape = RoundedCornerShape(OnboardingSensorialDimens.pickerItemCornerRadius)
-                            )
-                            .clickable { onColorSelected(option.id) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.ChatBubble,
-                            contentDescription = option.label,
-                            tint = TextPrimary,
-                            modifier = Modifier.size(OnboardingSensorialDimens.pickerIconSize)
-                        )
-                    }
-                }
-            }
         }
-    }
+    )
 }
 
 
