@@ -166,3 +166,11 @@ object BreathingScreenDimens {
     val exitIconSize = 22.dp
 }
 
+/**
+ * Dimension tokens for CalmaTotalScreen.
+ */
+object CalmaTotalScreenDimens {
+    val brightnessLevel = 0.08f
+    val fadeOutStepCount = 12
+}
+

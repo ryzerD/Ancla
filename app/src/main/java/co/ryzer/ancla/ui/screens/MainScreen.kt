@@ -48,6 +48,7 @@ private const val ROUTE_DECODER = "decoder"
 private const val ROUTE_TASKS = "tasks"
 private const val ROUTE_SCRIPTS = "scripts"
 private const val ROUTE_BREATHING = "breathing"
+private const val ROUTE_CALMA_TOTAL = "calma_total"
 private const val ROUTE_NEW_SCRIPT = "new_script"
 private const val ROUTE_SCRIPT_READER = "script_reader/{scriptId}"
 private const val ARG_SCRIPT_ID = "scriptId"
@@ -98,6 +99,7 @@ fun MainScreen(
     val hidesNavigationChrome = currentRoute == ROUTE_SCRIPT_READER ||
             currentRoute == ROUTE_NEW_SCRIPT ||
             currentRoute == ROUTE_BREATHING ||
+            currentRoute == ROUTE_CALMA_TOTAL ||
             currentRoute == ROUTE_ONBOARDING
     var toolOrder by remember {
         mutableStateOf(DefaultToolOrder)
@@ -203,6 +205,7 @@ fun MainScreen(
                         onNavigateToTasks = { navController.navigate(ROUTE_TASKS) },
                         onNavigateToScripts = { navController.navigate(ROUTE_SCRIPTS) },
                         onNavigateToBreathing = { navController.navigate(ROUTE_BREATHING) },
+                        onNavigateToCalmaTotal = { navController.navigate(ROUTE_CALMA_TOTAL) },
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder
                     )
@@ -234,6 +237,9 @@ fun MainScreen(
                 composable(ROUTE_DECODER) { DecoderScreen() }
                 composable(ROUTE_BREATHING) {
                     BreathingScreen(onExit = { navController.popBackStack() })
+                }
+                composable(ROUTE_CALMA_TOTAL) {
+                    CalmaTotalScreen(onExit = { navController.popBackStack() })
                 }
                 composable(ROUTE_TASKS) {
                     TaskManagementScreen(

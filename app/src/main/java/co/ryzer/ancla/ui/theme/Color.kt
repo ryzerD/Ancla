@@ -89,3 +89,4 @@ val TextPrimary = Color(0xFF2D2D2D)   // High emphasis text
 val TextSecondary = Color(0xFF757575) // Medium emphasis / descriptions
 val IconActive = Color(0xFF1F1F1F)    // Selected navigation items
 val SurfaceWhite = Color(0xFFFFFFFF)  // Inner card surfaces or overlaysar
+val CalmaTotalBackground = Color(0xFFE2E2F0)

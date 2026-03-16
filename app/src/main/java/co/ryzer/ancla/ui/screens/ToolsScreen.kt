@@ -21,7 +21,6 @@ import androidx.compose.material.icons.outlined.Air
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FrontHand
-import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.material.icons.outlined.PanToolAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -67,6 +66,7 @@ fun ToolsScreen(
     onNavigateToTasks: () -> Unit,
     onNavigateToScripts: () -> Unit,
     onNavigateToBreathing: () -> Unit,
+    onNavigateToCalmaTotal: () -> Unit,
     windowSizeClass: WindowSizeClass? = null,
     toolOrder: List<ToolOrderEntry> = DefaultToolOrder
 ) {
@@ -121,7 +121,7 @@ fun ToolsScreen(
             subtitleResId = R.string.tool_sos_subtitle,
             icon = Icons.Outlined.Build,
             color = CardRose,
-            onClick = {}
+            onClick = onNavigateToCalmaTotal
         )
     )
 
@@ -237,7 +237,8 @@ fun ToolsScreenCompactPreview() {
             onNavigateToDecoder = {},
             onNavigateToTasks = {},
             onNavigateToScripts = {},
-            onNavigateToBreathing = {}
+            onNavigateToBreathing = {},
+            onNavigateToCalmaTotal = {}
         )
     }
 }
@@ -250,7 +251,8 @@ fun ToolsScreenExpandedPreview() {
             onNavigateToDecoder = {},
             onNavigateToTasks = {},
             onNavigateToScripts = {},
-            onNavigateToBreathing = {}
+            onNavigateToBreathing = {},
+            onNavigateToCalmaTotal = {}
         )
     }
 }
