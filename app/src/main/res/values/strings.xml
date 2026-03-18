@@ -21,6 +21,8 @@
     <string name="tool_scripts_subtitle">Pedir ayuda rápido</string>
     <string name="tool_breathing_title">Respira</string>
     <string name="tool_breathing_subtitle">Guía de calma visual</string>
+    <string name="breathing_phase_remaining">%1$d s</string>
+    <string name="breathing_total_remaining">Tiempo restante: %1$s</string>
     <string name="tool_sos_title">SOS Sobrecarga</string>
     <string name="tool_sos_subtitle">Activar calma total</string>
     <string name="tool_move_up">Subir</string>

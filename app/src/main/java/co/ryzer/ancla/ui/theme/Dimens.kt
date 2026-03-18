@@ -162,7 +162,10 @@ object OnboardingSensorialDimens {
 object BreathingScreenDimens {
     val screenPadding = 24.dp
     val topTextBottomSpacing = 24.dp
+    val phaseTextBottomSpacing = 8.dp
+    val phaseTimerBottomSpacing = 12.dp
     val circleSize = 220.dp
+    val circleBottomSpacing = 20.dp
     val exitIconSize = 22.dp
 }
 

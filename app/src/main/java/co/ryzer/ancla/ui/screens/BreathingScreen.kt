@@ -2,12 +2,12 @@ package co.ryzer.ancla.ui.screens
 
 import android.Manifest
 import android.app.Activity
+import android.content.pm.PackageManager
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import androidx.annotation.RequiresPermission
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -34,6 +34,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,21 +46,26 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import co.ryzer.ancla.R
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.theme.BreathingScreenDimens
 import co.ryzer.ancla.ui.theme.TextPrimary
+import kotlin.math.ceil
 
 private const val BREATHING_CYCLE_SECONDS = 16f
 private const val PHASE_DURATION_SECONDS = 4f
 private const val MIN_SCALE = 0.78f
 private const val MAX_SCALE = 1.08f
+private const val DEFAULT_TOTAL_BREATHING_SECONDS = 180
 
 private val ColorSageGreen = Color(0xFFD4E4D8)
 private val ColorLavender = Color(0xFFE2E2F0)
@@ -71,11 +79,15 @@ enum class BreathingPhase {
 
 @Composable
 fun BreathingScreen(
+    totalBreathingSeconds: Int = DEFAULT_TOTAL_BREATHING_SECONDS,
     onExit: () -> Unit
 ) {
     val context = LocalContext.current
     val cycleProgress = rememberBreathingCycleProgress()
     val phase = breathingPhaseForProgress(cycleProgress)
+    var remainingTotalSeconds by remember(totalBreathingSeconds) {
+        mutableFloatStateOf(totalBreathingSeconds.toFloat().coerceAtLeast(0f))
+    }
 
     val targetScale = when (phase) {
         BreathingPhase.INHALE,
@@ -96,6 +108,20 @@ fun BreathingScreen(
 
     val scaleFraction = ((animatedScale - MIN_SCALE) / (MAX_SCALE - MIN_SCALE)).coerceIn(0f, 1f)
     val circleColor = lerp(start = ColorSageGreen, stop = ColorLavender, fraction = scaleFraction)
+    val phaseRemainingSeconds = phaseRemainingSeconds(cycleProgress)
+
+    LaunchedEffect(totalBreathingSeconds) {
+        remainingTotalSeconds = totalBreathingSeconds.toFloat().coerceAtLeast(0f)
+    }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(1000)
+            if (remainingTotalSeconds > 0f) {
+                remainingTotalSeconds = (remainingTotalSeconds - 1f).coerceAtLeast(0f)
+            }
+        }
+    }
 
     LaunchedEffect(phase) {
         if (phase == BreathingPhase.INHALE || phase == BreathingPhase.EXHALE) {
@@ -138,6 +164,18 @@ fun BreathingScreen(
                     color = TextPrimary
                 )
             )
+            Spacer(modifier = Modifier.size(BreathingScreenDimens.phaseTextBottomSpacing))
+            Text(
+                text = stringResource(
+                    id = R.string.breathing_phase_remaining,
+                    phaseRemainingSeconds
+                ),
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontFamily = FontFamily.SansSerif,
+                    color = TextPrimary.copy(alpha = 0.92f)
+                )
+            )
+            Spacer(modifier = Modifier.size(BreathingScreenDimens.phaseTimerBottomSpacing))
             Spacer(modifier = Modifier.size(BreathingScreenDimens.topTextBottomSpacing))
             Box(
                 modifier = Modifier
@@ -148,6 +186,17 @@ fun BreathingScreen(
                     }
                     .clip(CircleShape)
                     .background(circleColor)
+            )
+            Spacer(modifier = Modifier.size(BreathingScreenDimens.circleBottomSpacing))
+            Text(
+                text = stringResource(
+                    id = R.string.breathing_total_remaining,
+                    formatAsMinutesSeconds(remainingTotalSeconds)
+                ),
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = FontFamily.SansSerif,
+                    color = TextPrimary.copy(alpha = 0.86f)
+                )
             )
         }
     }
@@ -190,25 +239,54 @@ private fun BreathingPhase.toLabel(): String {
     }
 }
 
-@RequiresPermission(Manifest.permission.VIBRATE)
 private fun triggerSubtleBreathingHaptic(context: Context) {
-    val durationMs = 22L
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val vibratorManager = context.getSystemService(VibratorManager::class.java)
-        val vibrator = vibratorManager?.defaultVibrator
-        vibrator?.vibrate(VibrationEffect.createOneShot(durationMs, 30))
+    val hasPermission = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.VIBRATE
+    ) == PackageManager.PERMISSION_GRANTED
+    if (!hasPermission) {
         return
     }
 
-    @Suppress("DEPRECATION")
-    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        vibrator?.vibrate(VibrationEffect.createOneShot(durationMs, 30))
-    } else {
+    val durationMs = 22L
+
+    try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager = context.getSystemService(VibratorManager::class.java)
+            val vibrator = vibratorManager?.defaultVibrator
+            if (vibrator?.hasVibrator() == true) {
+                vibrator.vibrate(VibrationEffect.createOneShot(durationMs, 30))
+            }
+            return
+        }
+
         @Suppress("DEPRECATION")
-        vibrator?.vibrate(durationMs)
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        if (vibrator?.hasVibrator() != true) {
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            vibrator.vibrate(VibrationEffect.createOneShot(durationMs, 30))
+        } else {
+            @Suppress("DEPRECATION")
+            vibrator.vibrate(durationMs)
+        }
+    } catch (_: SecurityException) {
+        // Safeguard for devices/ROMs that still reject vibration calls.
     }
+}
+
+private fun phaseRemainingSeconds(progress: Float): Int {
+    val normalizedProgress = progress.coerceIn(0f, BREATHING_CYCLE_SECONDS)
+    val currentPhaseElapsed = normalizedProgress % PHASE_DURATION_SECONDS
+    return ceil(PHASE_DURATION_SECONDS - currentPhaseElapsed).toInt().coerceIn(1, 4)
+}
+
+private fun formatAsMinutesSeconds(totalSeconds: Float): String {
+    val safeSeconds = totalSeconds.toInt().coerceAtLeast(0)
+    val minutes = safeSeconds / 60
+    val seconds = safeSeconds % 60
+    return String.format("%02d:%02d", minutes, seconds)
 }
 
 @Composable

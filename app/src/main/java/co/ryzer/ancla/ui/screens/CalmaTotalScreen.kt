@@ -1,8 +1,11 @@
 package co.ryzer.ancla.ui.screens
 
 import android.app.Activity
+import android.media.MediaPlayer
 import android.view.MotionEvent
 import android.view.WindowManager
+import android.widget.VideoView
+import androidx.annotation.RawRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,27 +21,18 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.annotation.RawRes
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.media3.common.AudioAttributes
-import androidx.media3.common.C
-import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
-import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.ui.AspectRatioFrameLayout
-import androidx.media3.ui.PlayerView
 import co.ryzer.ancla.R
 import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.theme.CalmaTotalBackground
@@ -62,26 +56,32 @@ fun CalmaTotalScreen(
     fadeOutDurationMillis: Long = DEFAULT_FADE_OUT_DURATION_MILLIS,
     @RawRes mediaResId: Int = R.raw.resonant_rumble
 ) {
+    val context = LocalContext.current
+    val isInspectionMode = LocalInspectionMode.current
     val coroutineScope = rememberCoroutineScope()
     val latestOnExit by rememberUpdatedState(onExit)
-    val player = rememberCalmaTotalPlayer(mediaResId = mediaResId)
+
     var remainingMillis by remember(sessionDurationMillis) {
-        mutableLongStateOf(sessionDurationMillis)
+        mutableLongStateOf(
+            sessionDurationMillis
+        )
     }
     var isExiting by remember { mutableStateOf(false) }
     var longPressExitJob by remember { mutableStateOf<Job?>(null) }
+    var mediaPlayerRef by remember { mutableStateOf<MediaPlayer?>(null) }
+    var videoViewRef by remember { mutableStateOf<VideoView?>(null) }
 
     fun requestExit() {
         if (isExiting) return
         isExiting = true
         coroutineScope.launch {
-            player?.let {
-                fadeOutAndStopPlayer(
-                    player = it,
+            mediaPlayerRef?.let {
+                fadeOutAndStopMediaPlayer(
+                    mediaPlayer = it,
                     totalDurationMillis = fadeOutDurationMillis,
                     stepCount = CalmaTotalScreenDimens.fadeOutStepCount
                 )
-            }
+            } ?: videoViewRef?.stopPlayback()
             latestOnExit()
         }
     }
@@ -90,130 +90,86 @@ fun CalmaTotalScreen(
         brightnessLevel = CalmaTotalScreenDimens.brightnessLevel
     )
 
-    DisposableEffect(player) {
+    DisposableEffect(Unit) {
         onDispose {
             longPressExitJob?.cancel()
-            player?.stop()
-            player?.release()
+            videoViewRef?.stopPlayback()
+            mediaPlayerRef?.release()
+            mediaPlayerRef = null
+            videoViewRef = null
         }
     }
 
     LaunchedEffect(sessionDurationMillis, isExiting) {
         if (isExiting) return@LaunchedEffect
-
-        val startTime = System.currentTimeMillis()
-        val endTime = startTime + sessionDurationMillis
+        val endTime = System.currentTimeMillis() + sessionDurationMillis
         while (!isExiting) {
-            val updatedRemaining = max(0L, endTime - System.currentTimeMillis())
-            remainingMillis = updatedRemaining
-            if (updatedRemaining == 0L) break
-            delay(minOf(1_000L, updatedRemaining))
+            val updated = max(0L, endTime - System.currentTimeMillis())
+            remainingMillis = updated
+            if (updated == 0L) break
+            delay(minOf(1_000L, updated))
         }
-
-        if (!isExiting) {
-            requestExit()
-        }
+        if (!isExiting) requestExit()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .testTag(CALMA_TOTAL_TEST_TAG)
-            .semantics {
-                stateDescription = "remaining_millis:$remainingMillis"
-            }
+            .semantics { stateDescription = "remaining_millis:$remainingMillis" }
     ) {
-        CalmaTotalVideoLayer(
-            player = player,
-            modifier = Modifier.matchParentSize()
-        )
+        if (isInspectionMode) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(CalmaTotalBackground)
+            )
+        } else {
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = {
+                    VideoView(it).apply {
+                        videoViewRef = this
+                        val uri =
+                            "android.resource://${context.packageName}/$mediaResId".toUri()
+                        setVideoURI(uri)
+                        setOnPreparedListener { mp ->
+                            mediaPlayerRef = mp
+                            mp.isLooping = true
+                            mp.setVolume(INITIAL_PLAYER_VOLUME, INITIAL_PLAYER_VOLUME)
+                            start()
+                        }
+                    }
+                },
+                update = { view ->
+                    if (!view.isPlaying && !isExiting) view.start()
+                }
+            )
+        }
 
         Box(
             modifier = Modifier
-                .matchParentSize()
+                .fillMaxSize()
                 .pointerInteropFilter { motionEvent ->
-                if (isExiting) {
-                    return@pointerInteropFilter true
-                }
+                    if (isExiting) return@pointerInteropFilter true
+                    when (motionEvent.actionMasked) {
+                        MotionEvent.ACTION_DOWN -> {
+                            longPressExitJob?.cancel()
+                            longPressExitJob = coroutineScope.launch {
+                                delay(longPressDurationMillis)
+                                requestExit()
+                            }
+                        }
 
-                when (motionEvent.actionMasked) {
-                    MotionEvent.ACTION_DOWN -> {
-                        longPressExitJob?.cancel()
-                        longPressExitJob = coroutineScope.launch {
-                            delay(longPressDurationMillis)
-                            requestExit()
+                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                            longPressExitJob?.cancel()
+                            longPressExitJob = null
                         }
                     }
-
-                    MotionEvent.ACTION_UP,
-                    MotionEvent.ACTION_CANCEL -> {
-                        longPressExitJob?.cancel()
-                        longPressExitJob = null
-                    }
+                    true
                 }
-
-                true
-            }
         )
     }
-}
-
-@Composable
-@OptIn(UnstableApi::class)
-private fun rememberCalmaTotalPlayer(
-    @RawRes mediaResId: Int
-): ExoPlayer? {
-    val context = LocalContext.current
-    val isInspectionMode = LocalInspectionMode.current
-    return remember(context, isInspectionMode, mediaResId) {
-        if (isInspectionMode) return@remember null
-
-        ExoPlayer.Builder(context).build().apply {
-            setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(C.USAGE_MEDIA)
-                    .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
-                    .build(),
-                true
-            )
-            setMediaItem(
-                MediaItem.fromUri(
-                    "android.resource://${context.packageName}/$mediaResId".toUri()
-                )
-            )
-            repeatMode = Player.REPEAT_MODE_ONE
-            volume = INITIAL_PLAYER_VOLUME
-            playWhenReady = true
-            prepare()
-        }
-    }
-}
-
-@OptIn(UnstableApi::class)
-@Composable
-private fun CalmaTotalVideoLayer(
-    player: ExoPlayer?,
-    modifier: Modifier = Modifier
-) {
-    if (player == null) {
-        Box(modifier = modifier.background(CalmaTotalBackground))
-        return
-    }
-
-    AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            PlayerView(context).apply {
-                useController = false
-                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_ZOOM
-                setKeepContentOnPlayerReset(true)
-                this.player = player
-            }
-        },
-        update = { view ->
-            view.player = player
-        }
-    )
 }
 
 @Composable
@@ -221,7 +177,6 @@ private fun CalmaTotalSystemEffect(
     brightnessLevel: Float
 ) {
     val view = LocalView.current
-
     DisposableEffect(view, brightnessLevel) {
         val activity = view.context as? Activity
         if (activity == null) {
@@ -235,40 +190,37 @@ private fun CalmaTotalSystemEffect(
             controller.systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller.hide(WindowInsetsCompat.Type.systemBars())
-            updateWindowBrightness(window = window, brightness = brightnessLevel)
+            updateWindowBrightness(window, brightnessLevel)
 
             onDispose {
                 view.keepScreenOn = false
                 controller.show(WindowInsetsCompat.Type.systemBars())
-                updateWindowBrightness(window = window, brightness = initialBrightness)
+                updateWindowBrightness(window, initialBrightness)
             }
         }
     }
 }
 
-private suspend fun fadeOutAndStopPlayer(
-    player: ExoPlayer,
+private suspend fun fadeOutAndStopMediaPlayer(
+    mediaPlayer: MediaPlayer,
     totalDurationMillis: Long,
     stepCount: Int
 ) {
     val safeSteps = max(stepCount, 1)
-    val startVolume = player.volume
-    val stepDelayMillis = max(1L, (totalDurationMillis / safeSteps.toLong()))
+    val delayMs = max(1L, totalDurationMillis / safeSteps.toLong())
 
-    repeat(safeSteps) { stepIndex ->
-        val remainingFraction = 1f - ((stepIndex + 1).toFloat() / safeSteps.toFloat())
-        player.volume = startVolume * remainingFraction.coerceIn(0f, 1f)
-        delay(stepDelayMillis)
+    repeat(safeSteps) { index ->
+        val frac = 1f - ((index + 1).toFloat() / safeSteps.toFloat())
+        val v = (INITIAL_PLAYER_VOLUME * frac).coerceIn(0f, INITIAL_PLAYER_VOLUME)
+        mediaPlayer.setVolume(v, v)
+        delay(delayMs)
     }
 
-    player.volume = 0f
-    player.stop()
+    mediaPlayer.setVolume(0f, 0f)
+    mediaPlayer.stop()
 }
 
-private fun updateWindowBrightness(
-    window: android.view.Window,
-    brightness: Float
-) {
+private fun updateWindowBrightness(window: android.view.Window, brightness: Float) {
     val params = WindowManager.LayoutParams().apply {
         copyFrom(window.attributes)
         screenBrightness = brightness
@@ -278,7 +230,7 @@ private fun updateWindowBrightness(
 
 @Preview(showBackground = true)
 @Composable
-fun CalmaTotalScreenPreview() {
+private fun CalmaTotalScreenPreview() {
     AnclaTheme {
         CalmaTotalScreen(onExit = {})
     }
