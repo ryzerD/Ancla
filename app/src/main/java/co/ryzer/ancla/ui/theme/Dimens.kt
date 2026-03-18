@@ -170,6 +170,36 @@ object BreathingScreenDimens {
 }
 
 /**
+ * Dimension tokens for SettingsScreen.
+ */
+object SettingsScreenDimens {
+    val horizontalPaddingCompact = 24.dp
+    val horizontalPaddingExpanded = 48.dp
+    val verticalPadding = 24.dp
+
+    val logoSize = 24.dp
+    val logoBottomSpacing = 20.dp
+    val titleBottomSpacing = 24.dp
+
+    val menuItemSpacing = 16.dp
+    val badgeToCardSpacing = 10.dp
+    val badgeSize = 42.dp
+    val badgeCornerRadius = 10.dp
+
+    val menuCardCornerRadius = 16.dp
+    val menuCardElevation = 2.dp
+    val menuCardHorizontalPadding = 16.dp
+    val menuCardVerticalPadding = 14.dp
+    val menuIconSize = 28.dp
+    val iconTextSpacing = 12.dp
+    val chevronSize = 30.dp
+
+    val saveButtonTopSpacing = 20.dp
+    val saveButtonMinHeight = 60.dp
+    val saveButtonCornerRadius = 50.dp
+}
+
+/**
  * Dimension tokens for CalmaTotalScreen.
  */
 object CalmaTotalScreenDimens {

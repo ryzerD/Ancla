@@ -44,6 +44,8 @@ private const val ROUTE_HOME = "home"
 private const val ROUTE_ONBOARDING = "onboarding"
 private const val ROUTE_TOOLS = "tools"
 private const val ROUTE_SETTINGS = "settings"
+private const val ROUTE_SETTINGS_ORDER = "settings_order"
+private const val ROUTE_SETTINGS_VISUAL = "settings_visual"
 private const val ROUTE_DECODER = "decoder"
 private const val ROUTE_TASKS = "tasks"
 private const val ROUTE_SCRIPTS = "scripts"
@@ -223,6 +225,41 @@ fun MainScreen(
                         onScriptsOrderChanged = { orderedScriptIds ->
                             scriptsViewModel.reorderScripts(orderedScriptIds)
                         },
+                        onPalettePreviewChanged = { colorId ->
+                            profileViewModel.onPalettePreviewSelected(colorId)
+                        },
+                        onSavePalette = {
+                            profileViewModel.savePaletteSelection()
+                        },
+                        onDiscardPalettePreview = {
+                            profileViewModel.discardPalettePreview()
+                        },
+                        onVisualPreferencesClick = {
+                            navController.navigate(ROUTE_SETTINGS_VISUAL)
+                        },
+                        onToolsOrganizationClick = {
+                            navController.navigate(ROUTE_SETTINGS_ORDER)
+                        }
+                    )
+                }
+                composable(ROUTE_SETTINGS_ORDER) {
+                    SettingsToolsOrderScreen(
+                        windowSizeClass = windowSizeClass,
+                        toolOrder = toolOrder,
+                        scripts = scriptsUiState.scripts,
+                        onToolsOrderChanged = { updatedOrder: List<ToolOrderEntry> ->
+                            toolOrder = updatedOrder
+                        },
+                        onScriptsOrderChanged = { orderedScriptIds ->
+                            scriptsViewModel.reorderScripts(orderedScriptIds)
+                        }
+                    )
+                }
+                composable(ROUTE_SETTINGS_VISUAL) {
+                    SettingsVisualPreferencesScreen(
+                        windowSizeClass = windowSizeClass,
+                        selectedColorId = profileUiState.effectiveSelectedColorId,
+                        hasPendingPaletteChanges = profileUiState.hasPendingPaletteChanges,
                         onPalettePreviewChanged = { colorId ->
                             profileViewModel.onPalettePreviewSelected(colorId)
                         },
