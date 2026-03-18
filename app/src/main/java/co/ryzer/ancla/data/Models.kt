@@ -4,12 +4,30 @@ data class UserProfile(
     val name: String = ""
 )
 
+data class SensoryProfile(
+    val id: Int = 1,
+    val name: String = "",
+    val emergencyContact: String = "",
+    val selectedColorId: String = "lavender"
+)
+
 data class Task(
     val id: String = java.util.UUID.randomUUID().toString(),
     val title: String,
     val description: String,
     val time: String,
     val isCompleted: Boolean = false
+)
+
+data class Script(
+    val id: String = java.util.UUID.randomUUID().toString(),
+    val title: String,
+    val subtitle: String,
+    val message: String,
+    val categoryId: String,
+    val styleId: String,
+    val position: Int,
+    val showEmergencyContact: Boolean = false
 )
 
 object ToolIds {

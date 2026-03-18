@@ -28,6 +28,10 @@ class RoomTaskRepository @Inject constructor(
         )
     }
 
+    override suspend fun updateTask(task: Task) {
+        taskDao.update(task.toEntity())
+    }
+
     override suspend fun setTaskCompleted(taskId: String, isCompleted: Boolean) {
         taskDao.updateCompleted(taskId = taskId, isCompleted = isCompleted)
     }

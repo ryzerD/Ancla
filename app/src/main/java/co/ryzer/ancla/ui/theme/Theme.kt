@@ -15,11 +15,11 @@ import androidx.compose.ui.platform.LocalContext
  * Dark Scheme configuration.
  * Note: Even in Dark Mode, we use desaturated tones to prevent high-contrast eye strain.
  */
-private val DarkColorScheme = darkColorScheme(
+private fun darkScheme() = darkColorScheme(
     primary = CardGreen,
     secondary = CardLavender,
     tertiary = CardPeach,
-    background = Color(0xFF1A1A1A), // Dark grey instead of pure black
+    background = Color(0xFF1A1A1A),
     surface = Color(0xFF242424),
     onBackground = Color.White,
     onSurface = Color.White
@@ -29,21 +29,18 @@ private val DarkColorScheme = darkColorScheme(
  * Main Light Scheme based on the "Ancla" visual identity.
  * Focuses on low-stimulation cream backgrounds and pastel tools.
  */
-private val LightColorScheme = lightColorScheme(
+private fun lightScheme() = lightColorScheme(
     primary = CardGreen,
     secondary = CardLavender,
     tertiary = CardPeach,
-
-    background = AnclaBackground,    // The specific cream tone (#FAF0E6)
-    surface = SurfaceWhite,          // Pure white for internal card content
-
+    background = AnclaBackground,
+    surface = SurfaceWhite,
     onPrimary = TextPrimary,
     onSecondary = TextPrimary,
     onTertiary = TextPrimary,
     onBackground = TextPrimary,
     onSurface = TextPrimary,
-
-    error = Color(0xFFE57373),       // Soft red for SOS alerts
+    error = Color(0xFFE57373),
     onError = Color.White
 )
 
@@ -60,8 +57,8 @@ fun AnclaTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> darkScheme()
+        else -> lightScheme()
     }
 
     MaterialTheme(

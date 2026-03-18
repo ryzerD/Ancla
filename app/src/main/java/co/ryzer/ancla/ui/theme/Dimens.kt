@@ -1,6 +1,7 @@
 package co.ryzer.ancla.ui.theme
 
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 /**
  * Dimension tokens for HomeScreen.
@@ -73,9 +74,136 @@ object ToolsScreenDimens {
     val cardContentPadding = 16.dp
     val iconPlaceholderSize = 48.dp
     val iconPlaceholderCornerRadius = 12.dp
-    val iconPlaceholderAlpha = 0.05f
+    const val iconPlaceholderAlpha = 0.05f
     val iconToTextSpacer = 12.dp
-    val orderControlsTopSpacer = 10.dp
     val orderControlsSpacing = 8.dp
+}
+
+/**
+ * Dimension tokens for ScriptReaderScreen.
+ * Compact = phone portrait · Expanded = tablet or wide landscape.
+ */
+object ScriptReaderScreenDimens {
+
+    // -- Layout --
+    val horizontalPadding = 28.dp
+    val verticalPadding = 24.dp
+    val emergencyTextTopSpacer = 28.dp
+
+    // -- Button --
+    val closeButtonCornerRadius = 20.dp
+
+    // -- Typography --
+    val mainTextFontSize = 60.sp
+    val mainTextLineHeight = 72.sp
+    val emergencyTextFontSize = 48.sp
+    val emergencyTextLineHeight = 54.sp
+    val closeButtonTextFontSize = 20.sp
+    val closeButtonTextLineHeight = 28.sp
+}
+
+/**
+ * Dimension tokens for NewScriptScreen.
+ * Compact = phone portrait · Expanded = tablet or wide landscape.
+ */
+object NewScriptScreenDimens {
+
+    // -- Layout --
+    val textFieldMinHeight = 120.dp
+    val sectionSpacing = 20.dp
+    val chipSpacing = 12.dp
+    val swatchSpacing = 12.dp
+    val buttonTopSpacing = 28.dp
+    val closeActionTopSpacing = 8.dp
+
+    // -- Shapes --
+    val inputCornerRadius = 24.dp
+    val chipCornerRadius = 18.dp
+    val swatchCornerRadius = 18.dp
+    val swatchBorderWidth = 3.dp
+
+    // -- Elements --
+    val swatchSize = 72.dp
+}
+
+/**
+ * Dimension tokens for OnboardingSensorialScreen.
+ */
+object OnboardingSensorialDimens {
+    val screenPadding = 24.dp
+    val sectionSpacing = 24.dp
+    val titleToSubtitleSpacing = 8.dp
+    val sectionTitleToFieldSpacing = 10.dp
+    val fieldToHintSpacing = 8.dp
+    val hintToSectionSpacing = 18.dp
+
+    val textFieldCornerRadius = 12.dp
+    val textFieldMinHeight = 58.dp
+
+    val pickerItemSize = 92.dp
+    val pickerItemCornerRadius = 16.dp
+    val pickerGridSpacing = 12.dp
+    val pickerSelectedBorderWidth = 3.dp
+    val pickerUnselectedBorderWidth = 1.dp
+    val pickerIconSize = 30.dp
+
+    val logoSize = 56.dp
+    val logoCornerRadius = 14.dp
+    val logoInnerSpacing = 6.dp
+
+    val ctaTopSpacing = 24.dp
+    val ctaBottomSpacing = 8.dp
+    val ctaMinHeight = 56.dp
+}
+
+/**
+ * Dimension tokens for BreathingScreen.
+ */
+object BreathingScreenDimens {
+    val screenPadding = 24.dp
+    val topTextBottomSpacing = 24.dp
+    val phaseTextBottomSpacing = 8.dp
+    val phaseTimerBottomSpacing = 12.dp
+    val circleSize = 220.dp
+    val circleBottomSpacing = 20.dp
+    val exitIconSize = 22.dp
+}
+
+/**
+ * Dimension tokens for SettingsScreen.
+ */
+object SettingsScreenDimens {
+    val horizontalPaddingCompact = 24.dp
+    val horizontalPaddingExpanded = 48.dp
+    val verticalPadding = 24.dp
+
+    val logoSize = 24.dp
+    val logoBottomSpacing = 20.dp
+    val titleBottomSpacing = 24.dp
+
+    val menuItemSpacing = 16.dp
+    val badgeToCardSpacing = 10.dp
+    val badgeSize = 42.dp
+    val badgeCornerRadius = 10.dp
+
+    val menuCardCornerRadius = 16.dp
+    val menuCardElevation = 2.dp
+    val menuCardHorizontalPadding = 16.dp
+    val menuCardVerticalPadding = 14.dp
+    val menuIconSize = 28.dp
+    val iconTextSpacing = 12.dp
+    val chevronSize = 30.dp
+
+    val saveButtonTopSpacing = 20.dp
+    val saveButtonMinHeight = 60.dp
+    val saveButtonCornerRadius = 50.dp
+}
+
+/**
+ * Dimension tokens for CalmaTotalScreen.
+ */
+object CalmaTotalScreenDimens {
+    val brightnessLevel = 0.08f
+    val fadeOutStepCount = 12
 }
 

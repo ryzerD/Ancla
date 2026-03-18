@@ -6,18 +6,25 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Air
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.FrontHand
+import androidx.compose.material.icons.outlined.PanToolAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
@@ -25,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +55,7 @@ private data class ToolItemUi(
     val toolId: String,
     val titleResId: Int,
     val subtitleResId: Int,
+    val icon: ImageVector,
     val color: Color,
     val onClick: () -> Unit
 )
@@ -55,6 +64,9 @@ private data class ToolItemUi(
 fun ToolsScreen(
     onNavigateToDecoder: () -> Unit,
     onNavigateToTasks: () -> Unit,
+    onNavigateToScripts: () -> Unit,
+    onNavigateToBreathing: () -> Unit,
+    onNavigateToCalmaTotal: () -> Unit,
     windowSizeClass: WindowSizeClass? = null,
     toolOrder: List<ToolOrderEntry> = DefaultToolOrder
 ) {
@@ -75,6 +87,7 @@ fun ToolsScreen(
             toolId = ToolIds.DECODER,
             titleResId = R.string.tool_decoder_title,
             subtitleResId = R.string.tool_decoder_subtitle,
+            icon = Icons.Outlined.ChatBubbleOutline,
             color = CardGreen,
             onClick = onNavigateToDecoder
         ),
@@ -82,6 +95,7 @@ fun ToolsScreen(
             toolId = ToolIds.TASKS,
             titleResId = R.string.tool_tasks_title,
             subtitleResId = R.string.tool_tasks_subtitle,
+            icon = Icons.Outlined.PanToolAlt,
             color = CardGreen,
             onClick = onNavigateToTasks
         ),
@@ -89,22 +103,25 @@ fun ToolsScreen(
             toolId = ToolIds.SCRIPTS,
             titleResId = R.string.tool_scripts_title,
             subtitleResId = R.string.tool_scripts_subtitle,
+            icon = Icons.Outlined.FrontHand,
             color = CardLavender,
-            onClick = {}
+            onClick = onNavigateToScripts
         ),
         ToolItemUi(
             toolId = ToolIds.BREATHING,
             titleResId = R.string.tool_breathing_title,
             subtitleResId = R.string.tool_breathing_subtitle,
+            icon = Icons.Outlined.Air,
             color = CardPeach,
-            onClick = {}
+            onClick = onNavigateToBreathing
         ),
         ToolItemUi(
             toolId = ToolIds.SOS,
             titleResId = R.string.tool_sos_title,
             subtitleResId = R.string.tool_sos_subtitle,
+            icon = Icons.Outlined.Build,
             color = CardRose,
-            onClick = {}
+            onClick = onNavigateToCalmaTotal
         )
     )
 
@@ -148,6 +165,7 @@ fun ToolsScreen(
                 ToolCard(
                     title = stringResource(tool.titleResId),
                     subtitle = stringResource(tool.subtitleResId),
+                    icon = tool.icon,
                     color = tool.color,
                     onClick = tool.onClick
                 )
@@ -160,6 +178,7 @@ fun ToolsScreen(
 fun ToolCard(
     title: String,
     subtitle: String,
+    icon: ImageVector,
     color: Color,
     onClick: () -> Unit
 ) {
@@ -184,8 +203,15 @@ fun ToolCard(
                     .background(
                         Color.Black.copy(alpha = ToolsScreenDimens.iconPlaceholderAlpha),
                         RoundedCornerShape(ToolsScreenDimens.iconPlaceholderCornerRadius)
-                    )
-            )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = TextPrimary
+                )
+            }
             Spacer(modifier = Modifier.height(ToolsScreenDimens.iconToTextSpacer))
             Text(
                 text = title,
@@ -207,7 +233,13 @@ fun ToolCard(
 @Composable
 fun ToolsScreenCompactPreview() {
     AnclaTheme {
-        ToolsScreen(onNavigateToDecoder = {}, onNavigateToTasks = {})
+        ToolsScreen(
+            onNavigateToDecoder = {},
+            onNavigateToTasks = {},
+            onNavigateToScripts = {},
+            onNavigateToBreathing = {},
+            onNavigateToCalmaTotal = {}
+        )
     }
 }
 
@@ -215,7 +247,13 @@ fun ToolsScreenCompactPreview() {
 @Composable
 fun ToolsScreenExpandedPreview() {
     AnclaTheme {
-        ToolsScreen(onNavigateToDecoder = {}, onNavigateToTasks = {})
+        ToolsScreen(
+            onNavigateToDecoder = {},
+            onNavigateToTasks = {},
+            onNavigateToScripts = {},
+            onNavigateToBreathing = {},
+            onNavigateToCalmaTotal = {}
+        )
     }
 }
 
@@ -226,6 +264,7 @@ fun ToolCardPreview() {
         ToolCard(
             title = "Decoder",
             subtitle = "Translate your feelings",
+            icon = Icons.Outlined.ChatBubbleOutline,
             color = CardGreen,
             onClick = {}
         )

@@ -21,15 +21,38 @@
     <string name="tool_scripts_subtitle">Pedir ayuda rápido</string>
     <string name="tool_breathing_title">Respira</string>
     <string name="tool_breathing_subtitle">Guía de calma visual</string>
+    <string name="breathing_phase_remaining">%1$d s</string>
+    <string name="breathing_total_remaining">Tiempo restante: %1$s</string>
     <string name="tool_sos_title">SOS Sobrecarga</string>
     <string name="tool_sos_subtitle">Activar calma total</string>
     <string name="tool_move_up">Subir</string>
     <string name="tool_move_down">Bajar</string>
 
     <!-- SettingsScreen -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_profile_title">Tu Perfil</string>
+    <string name="settings_profile_subtitle">Nombre, informacion basica y contacto de emergencia (CRITICAL)</string>
+    <string name="settings_visual_title">Preferencias Visuales</string>
+    <string name="settings_visual_subtitle">Ajustar colores, contraste y modo oscuro</string>
+    <string name="settings_tools_org_title">Organizacion de Herramientas</string>
+    <string name="settings_tools_org_subtitle">Reordenar herramientas y acceso rapido</string>
+    <string name="settings_notifications_title">Notificaciones</string>
+    <string name="settings_notifications_subtitle">Gestionar alertas y recordatorios</string>
+    <string name="settings_save_changes">Guardar cambios</string>
     <string name="settings_tools_order_label">Personalizacion</string>
     <string name="settings_tools_order_title">Orden de caja de herramientas</string>
-    <string name="settings_tools_order_description">Puedes ajustar el orden cuando te sientas en calma. Este orden se reflejara en Herramientas.</string>
+    <string name="settings_tools_order_description">Puedes ajustar el orden cuando te sientas en calma. Este orden se reflejará en Herramientas.</string>
+    <string name="settings_scripts_order_title">Orden de mis guiones</string>
+    <string name="settings_scripts_order_description">Reordena tus tarjetas para que aparezcan primero las frases que usas más seguido.</string>
+    <string name="settings_palette_preview_title">Vista previa inmediata de paleta</string>
+    <string name="settings_palette_preview_description">Prueba un color y revisa el cambio en toda la app antes de guardarlo.</string>
+    <string name="settings_palette_unsaved_changes">Tienes cambios de paleta sin guardar.</string>
+    <string name="settings_palette_saved_state">La paleta actual ya está guardada.</string>
+    <string name="settings_palette_save_button">Guardar paleta</string>
+    <string name="palette_lavender">Lavanda</string>
+    <string name="palette_rose">Rosa</string>
+    <string name="palette_sage">Salvia</string>
+    <string name="palette_peach">Durazno</string>
 
     <!-- TaskManagementScreen -->
     <string name="tasks_screen_title">Mis tareas diarias</string>
@@ -38,5 +61,60 @@
     <string name="tasks_field_description">Descripcion (opcional)</string>
     <string name="tasks_field_time">Hora (ej: 08:00 AM)</string>
     <string name="tasks_add_button">Agregar tarea</string>
+    <string name="tasks_save_button">Guardar cambios</string>
+    <string name="tasks_cancel_edit_button">Cancelar edicion</string>
+    <string name="tasks_delete_completed_button">Borrar tareas completadas</string>
+    <string name="tasks_remaining_characters">Quedan %1$d caracteres</string>
+    <string name="tasks_edit_content_description">Editar tarea</string>
     <string name="tasks_delete_content_description">Eliminar tarea</string>
+    <string name="tasks_delete_dialog_title">Eliminar tarea</string>
+    <string name="tasks_delete_dialog_message">Deseas eliminar "%1$s"?</string>
+    <string name="tasks_time_picker_description">Seleccionar hora</string>
+
+    <!-- ScriptsScreen -->
+    <string name="scripts_screen_title">Mis guiones</string>
+    <string name="scripts_screen_subtitle">Palabras listas para cuando las necesites.</string>
+    <string name="scripts_card_ask_help_title">Pedir ayuda</string>
+    <string name="scripts_card_ask_help_subtitle">Toca para pedir ayuda rapidamente.</string>
+    <string name="scripts_card_noise_title">Hay mucho ruido</string>
+    <string name="scripts_card_noise_subtitle">Muestra esto si hay sobrecarga sonora.</string>
+    <string name="scripts_card_shopping_title">Comprar algo</string>
+    <string name="scripts_card_shopping_subtitle">Muestra para interacciones en tiendas.</string>
+    <string name="scripts_card_cannot_talk_title">No puedo hablar ahora</string>
+    <string name="scripts_card_cannot_talk_subtitle">Usa en momentos de bloqueo comunicativo.</string>
+    <string name="scripts_new_button">Nuevo guion</string>
+
+    <!-- NewScriptScreen -->
+    <string name="new_script_screen_title">Nuevo guion</string>
+    <string name="new_script_screen_subtitle">Describe tu guion y elige cómo se verá.</string>
+    <string name="new_script_section_description">1. Describe tu guion</string>
+    <string name="new_script_phrase_placeholder">Escribe tu frase aquí…
+(ej.: Necesito salir)</string>
+    <string name="new_script_section_category">2. Elige una categoría</string>
+    <string name="new_script_category_social">Social</string>
+    <string name="new_script_category_needs">Necesidades</string>
+    <string name="new_script_category_limits">Límites</string>
+    <string name="new_script_category_errands">Trámites</string>
+    <string name="new_script_section_visual_style">3. Personaliza el estilo visual</string>
+    <string name="new_script_save_button">Guardar guion</string>
+    <string name="new_script_close_without_saving">Cerrar sin guardar</string>
+    <string name="new_script_style_mixed">Estilo multicolor</string>
+    <string name="new_script_style_lavender">Estilo lavanda</string>
+    <string name="new_script_style_rose">Estilo rosa</string>
+    <string name="new_script_style_sand">Estilo arena</string>
+
+    <!-- ScriptReaderScreen -->
+    <string name="scripts_reader_ask_help_main">NECESITO AYUDA</string>
+    <string name="scripts_reader_ask_help_emergency">No puedo hablar.\nLlame al: %1$s</string>
+    <string name="scripts_reader_noise_main">HAY MUCHO RUIDO\nNECESITO UN LUGAR TRANQUILO</string>
+    <string name="scripts_reader_shopping_main">QUIERO COMPRAR ESTO\nPOR FAVOR</string>
+    <string name="scripts_reader_cannot_talk_main">NO PUEDO HABLAR\nAHORA</string>
+    <string name="scripts_reader_cannot_talk_emergency">No puedo hablar.\nLlame al: %1$s</string>
+    <string name="scripts_reader_default_main">NECESITO APOYO</string>
+    <string name="scripts_reader_contact_line">No puedo hablar.\nLlame al: %1$s</string>
+    <string name="scripts_reader_close">Cerrar</string>
+
+    <!-- Generic dialog actions -->
+    <string name="dialog_confirm">Aceptar</string>
+    <string name="dialog_cancel">Cancelar</string>
 </resources>
