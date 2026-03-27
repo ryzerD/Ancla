@@ -1,11 +1,13 @@
 package co.ryzer.ancla.ui.screens
 
 import android.app.Activity
+import android.Manifest
+import android.content.pm.PackageManager
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,41 +28,49 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.core.content.ContextCompat
+import co.ryzer.ancla.R
 import co.ryzer.ancla.data.SensoryProfile
 import co.ryzer.ancla.data.repository.SensoryProfileRepository
+import co.ryzer.ancla.ui.components.AnclaTextField
+import co.ryzer.ancla.ui.components.SensoryPalettePicker
+import co.ryzer.ancla.ui.contacts.resolvePickedContact
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.theme.OnboardingSensorialDimens
-import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
 import co.ryzer.ancla.ui.theme.TextSecondary
 import co.ryzer.ancla.ui.theme.applySensoryPalette
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import co.ryzer.ancla.ui.components.AnclaTextField
-import co.ryzer.ancla.ui.components.SensoryPalettePicker
+import javax.inject.Inject
 
-private val ColorSageAction = Color(0xFFA3C1AD)
+private val SoftText = Color(0xFF2D2D2D)
+private val SoftAccent = Color(0xFFA3C1AD)
+private const val ONBOARDING_CONTACT_PICKER_TAG = "OnboardingContactPicker"
 
 data class OnboardingSensorialUiState(
     val name: String = "",
+    val emergencyContactName: String = "",
     val emergencyContact: String = "",
     val selectedColorId: String = "lavender"
 ) {
@@ -80,6 +90,7 @@ class OnboardingSensorialViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     name = profile.name,
+                    emergencyContactName = profile.emergencyContactName,
                     emergencyContact = profile.emergencyContact,
                     selectedColorId = profile.selectedColorId
                 )
@@ -91,8 +102,21 @@ class OnboardingSensorialViewModel @Inject constructor(
         _uiState.update { it.copy(name = value) }
     }
 
+    fun onEmergencyContactNameChange(value: String) {
+        _uiState.update { it.copy(emergencyContactName = value) }
+    }
+
     fun onEmergencyContactChange(value: String) {
         _uiState.update { it.copy(emergencyContact = value) }
+    }
+
+    fun onEmergencyContactImported(contactName: String, contactPhone: String) {
+        _uiState.update {
+            it.copy(
+                emergencyContactName = contactName,
+                emergencyContact = contactPhone
+            )
+        }
     }
 
     fun onColorSelected(colorId: String) {
@@ -107,6 +131,7 @@ class OnboardingSensorialViewModel @Inject constructor(
             sensoryProfileRepository.saveProfile(
                 SensoryProfile(
                     name = snapshot.name.trim(),
+                    emergencyContactName = snapshot.emergencyContactName.trim(),
                     emergencyContact = snapshot.emergencyContact.trim(),
                     selectedColorId = snapshot.selectedColorId
                 )
@@ -121,7 +146,33 @@ fun OnboardingSensorialScreen(
     viewModel: OnboardingSensorialViewModel = hiltViewModel(),
     onContinue: (OnboardingSensorialUiState) -> Unit = {}
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsState()
+
+    val pickContactLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickContact()
+    ) { contactUri ->
+        if (contactUri == null) return@rememberLauncherForActivityResult
+        val pickedContact = resolvePickedContact(context, contactUri) ?: return@rememberLauncherForActivityResult
+        viewModel.onEmergencyContactImported(
+            contactName = pickedContact.displayName,
+            contactPhone = pickedContact.phoneNumber
+        )
+    }
+
+    val requestContactsPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            pickContactLauncher.launch(null)
+        } else {
+            Log.w(
+                ONBOARDING_CONTACT_PICKER_TAG,
+                "READ_CONTACTS denied. Contact number import may be unavailable on this device."
+            )
+        }
+    }
+
 
     // Immediate sensory preview while selecting a color in onboarding.
     LaunchedEffect(uiState.selectedColorId) {
@@ -133,8 +184,21 @@ fun OnboardingSensorialScreen(
     OnboardingSensorialContent(
         state = uiState,
         onNameChange = viewModel::onNameChange,
+        onEmergencyContactNameChange = viewModel::onEmergencyContactNameChange,
         onEmergencyContactChange = viewModel::onEmergencyContactChange,
         onColorSelected = viewModel::onColorSelected,
+        onImportEmergencyContact = {
+            val hasContactsPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_CONTACTS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (hasContactsPermission) {
+                pickContactLauncher.launch(null)
+            } else {
+                requestContactsPermissionLauncher.launch(Manifest.permission.READ_CONTACTS)
+            }
+        },
         onContinue = { viewModel.onContinueRequested(onContinue) }
     )
 }
@@ -143,8 +207,10 @@ fun OnboardingSensorialScreen(
 fun OnboardingSensorialContent(
     state: OnboardingSensorialUiState,
     onNameChange: (String) -> Unit,
+    onEmergencyContactNameChange: (String) -> Unit,
     onEmergencyContactChange: (String) -> Unit,
     onColorSelected: (String) -> Unit,
+    onImportEmergencyContact: () -> Unit,
     onContinue: () -> Unit
 ) {
     val titleStyle = MaterialTheme.typography.headlineMedium.copy(
@@ -159,7 +225,7 @@ fun OnboardingSensorialContent(
     val sectionTitleStyle = MaterialTheme.typography.titleMedium.copy(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
-        color = TextPrimary
+        color = SoftText
     )
 
     Column(
@@ -174,10 +240,13 @@ fun OnboardingSensorialContent(
             verticalAlignment = Alignment.Top
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = "¡Bienvenido a Ancla!", style = titleStyle)
+                Text(
+                    text = stringResource(R.string.onboarding_sensorial_welcome_title),
+                    style = titleStyle
+                )
                 Spacer(modifier = Modifier.height(OnboardingSensorialDimens.titleToSubtitleSpacing))
                 Text(
-                    text = "Vamos a personalizar tu espacio seguro.",
+                    text = stringResource(R.string.onboarding_sensorial_welcome_subtitle),
                     style = subtitleStyle
                 )
             }
@@ -186,39 +255,67 @@ fun OnboardingSensorialContent(
 
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionSpacing))
 
-        Text(text = "1. Tu Identidad", style = sectionTitleStyle)
+        Text(
+            text = stringResource(R.string.onboarding_sensorial_identity_title),
+            style = sectionTitleStyle
+        )
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
         CalmTextField(
             value = state.name,
             onValueChange = onNameChange,
-            placeholder = "Escribe tu nombre (ej: Alex)"
+            placeholder = stringResource(R.string.onboarding_sensorial_name_placeholder)
         )
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.fieldToHintSpacing))
         Text(
-            text = "Lo usaremos para saludarte en la app.",
+            text = stringResource(R.string.onboarding_sensorial_name_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = TextSecondary
         )
 
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.hintToSectionSpacing))
 
-        Text(text = "2. Tu Seguridad", style = sectionTitleStyle)
+        Text(
+            text = stringResource(R.string.onboarding_sensorial_safety_title),
+            style = sectionTitleStyle
+        )
+        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
+        CalmTextField(
+            value = state.emergencyContactName,
+            onValueChange = onEmergencyContactNameChange,
+            placeholder = stringResource(R.string.onboarding_sensorial_contact_name_label)
+        )
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
         CalmTextField(
             value = state.emergencyContact,
             onValueChange = onEmergencyContactChange,
-            placeholder = "Contacto de emergencia (ej: 123-456)"
+            placeholder = stringResource(R.string.onboarding_sensorial_contact_number_label),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
         )
+        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
+        Button(
+            onClick = onImportEmergencyContact,
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = SoftAccent,
+                contentColor = SoftText
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = stringResource(R.string.onboarding_sensorial_import_contact_cta))
+        }
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.fieldToHintSpacing))
         Text(
-            text = "Lo usaremos para el guion de SOS.",
+            text = stringResource(R.string.onboarding_sensorial_contact_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = TextSecondary
         )
 
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.hintToSectionSpacing))
 
-        Text(text = "3. Tu Preferencia Sensorial", style = sectionTitleStyle)
+        Text(
+            text = stringResource(R.string.onboarding_sensorial_preference_title),
+            style = sectionTitleStyle
+        )
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
         SensoryPalettePicker(
             selectedColorId = state.selectedColorId,
@@ -226,7 +323,7 @@ fun OnboardingSensorialContent(
         )
         Spacer(modifier = Modifier.height(OnboardingSensorialDimens.fieldToHintSpacing))
         Text(
-            text = "Elige un color para tu app.",
+            text = stringResource(R.string.onboarding_sensorial_palette_hint),
             style = MaterialTheme.typography.bodyMedium,
             color = TextSecondary
         )
@@ -243,14 +340,14 @@ fun OnboardingSensorialContent(
                 .align(Alignment.Start),
             shape = RoundedCornerShape(percent = 50),
             colors = ButtonDefaults.buttonColors(
-                containerColor = ColorSageAction,
-                contentColor = TextPrimary,
-                disabledContainerColor = ColorSageAction.copy(alpha = 0.6f),
-                disabledContentColor = TextPrimary.copy(alpha = 0.7f)
+                containerColor = SoftAccent,
+                contentColor = SoftText,
+                disabledContainerColor = SoftAccent.copy(alpha = 0.6f),
+                disabledContentColor = SoftText.copy(alpha = 0.7f)
             )
         ) {
             Text(
-                text = "Empezar ahora",
+                text = stringResource(R.string.onboarding_sensorial_cta_start),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontFamily = FontFamily.SansSerif,
                     fontWeight = FontWeight.SemiBold
@@ -267,7 +364,8 @@ fun CalmTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     AnclaTextField(
         value = value,
@@ -275,6 +373,7 @@ fun CalmTextField(
         modifier = modifier,
         minHeight = OnboardingSensorialDimens.textFieldMinHeight,
         singleLine = true,
+        keyboardOptions = keyboardOptions,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.SemiBold,
@@ -323,16 +422,11 @@ private fun OnboardingSensorialScreenPreview() {
         OnboardingSensorialContent(
             state = OnboardingSensorialUiState(),
             onNameChange = {},
+            onEmergencyContactNameChange = {},
             onEmergencyContactChange = {},
             onColorSelected = {},
+            onImportEmergencyContact = {},
             onContinue = {}
         )
     }
 }
-
-
-
-
-
-
-

@@ -1,12 +1,8 @@
 package co.ryzer.ancla.data
-
-data class UserProfile(
-    val name: String = ""
-)
-
 data class SensoryProfile(
     val id: Int = 1,
     val name: String = "",
+    val emergencyContactName: String = "",
     val emergencyContact: String = "",
     val selectedColorId: String = "lavender"
 )

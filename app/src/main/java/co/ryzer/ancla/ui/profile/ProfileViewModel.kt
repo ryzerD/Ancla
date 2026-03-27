@@ -4,14 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.ryzer.ancla.data.repository.SensoryProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -27,15 +26,16 @@ class ProfileViewModel @Inject constructor(
         val effectiveColorId = previewColorId ?: profile.selectedColorId
         val hasPendingChanges = previewColorId != null && previewColorId != profile.selectedColorId
 
-            ProfileUiState(
-                name = profile.name,
-                emergencyContact = profile.emergencyContact,
-                selectedColorId = profile.selectedColorId,
-                effectiveSelectedColorId = effectiveColorId,
-                hasPendingPaletteChanges = hasPendingChanges,
-                isLoaded = true
-            )
-        }
+        ProfileUiState(
+            name = profile.name,
+            emergencyContactName = profile.emergencyContactName,
+            emergencyContact = profile.emergencyContact,
+            selectedColorId = profile.selectedColorId,
+            effectiveSelectedColorId = effectiveColorId,
+            hasPendingPaletteChanges = hasPendingChanges,
+            isLoaded = true
+        )
+    }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),

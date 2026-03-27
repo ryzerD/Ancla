@@ -9,6 +9,7 @@ data class SensoryProfileEntity(
     @PrimaryKey
     val id: Int = SENSORY_PROFILE_SINGLETON_ID,
     val name: String,
+    val emergencyContactName: String,
     val emergencyContact: String,
     val selectedColorId: String
 )
@@ -18,6 +19,7 @@ const val SENSORY_PROFILE_SINGLETON_ID = 1
 fun SensoryProfileEntity.toDomain(): SensoryProfile = SensoryProfile(
     id = id,
     name = name,
+    emergencyContactName = emergencyContactName,
     emergencyContact = emergencyContact,
     selectedColorId = selectedColorId
 )
@@ -25,6 +27,7 @@ fun SensoryProfileEntity.toDomain(): SensoryProfile = SensoryProfile(
 fun SensoryProfile.toEntity(): SensoryProfileEntity = SensoryProfileEntity(
     id = id,
     name = name,
+    emergencyContactName = emergencyContactName,
     emergencyContact = emergencyContact,
     selectedColorId = selectedColorId
 )

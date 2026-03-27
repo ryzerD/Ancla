@@ -117,4 +117,21 @@
     <!-- Generic dialog actions -->
     <string name="dialog_confirm">Aceptar</string>
     <string name="dialog_cancel">Cancelar</string>
+
+    <!-- OnboardingSensorialScreen -->
+    <string name="onboarding_sensorial_welcome_title">¡Bienvenido a Ancla!</string>
+    <string name="onboarding_sensorial_welcome_subtitle">Vamos a personalizar tu espacio seguro.</string>
+    <string name="onboarding_sensorial_identity_title">1. Tu Identidad</string>
+    <string name="onboarding_sensorial_name_placeholder">Escribe tu nombre (ej: Alex)</string>
+    <string name="onboarding_sensorial_name_hint">Lo usaremos para saludarte en la app.</string>
+    <string name="onboarding_sensorial_safety_title">2. Tu Seguridad</string>
+    <string name="onboarding_sensorial_contact_placeholder">Contacto de emergencia (ej: 123 456)</string>
+    <string name="onboarding_sensorial_contact_hint">Lo usaremos para el guion de SOS.</string>
+    <string name="onboarding_sensorial_contact_name_label">Nombre de contacto</string>
+    <string name="onboarding_sensorial_contact_number_label">Número</string>
+    <string name="onboarding_sensorial_import_contact_cta">Importar desde contactos</string>
+    <string name="onboarding_sensorial_preference_title">3. Tu Preferencia Sensorial</string>
+    <string name="onboarding_sensorial_palette_hint">Elige un color para tu app.</string>
+    <string name="onboarding_sensorial_cta_start">Empezar ahora</string>
+
 </resources>

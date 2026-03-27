@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.Dp
 import co.ryzer.ancla.ui.theme.OnboardingSensorialDimens
 import co.ryzer.ancla.ui.theme.SurfaceWhite
@@ -33,6 +34,7 @@ fun AnclaTextField(
     placeholder: @Composable (() -> Unit)? = null,
     supportingText: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge.copy(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.SemiBold,
@@ -62,6 +64,7 @@ fun AnclaTextField(
         placeholder = placeholder,
         supportingText = supportingText,
         trailingIcon = trailingIcon,
+        keyboardOptions = keyboardOptions,
         shape = RoundedCornerShape(OnboardingSensorialDimens.textFieldCornerRadius),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = SurfaceWhite.copy(alpha = containerAlpha),

@@ -9,6 +9,7 @@ private fun createSensoryProfileTable(db: SupportSQLiteDatabase) {
         CREATE TABLE IF NOT EXISTS sensory_profile (
             id INTEGER NOT NULL,
             name TEXT NOT NULL,
+            emergencyContactName TEXT NOT NULL,
             emergencyContact TEXT NOT NULL,
             selectedColorId TEXT NOT NULL,
             PRIMARY KEY(id)
@@ -38,8 +39,8 @@ private fun createScriptsTable(db: SupportSQLiteDatabase) {
 fun seedDefaultSensoryProfile(db: SupportSQLiteDatabase) {
     db.execSQL(
         """
-        INSERT OR REPLACE INTO sensory_profile (id, name, emergencyContact, selectedColorId)
-        VALUES (1, '', '', 'lavender')
+        INSERT OR REPLACE INTO sensory_profile (id, name, emergencyContactName, emergencyContact, selectedColorId)
+        VALUES (1, '', '', '', 'lavender')
         """.trimIndent()
     )
 }
@@ -69,6 +70,17 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         createSensoryProfileTable(db)
         seedDefaultSensoryProfile(db)
+    }
+}
+
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            ALTER TABLE sensory_profile
+            ADD COLUMN emergencyContactName TEXT NOT NULL DEFAULT ''
+            """.trimIndent()
+        )
     }
 }
 
