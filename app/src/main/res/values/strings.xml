@@ -15,6 +15,16 @@
     <string name="home_rest_title">Tiempo de Calma</string>
     <string name="home_rest_subtitle">No tienes actividades programadas.\nAprovecha para descansar y respirar profundo.</string>
     <string name="home_rest_cta">Empezar meditacion</string>
+    <string name="home_overlap_banner">Hay dos actividades superpuestas en este horario.</string>
+    <string name="home_state_preparing">Tu actividad empieza pronto.</string>
+    <string name="home_state_active">Actividad en curso.</string>
+    <string name="home_recovery_title">Modo Recuperacion</string>
+    <string name="home_recovery_subtitle">Las actividades estan ocultas temporalmente para darte un espacio de calma.</string>
+    <string name="home_recovery_cta">Continuar en calma</string>
+    <string name="home_task_not_started">Esta actividad aun no esta en curso.</string>
+    <string name="home_task_in_progress">Esta actividad esta en transcurso.</string>
+    <string name="home_btn_start_task">Iniciar actividad</string>
+    <string name="home_btn_finish_task">Finalizar actividad</string>
 
     <!-- ToolsScreen -->
     <string name="tools_support_label">Mi Apoyo</string>

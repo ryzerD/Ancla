@@ -37,6 +37,7 @@ import co.ryzer.ancla.navigation.EMERGENCY_CONTACT_DEFAULT
 import co.ryzer.ancla.navigation.NavigationRoutes
 import co.ryzer.ancla.ui.components.AnclaNavigationBar
 import co.ryzer.ancla.ui.components.NavigationItem
+import co.ryzer.ancla.ui.home.HomeViewModel
 import co.ryzer.ancla.ui.profile.ProfileUiState
 import co.ryzer.ancla.ui.profile.ProfileViewModel
 import co.ryzer.ancla.ui.scripts.ScriptsViewModel
@@ -80,6 +81,7 @@ fun MainScreen(
     navController: NavHostController,
     windowSizeClass: WindowSizeClass,
     tasksViewModel: TasksViewModel,
+    homeViewModel: HomeViewModel,
     scriptsViewModel: ScriptsViewModel,
     profileViewModel: ProfileViewModel
 ) {
@@ -95,7 +97,7 @@ fun MainScreen(
     }
     val scriptsUiState by scriptsViewModel.uiState.collectAsState()
     val profileUiState by profileViewModel.uiState.collectAsState()
-    val currentActivity by tasksViewModel.currentActivity.collectAsState()
+    val homeUiState by homeViewModel.uiState.collectAsState()
 
     val startDestination = resolveStartDestination(profileUiState) ?: return
 
@@ -184,9 +186,12 @@ fun MainScreen(
                 composable(NavigationRoutes.HOME) {
                     HomeScreen(
                         userName = profileUiState.name,
-                        currentActivity = currentActivity,
+                        currentActivity = homeUiState.currentTask,
+                        activityState = homeUiState.activityState,
+                        hasOverlap = homeUiState.hasOverlap,
+                        isRecoveryMode = homeUiState.isRecoveryMode,
                         onTaskComplete = { taskId ->
-                            tasksViewModel.setTaskCompleted(taskId = taskId, isCompleted = true)
+                            tasksViewModel.onHomeTaskPrimaryAction(taskId)
                         },
                         onStartMeditation = {
                             navController.navigate(NavigationRoutes.BREATHING)

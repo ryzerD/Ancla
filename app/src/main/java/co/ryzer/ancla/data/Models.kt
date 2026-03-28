@@ -15,8 +15,16 @@ data class Task(
     val startTime: String,
     val endTime: String,
     val category: String,
-    val isCompleted: Boolean = false
-)
+    val startedAt: Long? = null,      // Timestamp when task was started
+    val completedAt: Long? = null     // Timestamp when task was completed
+) {
+    // Derive boolean states from timestamps
+    val isInProgress: Boolean
+        get() = startedAt != null && completedAt == null
+    
+    val isCompleted: Boolean
+        get() = completedAt != null
+}
 
 data class Script(
     val id: String = java.util.UUID.randomUUID().toString(),

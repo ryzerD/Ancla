@@ -57,6 +57,13 @@ object HomeScreenDimens {
     val restContentToButtonSpacing = 26.dp
     const val restButtonWidthFraction = 0.82f
 
+    // ── Home state wiring visuals ───────────────────────────────────────────
+    const val preparingCardAlpha = 0.78f
+    val overlapBannerSpacing = 10.dp
+    val overlapBannerCornerRadius = 12.dp
+    val overlapBannerHorizontalPadding = 12.dp
+    val overlapBannerVerticalPadding = 8.dp
+
 }
 
 /**

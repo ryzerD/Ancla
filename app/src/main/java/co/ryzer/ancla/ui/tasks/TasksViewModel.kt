@@ -10,7 +10,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -33,7 +32,6 @@ class TasksViewModel @Inject constructor(
     private val formState = MutableStateFlow(TasksUiState())
 
     private val _currentActivity = MutableStateFlow<Task?>(null)
-    val currentActivity: StateFlow<Task?> = _currentActivity.asStateFlow()
 
     val uiState: StateFlow<TasksUiState> = combine(
         repository.observeTasks(),
@@ -68,7 +66,7 @@ class TasksViewModel @Inject constructor(
         // Filtramos para encontrar la actividad actual que NO esté completada
         _currentActivity.value = tasks.find { task ->
             if (task.isCompleted) return@find false // Ignorar si ya está terminada
-            
+
             try {
                 val start = LocalTime.parse(task.startTime)
                 val end = LocalTime.parse(task.endTime)
@@ -161,7 +159,8 @@ class TasksViewModel @Inject constructor(
                     startTime = startTime,
                     endTime = endTime,
                     category = category,
-                    isCompleted = previousTask?.isCompleted ?: false
+                    startedAt = previousTask?.startedAt,
+                    completedAt = previousTask?.completedAt
                 )
                 repository.updateTask(updatedTask)
                 alarmManager.scheduleAlarm(updatedTask)
@@ -173,11 +172,17 @@ class TasksViewModel @Inject constructor(
     fun setTaskCompleted(taskId: String, isCompleted: Boolean) {
         viewModelScope.launch {
             repository.setTaskCompleted(taskId = taskId, isCompleted = isCompleted)
-            
+
             // Forzamos un refresco inmediato de la actividad actual
             // para que desaparezca del Home al instante
-            val updatedTasks = uiState.value.tasks.map { 
-                if (it.id == taskId) it.copy(isCompleted = isCompleted) else it 
+            val updatedTasks = uiState.value.tasks.map {
+                if (it.id == taskId) {
+                    it.copy(
+                        completedAt = if (isCompleted) System.currentTimeMillis() else null
+                    )
+                } else {
+                    it
+                }
             }
             refreshCurrentActivityWithList(updatedTasks)
 
@@ -185,6 +190,34 @@ class TasksViewModel @Inject constructor(
             if (task != null) {
                 if (isCompleted) alarmManager.cancelAlarm(task)
                 else alarmManager.scheduleAlarm(task)
+            }
+        }
+    }
+
+    fun onHomeTaskPrimaryAction(taskId: String) {
+        viewModelScope.launch {
+            val task = uiState.value.tasks.firstOrNull { it.id == taskId } ?: return@launch
+            if (task.isCompleted) return@launch
+
+            if (!task.isInProgress) {
+                // Start the task - update BD first
+                repository.setTaskInProgress(taskId = taskId, isInProgress = true)
+
+                // Wait a bit for Room to process and emit the change
+                delay(100)
+
+                // Then update local state with the new timestamp for immediate UI feedback
+                val updatedTasks = uiState.value.tasks.map {
+                    if (it.id == taskId) {
+                        it.copy(startedAt = System.currentTimeMillis())
+                    } else {
+                        it
+                    }
+                }
+                refreshCurrentActivityWithList(updatedTasks)
+            } else {
+                // Complete the task
+                setTaskCompleted(taskId = taskId, isCompleted = true)
             }
         }
     }
@@ -201,7 +234,9 @@ class TasksViewModel @Inject constructor(
                 } else {
                     !now.isBefore(start) || now.isBefore(end)
                 }
-            } catch (_: Exception) { false }
+            } catch (_: Exception) {
+                false
+            }
         }
     }
 

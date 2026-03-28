@@ -11,7 +11,7 @@ import co.ryzer.ancla.data.local.task.TaskEntity
 
 @Database(
     entities = [TaskEntity::class, ScriptEntity::class, SensoryProfileEntity::class],
-    version = 4,
+    version = 6,
     exportSchema = false
 )
 abstract class AnclaDatabase : RoomDatabase() {

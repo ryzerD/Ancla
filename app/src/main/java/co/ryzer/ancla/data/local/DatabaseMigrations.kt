@@ -84,4 +84,22 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
     }
 }
 
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            ALTER TABLE tasks
+            ADD COLUMN isInProgress INTEGER NOT NULL DEFAULT 0
+            """.trimIndent()
+        )
+    }
+}
+
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // No-op migration: columns startedAt and completedAt already exist
+        // This migration is just to update the version number
+    }
+}
+
 
