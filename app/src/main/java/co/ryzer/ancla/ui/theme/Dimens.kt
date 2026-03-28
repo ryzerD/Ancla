@@ -16,6 +16,7 @@ object HomeScreenDimens {
     val topSpacerCompact  = 48.dp
     val topSpacerExpanded = 64.dp
 
+    val periodGreetingBottomPadding = 8.dp
     val greetingBottomPadding = 16.dp
     val bottomSpacer          = 48.dp
 
@@ -41,6 +42,20 @@ object HomeScreenDimens {
 
     val buttonMinHeight    = 60.dp
     val buttonCornerRadius = 20.dp
+
+    // ── RestCard ─────────────────────────────────────────────────────────────
+    val restCardCornerRadius = 44.dp
+    val restCardElevation = 0.dp
+    const val restCardAspectRatioCompact = 1f
+    const val restCardAspectRatioExpanded = 1.1f
+    val restCardPadding = 30.dp
+    val restIconContainerSize = 88.dp
+    val restIconSize = 40.dp
+    val restIconBottomSpacing = 22.dp
+    val restTitleBottomSpacing = 10.dp
+    val restSubtitleHorizontalPadding = 10.dp
+    val restContentToButtonSpacing = 26.dp
+    const val restButtonWidthFraction = 0.82f
 
 }
 

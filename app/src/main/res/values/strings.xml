@@ -4,11 +4,17 @@
     <!-- HomeScreen -->
     <string name="greeting">Hola</string>
     <string name="greeting_user">Hola, %1$s</string>
+    <string name="greeting_morning">Buenos dias</string>
+    <string name="greeting_afternoon">Buenas tardes</string>
+    <string name="greeting_evening">Buenas noches</string>
     <string name="current_task_label">Mi Tarea Actual</string>
     <string name="task_time_format">Hora: %1$s</string>
     <string name="btn_complete">Terminar</string>
     <string name="empty_tasks_title">Todo está en orden</string>
     <string name="empty_tasks_subtitle">No tienes tareas pendientes por ahora.\nDisfruta de tu tiempo libre.</string>
+    <string name="home_rest_title">Tiempo de Calma</string>
+    <string name="home_rest_subtitle">No tienes actividades programadas.\nAprovecha para descansar y respirar profundo.</string>
+    <string name="home_rest_cta">Empezar meditacion</string>
 
     <!-- ToolsScreen -->
     <string name="tools_support_label">Mi Apoyo</string>

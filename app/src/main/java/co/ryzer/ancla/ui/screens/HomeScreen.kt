@@ -2,6 +2,7 @@ package co.ryzer.ancla.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -12,26 +13,33 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.ui.theme.*
+import java.time.LocalTime
 
 @Composable
 fun HomeScreen(
     userName: String = "",
     currentActivity: Task? = null,
     onTaskComplete: (String) -> Unit = {},
+    onStartMeditation: () -> Unit = {},
     windowSizeClass: WindowSizeClass? = null
 ) {
     val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     val horizontalPadding =
         if (isExpanded) HomeScreenDimens.horizontalPaddingExpanded
         else HomeScreenDimens.horizontalPaddingCompact
+
+    val greetingPeriodRes = when (LocalTime.now().hour) {
+        in 5..11 -> R.string.greeting_morning
+        in 12..18 -> R.string.greeting_afternoon
+        else -> R.string.greeting_evening
+    }
 
     Column(
         modifier = Modifier
@@ -46,8 +54,14 @@ fun HomeScreen(
         )
 
         Text(
-            text = if (userName.isBlank()) stringResource(R.string.greeting)
-                   else stringResource(R.string.greeting_user, userName),
+            text = stringResource(greetingPeriodRes),
+            style = AnclaTextStyles.sectionLabel,
+            color = TextSecondary,
+            modifier = Modifier.padding(bottom = HomeScreenDimens.periodGreetingBottomPadding)
+        )
+
+        Text(
+            text = if (userName.isBlank()) stringResource(R.string.greeting) else stringResource(R.string.greeting_user, userName),
             style = if (isExpanded) AnclaTextStyles.greetingExpanded else AnclaTextStyles.greeting,
             color = TextPrimary,
             modifier = Modifier.padding(bottom = HomeScreenDimens.greetingBottomPadding)
@@ -62,7 +76,10 @@ fun HomeScreen(
             if (currentActivity != null) {
                 ActivityCard(currentActivity, onTaskComplete, isExpanded = isExpanded)
             } else {
-                RestCard(isExpanded = isExpanded)
+                RestCard(
+                    isExpanded = isExpanded,
+                    onStartMeditation = onStartMeditation
+                )
             }
         }
 
@@ -93,7 +110,7 @@ fun ActivityCard(
             Icon(
                 imageVector = Icons.Default.CheckCircle,
                 contentDescription = null,
-                tint = Color(0xFF81A18B),
+                tint = ScriptReaderButton,
                 modifier = Modifier.size(
                     if (isExpanded) HomeScreenDimens.taskIconSizeExpanded else HomeScreenDimens.taskIconSizeCompact
                 )
@@ -158,41 +175,78 @@ fun ActivityCard(
 }
 
 @Composable
-fun RestCard(isExpanded: Boolean = false) {
+fun RestCard(
+    isExpanded: Boolean = false,
+    onStartMeditation: () -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .widthIn(max = if (isExpanded) HomeScreenDimens.cardMaxWidthExpanded else HomeScreenDimens.cardMaxWidthCompact),
-        shape = RoundedCornerShape(HomeScreenDimens.cardCornerRadius),
-        colors = CardDefaults.cardColors(containerColor = CardLavender),
-        elevation = CardDefaults.cardElevation(defaultElevation = HomeScreenDimens.cardElevation)
+            .widthIn(max = if (isExpanded) HomeScreenDimens.cardMaxWidthExpanded else HomeScreenDimens.cardMaxWidthCompact)
+            .aspectRatio(
+                if (isExpanded) {
+                    HomeScreenDimens.restCardAspectRatioExpanded
+                } else {
+                    HomeScreenDimens.restCardAspectRatioCompact
+                }
+            )
+            .clip(RoundedCornerShape(HomeScreenDimens.restCardCornerRadius)),
+        shape = RoundedCornerShape(HomeScreenDimens.restCardCornerRadius),
+        colors = CardDefaults.cardColors(containerColor = CardPeach.copy(alpha = 0.22f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = HomeScreenDimens.restCardElevation)
     ) {
         Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(HomeScreenDimens.restCardPadding),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Spa,
-                contentDescription = null,
-                tint = TextPrimary,
-                modifier = Modifier.size(
-                    if (isExpanded) HomeScreenDimens.taskIconSizeExpanded else HomeScreenDimens.taskIconSizeCompact
+            Box(
+                modifier = Modifier
+                    .size(HomeScreenDimens.restIconContainerSize)
+                    .background(CardGreen.copy(alpha = 0.25f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Spa,
+                    contentDescription = null,
+                    tint = ScriptReaderButton,
+                    modifier = Modifier.size(HomeScreenDimens.restIconSize)
                 )
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            }
+            Spacer(modifier = Modifier.height(HomeScreenDimens.restIconBottomSpacing))
             Text(
-                text = "Tiempo de Calma",
+                text = stringResource(R.string.home_rest_title),
                 style = if (isExpanded) AnclaTextStyles.taskTitleExpanded else AnclaTextStyles.taskTitle,
                 color = TextPrimary,
                 textAlign = TextAlign.Center
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(HomeScreenDimens.restTitleBottomSpacing))
             Text(
-                text = "No tienes actividades programadas. Aprovecha para descansar y respirar profundo.",
+                text = stringResource(R.string.home_rest_subtitle),
                 style = AnclaTextStyles.taskDescription,
                 color = TextPrimary.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = HomeScreenDimens.restSubtitleHorizontalPadding)
             )
+
+            Spacer(modifier = Modifier.height(HomeScreenDimens.restContentToButtonSpacing))
+
+            Button(
+                onClick = onStartMeditation,
+                modifier = Modifier
+                    .fillMaxWidth(HomeScreenDimens.restButtonWidthFraction)
+                    .heightIn(min = HomeScreenDimens.buttonMinHeight),
+                colors = ButtonDefaults.buttonColors(containerColor = ScriptReaderButton),
+                shape = RoundedCornerShape(HomeScreenDimens.buttonCornerRadius)
+            ) {
+                Text(
+                    text = stringResource(R.string.home_rest_cta),
+                    color = SurfaceWhite,
+                    style = AnclaTextStyles.primaryButton
+                )
+            }
         }
     }
 }

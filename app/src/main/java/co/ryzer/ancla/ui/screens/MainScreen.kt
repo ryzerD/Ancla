@@ -188,6 +188,9 @@ fun MainScreen(
                         onTaskComplete = { taskId ->
                             tasksViewModel.setTaskCompleted(taskId = taskId, isCompleted = true)
                         },
+                        onStartMeditation = {
+                            navController.navigate(NavigationRoutes.BREATHING)
+                        },
                         windowSizeClass = windowSizeClass
                     )
                 }
