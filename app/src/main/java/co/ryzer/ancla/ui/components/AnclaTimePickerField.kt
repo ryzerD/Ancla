@@ -74,7 +74,18 @@ fun AnclaTimePickerField(
     val locale = remember(configuration) {
         configuration.locales.get(0) ?: Locale.getDefault()
     }
-    val initialTime = remember(value, locale) { parseTime(value, locale) ?: defaultInitialTime }
+    // Keep track of the last valid time selected by the user
+    var lastSelectedTime by remember(value) {
+        mutableStateOf(parseTime(value, locale) ?: defaultInitialTime)
+    }
+
+    // If value changes externally, update lastSelectedTime
+    val initialTime = remember(value, locale) {
+        parseTime(value, locale)?.let {
+            lastSelectedTime = it
+            it
+        } ?: lastSelectedTime
+    }
     val resolvedPickerColors = pickerColors ?: defaultAnclaTimePickerColors()
 
     val pickerState = rememberTimePickerState(
@@ -165,6 +176,7 @@ fun AnclaTimePickerField(
                                     pickerState.hour,
                                     pickerState.minute
                                 )
+                                lastSelectedTime = selectedTime
                                 onValueChange(selectedTime.format(storageTimeFormatter))
                                 showDialog = false
                             },

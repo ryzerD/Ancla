@@ -25,64 +25,51 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import co.ryzer.ancla.data.DefaultToolOrder
 import co.ryzer.ancla.data.ToolOrderEntry
-import co.ryzer.ancla.ui.profile.ProfileUiState
+import co.ryzer.ancla.navigation.EMERGENCY_CONTACT_DEFAULT
+import co.ryzer.ancla.navigation.NavigationRoutes
 import co.ryzer.ancla.ui.components.AnclaNavigationBar
 import co.ryzer.ancla.ui.components.NavigationItem
+import co.ryzer.ancla.ui.profile.ProfileUiState
 import co.ryzer.ancla.ui.profile.ProfileViewModel
 import co.ryzer.ancla.ui.scripts.ScriptsViewModel
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 
-private const val ROUTE_HOME = "home"
-private const val ROUTE_ONBOARDING = "onboarding"
-private const val ROUTE_TOOLS = "tools"
-private const val ROUTE_SETTINGS = "settings"
-private const val ROUTE_SETTINGS_ORDER = "settings_order"
-private const val ROUTE_SETTINGS_VISUAL = "settings_visual"
-private const val ROUTE_DECODER = "decoder"
-private const val ROUTE_TASKS = "tasks"
-private const val ROUTE_SCRIPTS = "scripts"
-private const val ROUTE_BREATHING = "breathing"
-private const val ROUTE_CALMA_TOTAL = "calma_total"
-private const val ROUTE_NEW_SCRIPT = "new_script"
-private const val ROUTE_SCRIPT_READER = "script_reader/{scriptId}"
-private const val ARG_SCRIPT_ID = "scriptId"
-private const val EMERGENCY_CONTACT_DEFAULT = "123-456-789"
 
 internal fun resolveStartDestination(profileUiState: ProfileUiState): String? {
     if (!profileUiState.isLoaded) return null
-    return if (profileUiState.requiresOnboarding) ROUTE_ONBOARDING else ROUTE_HOME
+    return if (profileUiState.requiresOnboarding) NavigationRoutes.ONBOARDING else NavigationRoutes.HOME
 }
 
 private fun navigateFromNavItem(navController: NavHostController, route: String) {
-    if (route == ROUTE_HOME) {
+    if (route == NavigationRoutes.HOME) {
         // Keep this path simple so Home is always reachable with one tap.
-        navController.navigate(ROUTE_HOME) {
+        navController.navigate(NavigationRoutes.HOME) {
             launchSingleTop = true
             restoreState = false
         }
         return
     }
 
-    if (route == ROUTE_TOOLS) {
+    if (route == NavigationRoutes.TOOLS) {
         // Always open toolbox root, never restore a previous tool sub-screen.
-        navController.navigate(ROUTE_TOOLS) {
+        navController.navigate(NavigationRoutes.TOOLS) {
             launchSingleTop = true
             restoreState = false
-            popUpTo(ROUTE_HOME) { saveState = false }
+            popUpTo(NavigationRoutes.HOME) { saveState = false }
         }
         return
     }
 
     navController.navigate(route) {
-        popUpTo(ROUTE_HOME) { saveState = true }
+        popUpTo(NavigationRoutes.HOME) { saveState = true }
         launchSingleTop = true
         restoreState = true
     }
@@ -98,11 +85,11 @@ fun MainScreen(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val hidesNavigationChrome = currentRoute == ROUTE_SCRIPT_READER ||
-            currentRoute == ROUTE_NEW_SCRIPT ||
-            currentRoute == ROUTE_BREATHING ||
-            currentRoute == ROUTE_CALMA_TOTAL ||
-            currentRoute == ROUTE_ONBOARDING
+    val hidesNavigationChrome = currentRoute == NavigationRoutes.SCRIPT_READER ||
+            currentRoute == NavigationRoutes.NEW_SCRIPT ||
+            currentRoute == NavigationRoutes.BREATHING ||
+            currentRoute == NavigationRoutes.CALMA_TOTAL ||
+            currentRoute == NavigationRoutes.ONBOARDING
     var toolOrder by remember {
         mutableStateOf(DefaultToolOrder)
     }
@@ -114,19 +101,19 @@ fun MainScreen(
 
     val navigationItems = listOf(
         NavigationItem(
-            route = ROUTE_HOME,
+            route = NavigationRoutes.HOME,
             label = "Inicio",
             icon = Icons.Outlined.Home,
             selectedIcon = Icons.Filled.Home
         ),
         NavigationItem(
-            route = ROUTE_TOOLS,
+            route = NavigationRoutes.TOOLS,
             label = "Herramientas",
             icon = Icons.Outlined.Build,
             selectedIcon = Icons.Filled.Build
         ),
         NavigationItem(
-            route = ROUTE_SETTINGS,
+            route = NavigationRoutes.SETTINGS,
             label = "Ajustes",
             icon = Icons.Outlined.Settings,
             selectedIcon = Icons.Filled.Settings
@@ -161,7 +148,10 @@ fun MainScreen(
                             NavigationRailItem(
                                 selected = currentRoute == item.route,
                                 onClick = {
-                                    navigateFromNavItem(navController = navController, route = item.route)
+                                    navigateFromNavItem(
+                                        navController = navController,
+                                        route = item.route
+                                    )
                                 },
                                 icon = {
                                     Icon(
@@ -181,17 +171,17 @@ fun MainScreen(
                 startDestination = startDestination,
                 modifier = Modifier.weight(1f)
             ) {
-                composable(ROUTE_ONBOARDING) {
+                composable(NavigationRoutes.ONBOARDING) {
                     OnboardingSensorialScreen(
                         onContinue = {
-                            navController.navigate(ROUTE_HOME) {
-                                popUpTo(ROUTE_ONBOARDING) { inclusive = true }
+                            navController.navigate(NavigationRoutes.HOME) {
+                                popUpTo(NavigationRoutes.ONBOARDING) { inclusive = true }
                                 launchSingleTop = true
                             }
                         }
                     )
                 }
-                composable(ROUTE_HOME) {
+                composable(NavigationRoutes.HOME) {
                     HomeScreen(
                         userName = profileUiState.name,
                         currentActivity = currentActivity,
@@ -201,18 +191,18 @@ fun MainScreen(
                         windowSizeClass = windowSizeClass
                     )
                 }
-                composable(ROUTE_TOOLS) {
+                composable(NavigationRoutes.TOOLS) {
                     ToolsScreen(
-                        onNavigateToDecoder = { navController.navigate(ROUTE_DECODER) },
-                        onNavigateToTasks = { navController.navigate(ROUTE_TASKS) },
-                        onNavigateToScripts = { navController.navigate(ROUTE_SCRIPTS) },
-                        onNavigateToBreathing = { navController.navigate(ROUTE_BREATHING) },
-                        onNavigateToCalmaTotal = { navController.navigate(ROUTE_CALMA_TOTAL) },
+                        onNavigateToDecoder = { navController.navigate(NavigationRoutes.DECODER) },
+                        onNavigateToTasks = { navController.navigate(NavigationRoutes.TASKS) },
+                        onNavigateToScripts = { navController.navigate(NavigationRoutes.SCRIPTS) },
+                        onNavigateToBreathing = { navController.navigate(NavigationRoutes.BREATHING) },
+                        onNavigateToCalmaTotal = { navController.navigate(NavigationRoutes.CALMA_TOTAL) },
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder
                     )
                 }
-                composable(ROUTE_SETTINGS) {
+                composable(NavigationRoutes.SETTINGS) {
                     SettingsScreen(
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder,
@@ -235,14 +225,14 @@ fun MainScreen(
                             profileViewModel.discardPalettePreview()
                         },
                         onVisualPreferencesClick = {
-                            navController.navigate(ROUTE_SETTINGS_VISUAL)
+                            navController.navigate(NavigationRoutes.SETTINGS_VISUAL)
                         },
                         onToolsOrganizationClick = {
-                            navController.navigate(ROUTE_SETTINGS_ORDER)
+                            navController.navigate(NavigationRoutes.SETTINGS_ORDER)
                         }
                     )
                 }
-                composable(ROUTE_SETTINGS_ORDER) {
+                composable(NavigationRoutes.SETTINGS_ORDER) {
                     SettingsToolsOrderScreen(
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder,
@@ -255,7 +245,7 @@ fun MainScreen(
                         }
                     )
                 }
-                composable(ROUTE_SETTINGS_VISUAL) {
+                composable(NavigationRoutes.SETTINGS_VISUAL) {
                     SettingsVisualPreferencesScreen(
                         windowSizeClass = windowSizeClass,
                         selectedColorId = profileUiState.effectiveSelectedColorId,
@@ -271,30 +261,30 @@ fun MainScreen(
                         }
                     )
                 }
-                composable(ROUTE_DECODER) { DecoderScreen() }
-                composable(ROUTE_BREATHING) {
+                composable(NavigationRoutes.DECODER) { DecoderScreen() }
+                composable(NavigationRoutes.BREATHING) {
                     BreathingScreen(onExit = { navController.popBackStack() })
                 }
-                composable(ROUTE_CALMA_TOTAL) {
+                composable(NavigationRoutes.CALMA_TOTAL) {
                     CalmaTotalScreen(onExit = { navController.popBackStack() })
                 }
-                composable(ROUTE_TASKS) {
+                composable(NavigationRoutes.TASKS) {
                     TaskManagementScreen(
                         onBack = { navController.popBackStack() },
                         viewModel = tasksViewModel
                     )
                 }
-                composable(ROUTE_SCRIPTS) {
+                composable(NavigationRoutes.SCRIPTS) {
                     ScriptsScreen(
                         windowSizeClass = windowSizeClass,
                         scripts = scriptsUiState.scripts,
                         onScriptClick = { scriptId ->
-                            navController.navigate("script_reader/$scriptId")
+                            navController.navigate(NavigationRoutes.scriptReaderRoute(scriptId))
                         },
-                        onNewScriptClick = { navController.navigate(ROUTE_NEW_SCRIPT) }
+                        onNewScriptClick = { navController.navigate(NavigationRoutes.NEW_SCRIPT) }
                     )
                 }
-                composable(ROUTE_NEW_SCRIPT) {
+                composable(NavigationRoutes.NEW_SCRIPT) {
                     NewScriptScreen(
                         windowSizeClass = windowSizeClass,
                         onSaveScript = { phrase, categoryId, styleId ->
@@ -309,10 +299,10 @@ fun MainScreen(
                     )
                 }
                 composable(
-                    route = ROUTE_SCRIPT_READER,
-                    arguments = listOf(navArgument(ARG_SCRIPT_ID) { type = NavType.StringType })
+                    route = NavigationRoutes.SCRIPT_READER,
+                    arguments = listOf(navArgument(NavigationRoutes.ARG_SCRIPT_ID) { type = NavType.StringType })
                 ) { backStackEntry ->
-                    val scriptId = backStackEntry.arguments?.getString(ARG_SCRIPT_ID).orEmpty()
+                    val scriptId = backStackEntry.arguments?.getString(NavigationRoutes.ARG_SCRIPT_ID).orEmpty()
                     val selectedScript = scriptsViewModel.getScriptById(scriptId)
                     ScriptReaderScreen(
                         mainText = selectedScript?.message ?: "NECESITO APOYO",

@@ -13,9 +13,12 @@ import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import co.ryzer.ancla.notifications.NotificationHelper
 import co.ryzer.ancla.ui.profile.ProfileViewModel
+import co.ryzer.ancla.navigation.NavigationRoutes
 import co.ryzer.ancla.ui.screens.MainScreen
 import co.ryzer.ancla.ui.scripts.ScriptsViewModel
 import co.ryzer.ancla.ui.theme.AnclaTheme
@@ -25,9 +28,13 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val shouldOpenHomeFromNotification = mutableStateOf(false)
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        shouldOpenHomeFromNotification.value =
+            intent?.getBooleanExtra(NotificationHelper.EXTRA_OPEN_HOME_FROM_NOTIFICATION, false) == true
         enableEdgeToEdge()
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -55,6 +62,24 @@ class MainActivity : ComponentActivity() {
 
             AnclaTheme {
                 val navController = rememberNavController()
+                LaunchedEffect(
+                    profileUiState.isLoaded,
+                    profileUiState.requiresOnboarding,
+                    shouldOpenHomeFromNotification.value
+                ) {
+                    if (
+                        shouldOpenHomeFromNotification.value &&
+                        profileUiState.isLoaded &&
+                        !profileUiState.requiresOnboarding
+                    ) {
+                        navController.navigate(NavigationRoutes.HOME) {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                        shouldOpenHomeFromNotification.value = false
+                    }
+                }
+
                 MainScreen(
                     navController = navController,
                     windowSizeClass = windowSizeClass,
@@ -64,5 +89,12 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        shouldOpenHomeFromNotification.value =
+            intent.getBooleanExtra(NotificationHelper.EXTRA_OPEN_HOME_FROM_NOTIFICATION, false)
     }
 }

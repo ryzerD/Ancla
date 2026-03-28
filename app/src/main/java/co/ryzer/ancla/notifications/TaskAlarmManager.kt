@@ -19,43 +19,75 @@ import javax.inject.Singleton
 class TaskAlarmManager @Inject constructor(
     @param:ApplicationContext private val context: Context
 ) {
+    companion object {
+        private const val LOG_TAG = "AnclaTaskAlarmManager"
+        private const val EXTRA_TASK_ID = "TASK_ID"
+        private const val EXTRA_TASK_TITLE = "TASK_TITLE"
+        private const val EXTRA_TASK_CATEGORY = "TASK_CATEGORY"
+        private const val NOTIFICATION_LEAD_MINUTES = 10L
+        private const val IMMEDIATE_NOTIFICATION_DELAY_SECONDS = 5L
+    }
+
     private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
     fun scheduleAlarm(task: Task) {
+        // Validate task
+        if (task.id.isBlank() || task.title.isBlank()) {
+            Log.w(LOG_TAG, "Skipping alarm for invalid task: ${task.id}")
+            return
+        }
+
         if (task.isCompleted) {
             cancelAlarm(task)
             return
         }
 
         try {
-            val startTime = LocalTime.parse(task.startTime)
+            val startTime = try {
+                LocalTime.parse(task.startTime)
+            } catch (e: Exception) {
+                Log.w(LOG_TAG, "Invalid startTime format: ${task.startTime}, using 08:00", e)
+                LocalTime.of(8, 0)
+            }
+
+            val endTime = try {
+                LocalTime.parse(task.endTime)
+            } catch (e: Exception) {
+                Log.w(LOG_TAG, "Invalid endTime format: ${task.endTime}, using 09:00", e)
+                LocalTime.of(9, 0)
+            }
+
             val now = LocalDateTime.now()
 
-            // Calculamos el momento de la notificación (10 min antes)
-            var notificationTime = LocalDateTime.of(LocalDate.now(), startTime).minusMinutes(10)
+            // Calculate notification time: 10 minutes before task start
+            val todayStart = LocalDateTime.of(LocalDate.now(), startTime)
+            val todayEnd = adjustEndForOvernight(todayStart, endTime)
+            var notificationTime = todayStart.minusMinutes(NOTIFICATION_LEAD_MINUTES)
 
-            // Si el momento de avisar YA PASÓ pero la tarea aún no termina,
-            // avisamos INMEDIATAMENTE (dentro de 5 segundos) en lugar de esperar a mañana.
+            // If notification time has already passed but task is still ongoing,
+            // notify immediately instead of waiting until tomorrow.
             if (notificationTime.isBefore(now)) {
-                val taskEndTime = LocalTime.parse(task.endTime)
-                val taskEndDateTime = LocalDateTime.of(LocalDate.now(), taskEndTime)
-
-                if (now.isBefore(taskEndDateTime)) {
-                    notificationTime = now.plusSeconds(5) // Aviso casi inmediato
+                if (now.isBefore(todayEnd)) {
+                    notificationTime = now.plusSeconds(IMMEDIATE_NOTIFICATION_DELAY_SECONDS)
+                    Log.d(LOG_TAG, "Task ${task.id} is currently ongoing, notifying immediately")
                 } else {
                     notificationTime = notificationTime.plusDays(1)
+                    Log.d(LOG_TAG, "Task ${task.id} already passed, scheduling for tomorrow")
                 }
             }
 
             val intent = Intent(context, TaskAlarmReceiver::class.java).apply {
-                putExtra("TASK_ID", task.id)
-                putExtra("TASK_TITLE", task.title)
-                putExtra("TASK_CATEGORY", task.category)
+                putExtra(EXTRA_TASK_ID, task.id)
+                putExtra(EXTRA_TASK_TITLE, task.title)
+                putExtra(EXTRA_TASK_CATEGORY, task.category)
             }
+
+            // Use absolute hash to ensure positive ID
+            val alarmRequestCode = kotlin.math.abs(task.id.hashCode())
 
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                task.id.hashCode(),
+                alarmRequestCode,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -63,10 +95,9 @@ class TaskAlarmManager @Inject constructor(
             val triggerAtMillis =
                 notificationTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
-            // Log para que verifiques en Android Studio
             Log.d(
-                "AnclaNotifications",
-                "Programando alarma para ${task.title} a las $notificationTime"
+                LOG_TAG,
+                "Scheduling alarm for taskId=${task.id}, title=${task.title}, triggerTime=$notificationTime"
             )
 
             val canScheduleExact = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -81,40 +112,60 @@ class TaskAlarmManager @Inject constructor(
                     triggerAtMillis,
                     pendingIntent
                 )
+                Log.i(LOG_TAG, "Exact alarm scheduled for taskId=${task.id}")
             } else {
-                // Fallback when exact alarms are not allowed on Android 12+
                 alarmManager.setAndAllowWhileIdle(
                     AlarmManager.RTC_WAKEUP,
                     triggerAtMillis,
                     pendingIntent
                 )
                 Log.w(
-                    "AnclaNotifications",
-                    "No se pueden programar alarmas exactas; usando alarma inexacta para ${task.title}"
+                    LOG_TAG,
+                    "Exact alarms not permitted on this device; using inexact alarm for taskId=${task.id}"
                 )
             }
         } catch (e: SecurityException) {
             Log.e(
-                "AnclaNotifications",
-                "Sin permiso para programar alarma exacta/inexacta de ${task.title}",
+                LOG_TAG,
+                "Permission denied while scheduling alarm for taskId=${task.id}",
                 e
             )
         } catch (e: Exception) {
-            Log.e("AnclaNotifications", "Error al programar alarma", e)
+            Log.e(LOG_TAG, "Unexpected error while scheduling alarm for taskId=${task.id}", e)
         }
     }
 
     fun cancelAlarm(task: Task) {
-        val intent = Intent(context, TaskAlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            task.id.hashCode(),
-            intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        )
-        if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent)
-            pendingIntent.cancel()
+        if (task.id.isBlank()) {
+            Log.w(LOG_TAG, "Cannot cancel alarm for task with blank ID")
+            return
         }
+
+        try {
+            val intent = Intent(context, TaskAlarmReceiver::class.java)
+            val alarmRequestCode = kotlin.math.abs(task.id.hashCode())
+
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                alarmRequestCode,
+                intent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            if (pendingIntent != null) {
+                alarmManager.cancel(pendingIntent)
+                pendingIntent.cancel()
+                Log.d(LOG_TAG, "Alarm cancelled for taskId=${task.id}")
+            } else {
+                Log.d(LOG_TAG, "No pending alarm found to cancel for taskId=${task.id}")
+            }
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Error cancelling alarm for taskId=${task.id}", e)
+        }
+    }
+
+    private fun adjustEndForOvernight(start: LocalDateTime, endTime: LocalTime): LocalDateTime {
+        val sameDayEnd = LocalDateTime.of(start.toLocalDate(), endTime)
+        return if (sameDayEnd.isAfter(start)) sameDayEnd else sameDayEnd.plusDays(1)
     }
 }
