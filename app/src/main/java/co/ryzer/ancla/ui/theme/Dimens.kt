@@ -16,6 +16,7 @@ object HomeScreenDimens {
     val topSpacerCompact  = 48.dp
     val topSpacerExpanded = 64.dp
 
+    val periodGreetingBottomPadding = 8.dp
     val greetingBottomPadding = 16.dp
     val bottomSpacer          = 48.dp
 
@@ -42,12 +43,27 @@ object HomeScreenDimens {
     val buttonMinHeight    = 60.dp
     val buttonCornerRadius = 20.dp
 
-    // ── EmptyTasksState ──────────────────────────────────────────────────────
-    val emptyStatePadding        = 32.dp
-    val emptyIconSizeCompact     = 80.dp
-    val emptyIconSizeExpanded    = 120.dp
-    val emptyIconToTitleSpacer   = 24.dp
-    val emptyTitleToSubtitleSpacer = 12.dp
+    // ── RestCard ─────────────────────────────────────────────────────────────
+    val restCardCornerRadius = 44.dp
+    val restCardElevation = 0.dp
+    const val restCardAspectRatioCompact = 1f
+    const val restCardAspectRatioExpanded = 1.1f
+    val restCardPadding = 30.dp
+    val restIconContainerSize = 88.dp
+    val restIconSize = 40.dp
+    val restIconBottomSpacing = 22.dp
+    val restTitleBottomSpacing = 10.dp
+    val restSubtitleHorizontalPadding = 10.dp
+    val restContentToButtonSpacing = 26.dp
+    const val restButtonWidthFraction = 0.82f
+
+    // ── Home state wiring visuals ───────────────────────────────────────────
+    const val preparingCardAlpha = 0.78f
+    val overlapBannerSpacing = 10.dp
+    val overlapBannerCornerRadius = 12.dp
+    val overlapBannerHorizontalPadding = 12.dp
+    val overlapBannerVerticalPadding = 8.dp
+
 }
 
 /**
@@ -204,6 +220,7 @@ object SettingsScreenDimens {
     val menuIconSize = 28.dp
     val iconTextSpacing = 12.dp
     val chevronSize = 30.dp
+
 }
 
 /**
@@ -212,5 +229,39 @@ object SettingsScreenDimens {
 object CalmaTotalScreenDimens {
     val brightnessLevel = 0.08f
     val fadeOutStepCount = 12
+}
+
+/**
+ * Dimension tokens for shared button components.
+ */
+object AnclaButtonDimens {
+    val minHeight = 48.dp
+    val iconSize = 18.dp
+    val contentSpacing = 8.dp
+    val pillCornerRadius = 999.dp
+    val outlinedCornerRadius = 16.dp
+    val borderWidth = 1.dp
+}
+
+/**
+ * Dimension tokens for AnclaTimePickerField.
+ */
+object AnclaTimePickerDimens {
+    val fieldCornerRadius = 999.dp
+    val fieldHorizontalPadding = 12.dp
+    val fieldVerticalPadding = 10.dp
+    val fieldIconSize = 18.dp
+
+    val dialogCornerRadius = 28.dp
+    val dialogTonalElevation = 0.dp
+    val dialogShadowElevation = 0.dp
+    val dialogMinWidth = 320.dp
+    val dialogMaxWidth = 360.dp
+    val dialogPadding = 24.dp
+    val titleBottomSpacing = 20.dp
+
+    val actionsTopSpacing = 20.dp
+    val actionsSpacing = 10.dp
+    val actionButtonCornerRadius = 10.dp
 }
 

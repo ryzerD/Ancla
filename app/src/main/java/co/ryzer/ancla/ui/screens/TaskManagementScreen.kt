@@ -1,390 +1,481 @@
 package co.ryzer.ancla.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerState
-import androidx.compose.material3.rememberTimePickerState
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.SheetValue
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
-import co.ryzer.ancla.ui.components.AnclaTextField
+import co.ryzer.ancla.ui.tasks.TasksUiState
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
 import co.ryzer.ancla.ui.theme.AnclaTheme
+import co.ryzer.ancla.ui.theme.ScriptReaderButton
 import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
-import co.ryzer.ancla.ui.theme.TextSecondary
-import co.ryzer.ancla.ui.theme.ToolsScreenDimens
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+
+private data class TaskFormSnapshot(
+    val title: String = "",
+    val description: String = "",
+    val startTime: String = "08:00",
+    val endTime: String = "09:00",
+    val category: String = "Rutina"
+) {
+    companion object {
+        fun fromTask(task: Task): TaskFormSnapshot = TaskFormSnapshot(
+            title = task.title,
+            description = task.description,
+            startTime = task.startTime,
+            endTime = task.endTime,
+            category = task.category
+        )
+
+        fun fromUiState(uiState: TasksUiState): TaskFormSnapshot = TaskFormSnapshot(
+            title = uiState.newTitle,
+            description = uiState.newDescription,
+            startTime = uiState.newStartTime,
+            endTime = uiState.newEndTime,
+            category = uiState.newCategory
+        )
+    }
+}
+
+private data class PendingToggleAction(
+    val taskId: String,
+    val targetCompleted: Boolean
+)
 
 @Composable
 fun TaskManagementScreen(
-    title: String,
-    description: String,
-    time: String,
-    tasks: List<Task>,
+    onBack: () -> Unit,
+    viewModel: TasksViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    TaskManagementContent(
+        uiState = uiState,
+        onBack = onBack,
+        onTitleChange = viewModel::onTitleChange,
+        onDescriptionChange = viewModel::onDescriptionChange,
+        onStartTimeChange = viewModel::onStartTimeChange,
+        onEndTimeChange = viewModel::onEndTimeChange,
+        onCategoryChange = viewModel::onCategoryChange,
+        onAddTask = viewModel::addTask,
+        onCancelEdit = viewModel::cancelEditing,
+        onToggleCompleted = { taskId, isCompleted ->
+            viewModel.setTaskCompleted(taskId, isCompleted)
+        },
+        onEditTask = viewModel::startEditing,
+        onDeleteTask = viewModel::deleteTask,
+        saveErrorEvents = viewModel.saveError,
+        saveSuccessEvents = viewModel.saveSuccess
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun TaskManagementContent(
+    uiState: TasksUiState,
+    onBack: () -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onTimeChange: (String) -> Unit,
+    onStartTimeChange: (String) -> Unit,
+    onEndTimeChange: (String) -> Unit,
+    onCategoryChange: (String) -> Unit,
     onAddTask: () -> Unit,
-    isEditing: Boolean,
-    onToggleCompleted: (String, Boolean) -> Unit,
+    onCancelEdit: () -> Unit,
+    onToggleCompleted: (taskId: String, isCompleted: Boolean) -> Unit,
+    onEditTask: (Task) -> Unit,
     onDeleteTask: (String) -> Unit,
-    onStartEditTask: (Task) -> Unit,
-    onCancelEditing: () -> Unit,
+    saveErrorEvents: Flow<String> = emptyFlow(),
+    saveSuccessEvents: Flow<Unit> = emptyFlow()
 ) {
-    val titleRemaining = TasksViewModel.TITLE_MAX_LENGTH - title.length
-    val descriptionRemaining = TasksViewModel.DESCRIPTION_MAX_LENGTH - description.length
-    var taskPendingDelete by remember { mutableStateOf<Task?>(null) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(AnclaBackground)
-            .padding(
-                horizontal = ToolsScreenDimens.horizontalPaddingCompact,
-                vertical = ToolsScreenDimens.verticalPadding
-            )
-    ) {
-        Text(
-            text = stringResource(R.string.tasks_screen_title),
-            style = AnclaTextStyles.toolsTitle,
-            color = TextPrimary
-        )
-        Text(
-            text = stringResource(R.string.tasks_screen_subtitle),
-            style = AnclaTextStyles.toolCardSubtitle,
-            color = TextSecondary
-        )
-
-        Spacer(modifier = Modifier.height(ToolsScreenDimens.headerBottomSpacer))
-
-        AnclaTextField(
-            value = title,
-            onValueChange = { value ->
-                if (value.length <= TasksViewModel.TITLE_MAX_LENGTH) {
-                    onTitleChange(value)
-                }
-            },
-            label = { Text(stringResource(R.string.tasks_field_title)) },
-            supportingText = if (titleRemaining <= TasksViewModel.TITLE_COUNTER_THRESHOLD) {
-                {
-                    Text(stringResource(R.string.tasks_remaining_characters, titleRemaining))
-                }
-            } else {
-                null
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(ToolsScreenDimens.orderControlsSpacing))
-        AnclaTextField(
-            value = description,
-            onValueChange = { value ->
-                if (value.length <= TasksViewModel.DESCRIPTION_MAX_LENGTH) {
-                    onDescriptionChange(value)
-                }
-            },
-            label = { Text(stringResource(R.string.tasks_field_description)) },
-            supportingText = if (descriptionRemaining <= TasksViewModel.DESCRIPTION_COUNTER_THRESHOLD) {
-                {
-                    Text(stringResource(R.string.tasks_remaining_characters, descriptionRemaining))
-                }
-            } else {
-                null
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(ToolsScreenDimens.orderControlsSpacing))
-
-        // Time is selected via a TimePicker dialog – no free text allowed.
-        TimePickerField(
-            time = time,
-            onTimeSelected = onTimeChange,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(ToolsScreenDimens.iconToTextSpacer))
-        Button(onClick = onAddTask, modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = if (isEditing) {
-                    stringResource(R.string.tasks_save_button)
-                } else {
-                    stringResource(R.string.tasks_add_button)
-                }
-            )
+    var showFormSheet by remember { mutableStateOf(false) }
+    var formErrorMessage by remember { mutableStateOf<String?>(null) }
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    var pendingToggleAction by remember { mutableStateOf<PendingToggleAction?>(null) }
+    var pendingDeleteTaskId by remember { mutableStateOf<String?>(null) }
+    var initialFormSnapshot by remember { mutableStateOf<TaskFormSnapshot?>(null) }
+    val currentSnapshot = TaskFormSnapshot.fromUiState(uiState)
+    val hasUnsavedChanges by remember(currentSnapshot, initialFormSnapshot) {
+        derivedStateOf {
+            initialFormSnapshot != null && currentSnapshot != initialFormSnapshot
         }
+    }
+    val latestHasUnsavedChanges by rememberUpdatedState(hasUnsavedChanges)
+    val formSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { targetValue ->
+            if (targetValue == SheetValue.Hidden && latestHasUnsavedChanges) {
+                showDiscardDialog = true
+                false
+            } else {
+                true
+            }
+        }
+    )
+    val isImeVisible = WindowInsets.isImeVisible
+    val sheetHeightFraction = if (isImeVisible) 0.92f else 0.74f
 
-        if (isEditing) {
-            Spacer(modifier = Modifier.height(ToolsScreenDimens.orderControlsSpacing))
-            TextButton(
-                onClick = onCancelEditing,
-                colors = ButtonDefaults.textButtonColors(contentColor = TextPrimary),
-                modifier = Modifier.fillMaxWidth()
+    fun closeSheet(forceDiscard: Boolean = false) {
+        if (!forceDiscard && hasUnsavedChanges) {
+            showDiscardDialog = true
+            return
+        }
+        showDiscardDialog = false
+        showFormSheet = false
+        formErrorMessage = null
+        initialFormSnapshot = null
+        onCancelEdit()
+    }
+
+    LaunchedEffect(uiState.editingTaskId) {
+        if (uiState.editingTaskId != null) {
+            showFormSheet = true
+        }
+    }
+
+    LaunchedEffect(saveErrorEvents) {
+        saveErrorEvents.collect { message ->
+            formErrorMessage = message
+            showFormSheet = true
+        }
+    }
+
+    LaunchedEffect(saveSuccessEvents) {
+        saveSuccessEvents.collect {
+            formErrorMessage = null
+            showDiscardDialog = false
+            initialFormSnapshot = null
+            showFormSheet = false
+        }
+    }
+
+    Scaffold(
+        containerColor = AnclaBackground,
+        contentWindowInsets = WindowInsets(0),
+        topBar = { TaskManagementTopBar(onBack = onBack) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    onCancelEdit()
+                    formErrorMessage = null
+                    showDiscardDialog = false
+                    initialFormSnapshot = TaskFormSnapshot()
+                    showFormSheet = true
+                },
+                containerColor = ScriptReaderButton,
+                contentColor = SurfaceWhite
             ) {
-                Text(text = stringResource(R.string.tasks_cancel_edit_button))
-            }
-        }
-
-        Spacer(modifier = Modifier.height(ToolsScreenDimens.orderControlsSpacing))
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(ToolsScreenDimens.orderControlsSpacing),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items(items = tasks, key = { it.id }) { task ->
-                TaskRow(
-                    task = task,
-                    onToggleCompleted = onToggleCompleted,
-                    onRequestDeleteTask = { taskPendingDelete = task },
-                    onEditTask = onStartEditTask
-                )
-            }
-        }
-
-        taskPendingDelete?.let { task ->
-            ConfirmDeleteTaskDialog(
-                taskTitle = task.title,
-                onDismiss = { taskPendingDelete = null },
-                onConfirm = {
-                    onDeleteTask(task.id)
-                    taskPendingDelete = null
-                }
-            )
-        }
-    }
-}
-
-/**
- * Read-only text field that opens a Material3 [TimePicker] dialog on tap.
- * Stores the selected value as "HH:mm" (24-hour format).
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimePickerField(
-    time: String,
-    onTimeSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var showPicker by remember { mutableStateOf(false) }
-
-    // Parse the stored value so the picker pre-selects the right hour/minute.
-    val initialHour = remember(time) {
-        time.substringBefore(":", missingDelimiterValue = "08").toIntOrNull() ?: 8
-    }
-    val initialMinute = remember(time) {
-        time.substringAfter(":", missingDelimiterValue = "00").toIntOrNull() ?: 0
-    }
-    val pickerState = rememberTimePickerState(
-        initialHour = initialHour,
-        initialMinute = initialMinute,
-        is24Hour = true
-    )
-
-    AnclaTextField(
-        value = time,
-        onValueChange = {},
-        readOnly = true,
-        singleLine = true,
-        label = { Text(stringResource(R.string.tasks_field_time)) },
-        trailingIcon = {
-            IconButton(onClick = { showPicker = true }) {
                 Icon(
-                    imageVector = Icons.Default.Schedule,
-                    contentDescription = stringResource(R.string.tasks_time_picker_description),
-                    tint = TextPrimary
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.tasks_add_button)
                 )
             }
-        },
-        modifier = modifier
-    )
-
-    if (showPicker) {
-        AnclaTimePickerDialog(
-            state = pickerState,
-            onDismiss = { showPicker = false },
-            onConfirm = {
-                onTimeSelected("%02d:%02d".format(pickerState.hour, pickerState.minute))
-                showPicker = false
-            }
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AnclaTimePickerDialog(
-    state: TimePickerState,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.dialog_cancel))
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(stringResource(R.string.dialog_confirm))
-            }
-        },
-        text = {
-            TimePicker(state = state)
         }
-    )
-}
-
-@Composable
-private fun TaskRow(
-    task: Task,
-    onToggleCompleted: (String, Boolean) -> Unit,
-    onRequestDeleteTask: (Task) -> Unit,
-    onEditTask: (Task) -> Unit
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        shape = RoundedCornerShape(ToolsScreenDimens.cardCornerRadius),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(ToolsScreenDimens.cardContentPadding),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(ToolsScreenDimens.orderControlsSpacing)
+                .padding(padding)
+                .fillMaxSize()
+                .padding(horizontal = 24.dp)
         ) {
-            Checkbox(
-                checked = task.isCompleted,
-                onCheckedChange = { checked -> onToggleCompleted(task.id, checked) }
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = task.title, style = AnclaTextStyles.toolCardTitle, color = TextPrimary)
-                if (task.description.isNotBlank()) {
-                    Text(
-                        text = task.description,
-                        style = AnclaTextStyles.toolCardSubtitle,
-                        color = TextSecondary
+            TaskTodaySection(
+                tasks = uiState.tasks,
+                pendingCount = uiState.pendingTasks.size,
+                onToggleCompleted = { taskId, isCompleted ->
+                    pendingToggleAction = PendingToggleAction(
+                        taskId = taskId,
+                        targetCompleted = isCompleted
                     )
+                },
+                onEditTask = {
+                    onEditTask(it)
+                    initialFormSnapshot = TaskFormSnapshot.fromTask(it)
+                    showDiscardDialog = false
+                    showFormSheet = true
+                },
+                onDeleteTask = { taskId ->
+                    pendingDeleteTaskId = taskId
+                },
+                modifier = Modifier.weight(1f)
+            )
+        }
+
+        if (showFormSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { closeSheet() },
+                sheetState = formSheetState,
+                containerColor = AnclaBackground,
+                contentWindowInsets = { WindowInsets(0) }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(sheetHeightFraction)
+                        .imePadding()
+                        .navigationBarsPadding()
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        formErrorMessage?.let { message ->
+                            item {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.errorContainer,
+                                    shape = MaterialTheme.shapes.medium,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = message,
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        style = AnclaTextStyles.toolCardSubtitle,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        item {
+                            TaskFormSection(
+                                uiState = uiState,
+                                onTitleChange = {
+                                    formErrorMessage = null
+                                    onTitleChange(it)
+                                },
+                                onDescriptionChange = {
+                                    formErrorMessage = null
+                                    onDescriptionChange(it)
+                                },
+                                onStartTimeChange = {
+                                    formErrorMessage = null
+                                    onStartTimeChange(it)
+                                },
+                                onEndTimeChange = {
+                                    formErrorMessage = null
+                                    onEndTimeChange(it)
+                                },
+                                onCategoryChange = {
+                                    formErrorMessage = null
+                                    onCategoryChange(it)
+                                },
+                                onAddTask = onAddTask,
+                                onCancelEdit = { closeSheet() }
+                            )
+                        }
+                    }
                 }
-                Text(
-                    text = stringResource(R.string.task_time_format, task.time),
-                    style = AnclaTextStyles.toolCardSubtitle,
-                    color = TextSecondary
-                )
             }
-            IconButton(onClick = { onEditTask(task) }) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = stringResource(R.string.tasks_edit_content_description),
-                    tint = TextPrimary
-                )
-            }
-            IconButton(onClick = { onRequestDeleteTask(task) }) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = stringResource(R.string.tasks_delete_content_description),
-                    tint = TextPrimary
-                )
-            }
+        }
+
+        if (showDiscardDialog) {
+            AlertDialog(
+                onDismissRequest = { showDiscardDialog = false },
+                title = { Text(text = stringResource(R.string.tasks_discard_dialog_title)) },
+                text = { Text(text = stringResource(R.string.tasks_discard_dialog_message)) },
+                confirmButton = {
+                    TextButton(onClick = { closeSheet(forceDiscard = true) }) {
+                        Text(text = stringResource(R.string.tasks_discard_dialog_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDiscardDialog = false }) {
+                        Text(text = stringResource(R.string.dialog_cancel))
+                    }
+                }
+            )
+        }
+
+        pendingDeleteTaskId?.let { taskId ->
+            val taskName = uiState.tasks.firstOrNull { it.id == taskId }?.title ?: "esta tarea"
+            AlertDialog(
+                onDismissRequest = { pendingDeleteTaskId = null },
+                title = { Text(text = stringResource(R.string.tasks_delete_dialog_title)) },
+                text = { Text(text = stringResource(R.string.tasks_delete_dialog_message, taskName)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onDeleteTask(taskId)
+                            pendingDeleteTaskId = null
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.dialog_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingDeleteTaskId = null }) {
+                        Text(text = stringResource(R.string.dialog_cancel))
+                    }
+                }
+            )
+        }
+
+        pendingToggleAction?.let { action ->
+            val taskName = uiState.tasks.firstOrNull { it.id == action.taskId }?.title ?: "esta tarea"
+            AlertDialog(
+                onDismissRequest = { pendingToggleAction = null },
+                title = {
+                    Text(
+                        text = if (action.targetCompleted) {
+                            stringResource(R.string.tasks_complete_confirm_title)
+                        } else {
+                            stringResource(R.string.tasks_reopen_confirm_title)
+                        }
+                    )
+                },
+                text = {
+                    Text(
+                        text = if (action.targetCompleted) {
+                            stringResource(R.string.tasks_complete_confirm_message, taskName)
+                        } else {
+                            stringResource(R.string.tasks_reopen_confirm_message, taskName)
+                        }
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onToggleCompleted(action.taskId, action.targetCompleted)
+                            pendingToggleAction = null
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.dialog_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingToggleAction = null }) {
+                        Text(text = stringResource(R.string.dialog_cancel))
+                    }
+                }
+            )
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ConfirmDeleteTaskDialog(
-    taskTitle: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.tasks_delete_dialog_title)) },
-        text = { Text(stringResource(R.string.tasks_delete_dialog_message, taskTitle)) },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.dialog_cancel))
+private fun TaskManagementTopBar(onBack: () -> Unit) {
+    TopAppBar(
+        title = {
+            Text(
+                stringResource(R.string.tasks_screen_title),
+                style = AnclaTextStyles.sectionLabel,
+                fontWeight = FontWeight.SemiBold,
+                color = TextPrimary
+            )
+        },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.tasks_back_content_description),
+                    tint = TextPrimary
+                )
             }
         },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(stringResource(R.string.dialog_confirm))
-            }
-        }
+        windowInsets = WindowInsets(0),
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = AnclaBackground,
+            titleContentColor = TextPrimary,
+            navigationIconContentColor = TextPrimary
+        )
     )
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
 @Composable
 fun TaskManagementScreenPreview() {
     AnclaTheme {
-        TaskManagementScreen(
-            title = "Morning Routine",
-            description = "Start the day right",
-            time = "07:30",
-            tasks = listOf(
-                Task(
-                    title = "Meditation",
-                    description = "10 minutes mindfulness",
-                    time = "07:30",
-                    isCompleted = true
-                ),
-                Task(
-                    title = "Exercise",
-                    description = "Light stretching",
-                    time = "08:00",
-                    isCompleted = false
-                ),
-                Task(
-                    title = "Breakfast",
-                    description = "Healthy meal",
-                    time = "08:30",
-                    isCompleted = false
+        TaskManagementContent(
+            uiState = TasksUiState(
+                tasks = listOf(
+                    Task(
+                        title = "Completar reporte mensual",
+                        description = "Revisar los datos financieros del mes pasado.",
+                        startTime = "09:00",
+                        endTime = "10:30",
+                        category = "Trabajo"
+                    ),
+                    Task(
+                        title = "Ir al gimnasio",
+                        description = "Sesión de cardio y pesas.",
+                        startTime = "18:00",
+                        endTime = "19:30",
+                        category = "Salud",
+                        completedAt = System.currentTimeMillis()
+                    ),
+                    Task(
+                        title = "Comprar víveres",
+                        description = "Frutas, verduras y leche.",
+                        startTime = "17:00",
+                        endTime = "17:45",
+                        category = "Rutina"
+                    )
                 )
             ),
+            onBack = {},
             onTitleChange = {},
             onDescriptionChange = {},
-            onTimeChange = {},
+            onStartTimeChange = {},
+            onEndTimeChange = {},
+            onCategoryChange = {},
             onAddTask = {},
-            isEditing = false,
+            onCancelEdit = {},
             onToggleCompleted = { _, _ -> },
+            onEditTask = {},
             onDeleteTask = {},
-            onStartEditTask = {},
-            onCancelEditing = {},
+            saveErrorEvents = emptyFlow(),
+            saveSuccessEvents = emptyFlow()
         )
     }
 }

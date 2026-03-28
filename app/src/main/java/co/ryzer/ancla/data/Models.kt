@@ -12,9 +12,19 @@ data class Task(
     val id: String = java.util.UUID.randomUUID().toString(),
     val title: String,
     val description: String,
-    val time: String,
-    val isCompleted: Boolean = false
-)
+    val startTime: String,
+    val endTime: String,
+    val category: String,
+    val startedAt: Long? = null,      // Timestamp when task was started
+    val completedAt: Long? = null     // Timestamp when task was completed
+) {
+    // Derive boolean states from timestamps
+    val isInProgress: Boolean
+        get() = startedAt != null && completedAt == null
+    
+    val isCompleted: Boolean
+        get() = completedAt != null
+}
 
 data class Script(
     val id: String = java.util.UUID.randomUUID().toString(),
@@ -60,4 +70,3 @@ val DefaultToolOrder: List<ToolOrderEntry> = listOf(
     ToolOrderEntry(toolId = ToolIds.SOS, position = 4),
     ToolOrderEntry(toolId = ToolIds.CALM_MAP, position = 5)
 )
-

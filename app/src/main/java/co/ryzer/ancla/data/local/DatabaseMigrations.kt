@@ -102,3 +102,52 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 }
 
 
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // No-op migration: columns startedAt and completedAt already exist
+        // This migration is just to update the version number
+    }
+}
+
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS task_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                taskId TEXT NOT NULL,
+                taskTitle TEXT NOT NULL,
+                taskCategory TEXT NOT NULL,
+                wasCompleted INTEGER NOT NULL,
+                recordedAt INTEGER NOT NULL,
+                snapshotDate TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS index_task_history_taskId
+            ON task_history(taskId)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS index_task_history_snapshotDate
+            ON task_history(snapshotDate)
+            """.trimIndent()
+        )
+    }
+}
+
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            ALTER TABLE tasks
+            ADD COLUMN postponementOffsetMinutes INTEGER DEFAULT NULL
+            """.trimIndent()
+        )
+    }
+}
+
+
