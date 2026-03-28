@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,10 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,22 +30,13 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.TimePickerDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,11 +44,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
+import co.ryzer.ancla.ui.components.AnclaOutlinedButton
+import co.ryzer.ancla.ui.components.AnclaPrimaryButton
 import co.ryzer.ancla.ui.components.AnclaTextField
+import co.ryzer.ancla.ui.components.AnclaTimePickerField
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
@@ -73,8 +61,6 @@ import co.ryzer.ancla.ui.theme.ScriptReaderButton
 import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
 import co.ryzer.ancla.ui.theme.TextSecondary
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -183,6 +169,7 @@ fun TaskManagementScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TaskForm(
     uiState: co.ryzer.ancla.ui.tasks.TasksUiState,
@@ -278,7 +265,7 @@ private fun TaskForm(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                TimePickerField(
+                AnclaTimePickerField(
                     value = uiState.newStartTime,
                     timeLabel = stringResource(R.string.tasks_schedule_start),
                     onValueChange = onStartTimeChange,
@@ -289,7 +276,7 @@ private fun TaskForm(
                     style = AnclaTextStyles.sectionLabel,
                     color = TextSecondary
                 )
-                TimePickerField(
+                AnclaTimePickerField(
                     value = uiState.newEndTime,
                     timeLabel = stringResource(R.string.tasks_schedule_end),
                     onValueChange = onEndTimeChange,
@@ -301,171 +288,33 @@ private fun TaskForm(
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 if (uiState.editingTaskId != null) {
-                    OutlinedButton(
+                    AnclaOutlinedButton(
+                        text = stringResource(R.string.dialog_cancel),
                         onClick = onCancelEdit,
                         modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = TextSecondary),
-                        border = ButtonDefaults.outlinedButtonBorder(enabled = true).copy(
-                            brush = androidx.compose.ui.graphics.SolidColor(
-                                CardLavender
-                            )
-                        )
-                    ) {
-                        Text(stringResource(R.string.dialog_cancel))
-                    }
+                        contentColor = TextSecondary,
+                        borderColor = CardLavender
+                    )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
 
-                Button(
+                AnclaPrimaryButton(
+                    text = if (uiState.editingTaskId == null) {
+                        stringResource(R.string.tasks_add_short)
+                    } else {
+                        stringResource(R.string.tasks_update_short)
+                    },
                     onClick = onAddTask,
                     modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = ScriptReaderButton,
-                        contentColor = SurfaceWhite
-                    ),
-                    shape = RoundedCornerShape(999.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        if (uiState.editingTaskId == null) {
-                            stringResource(R.string.tasks_add_short)
-                        } else {
-                            stringResource(R.string.tasks_update_short)
-                        },
-                        style = AnclaTextStyles.primaryButton
-                    )
-                }
+                    leadingIcon = Icons.Default.Add,
+                    containerColor = ScriptReaderButton,
+                    contentColor = SurfaceWhite
+                )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimePickerField(
-    value: String,
-    timeLabel: String,
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var showDialog by remember { mutableStateOf(false) }
-    val time = try {
-        LocalTime.parse(value)
-    } catch (_: Exception) {
-        LocalTime.of(8, 0)
-    }
-
-    val pickerState = rememberTimePickerState(
-        initialHour = time.hour,
-        initialMinute = time.minute,
-        is24Hour = true
-    )
-
-    Surface(
-        modifier = modifier
-            .clip(RoundedCornerShape(999.dp))
-            .clickable { showDialog = true },
-        shape = RoundedCornerShape(999.dp),
-        color = CardPeach
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Icon(
-                imageVector = Icons.Default.Schedule,
-                contentDescription = stringResource(R.string.tasks_time_picker_description),
-                tint = TextSecondary,
-                modifier = Modifier.size(18.dp)
-            )
-            Text(
-                text = value,
-                style = AnclaTextStyles.taskTime,
-                color = TextPrimary,
-                fontWeight = FontWeight.Medium
-            )
-        }
-    }
-
-    if (showDialog) {
-        Dialog(onDismissRequest = { showDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(28.dp),
-                tonalElevation = 6.dp,
-                modifier = Modifier
-                    .width(IntrinsicSize.Min)
-                    .height(IntrinsicSize.Min)
-                    .background(shape = RoundedCornerShape(28.dp), color = SurfaceWhite)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 20.dp),
-                        text = stringResource(R.string.tasks_time_picker_title, timeLabel),
-                        style = AnclaTextStyles.sectionLabel,
-                        color = TextSecondary
-                    )
-
-                    TimePicker(
-                        state = pickerState,
-                        colors = TimePickerDefaults.colors(
-                            clockDialColor = AnclaBackground,
-                            clockDialSelectedContentColor = SurfaceWhite,
-                            clockDialUnselectedContentColor = TextPrimary,
-                            selectorColor = TextPrimary,
-                            periodSelectorSelectedContainerColor = CardLavender,
-                            periodSelectorSelectedContentColor = TextPrimary,
-                            periodSelectorUnselectedContentColor = TextSecondary,
-                            timeSelectorSelectedContainerColor = CardLavender,
-                            timeSelectorSelectedContentColor = TextPrimary,
-                            timeSelectorUnselectedContainerColor = AnclaBackground,
-                            timeSelectorUnselectedContentColor = TextSecondary
-                        )
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 24.dp),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        TextButton(onClick = { showDialog = false }) {
-                            Text(stringResource(R.string.dialog_cancel), color = TextPrimary)
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        TextButton(
-                            onClick = {
-                                val formattedTime =
-                                    LocalTime.of(pickerState.hour, pickerState.minute)
-                                        .format(DateTimeFormatter.ofPattern("HH:mm"))
-                                onValueChange(formattedTime)
-                                showDialog = false
-                            }
-                        ) {
-                            Text(
-                                stringResource(R.string.dialog_confirm),
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
 @Composable
 private fun TaskListItem(
