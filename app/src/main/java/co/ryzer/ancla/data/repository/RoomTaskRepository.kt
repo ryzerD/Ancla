@@ -18,14 +18,8 @@ class RoomTaskRepository @Inject constructor(
         }
     }
 
-    override suspend fun addTask(title: String, description: String, time: String) {
-        taskDao.insert(
-            Task(
-                title = title,
-                description = description,
-                time = time
-            ).toEntity()
-        )
+    override suspend fun addTask(task: Task) {
+        taskDao.insert(task.toEntity())
     }
 
     override suspend fun updateTask(task: Task) {
@@ -40,4 +34,3 @@ class RoomTaskRepository @Inject constructor(
         taskDao.deleteById(taskId)
     }
 }
-

@@ -106,9 +106,9 @@ fun MainScreen(
     var toolOrder by remember {
         mutableStateOf(DefaultToolOrder)
     }
-    val tasksUiState by tasksViewModel.uiState.collectAsState()
     val scriptsUiState by scriptsViewModel.uiState.collectAsState()
     val profileUiState by profileViewModel.uiState.collectAsState()
+    val currentActivity by tasksViewModel.currentActivity.collectAsState()
 
     val startDestination = resolveStartDestination(profileUiState) ?: return
 
@@ -157,21 +157,21 @@ fun MainScreen(
             if (!showBottomBar) {
                 if (!hidesNavigationChrome) {
                     NavigationRail {
-                    navigationItems.forEach { item ->
-                        NavigationRailItem(
-                            selected = currentRoute == item.route,
-                            onClick = {
-                                navigateFromNavItem(navController = navController, route = item.route)
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = if (currentRoute == item.route) item.selectedIcon else item.icon,
-                                    contentDescription = item.label
-                                )
-                            },
-                            label = { Text(item.label) }
-                        )
-                    }
+                        navigationItems.forEach { item ->
+                            NavigationRailItem(
+                                selected = currentRoute == item.route,
+                                onClick = {
+                                    navigateFromNavItem(navController = navController, route = item.route)
+                                },
+                                icon = {
+                                    Icon(
+                                        imageVector = if (currentRoute == item.route) item.selectedIcon else item.icon,
+                                        contentDescription = item.label
+                                    )
+                                },
+                                label = { Text(item.label) }
+                            )
+                        }
                     }
                 }
             }
@@ -194,7 +194,7 @@ fun MainScreen(
                 composable(ROUTE_HOME) {
                     HomeScreen(
                         userName = profileUiState.name,
-                        currentTasks = tasksUiState.pendingTasks,
+                        currentActivity = currentActivity,
                         onTaskComplete = { taskId ->
                             tasksViewModel.setTaskCompleted(taskId = taskId, isCompleted = true)
                         },
@@ -280,19 +280,8 @@ fun MainScreen(
                 }
                 composable(ROUTE_TASKS) {
                     TaskManagementScreen(
-                        title = tasksUiState.newTitle,
-                        description = tasksUiState.newDescription,
-                        time = tasksUiState.newTime,
-                        tasks = tasksUiState.tasks,
-                        onTitleChange = tasksViewModel::onTitleChange,
-                        onDescriptionChange = tasksViewModel::onDescriptionChange,
-                        onTimeChange = tasksViewModel::onTimeChange,
-                        onAddTask = tasksViewModel::addTask,
-                        isEditing = tasksUiState.isEditing,
-                        onToggleCompleted = tasksViewModel::setTaskCompleted,
-                        onDeleteTask = tasksViewModel::deleteTask,
-                        onStartEditTask = tasksViewModel::startEditing,
-                        onCancelEditing = tasksViewModel::cancelEditing,
+                        onBack = { navController.popBackStack() },
+                        viewModel = tasksViewModel
                     )
                 }
                 composable(ROUTE_SCRIPTS) {

@@ -10,7 +10,9 @@ data class TaskEntity(
     val id: String,
     val title: String,
     val description: String,
-    val time: String,
+    val startTime: String,
+    val endTime: String,
+    val category: String,
     val isCompleted: Boolean
 )
 
@@ -18,7 +20,9 @@ fun TaskEntity.toDomain(): Task = Task(
     id = id,
     title = title,
     description = description,
-    time = time,
+    startTime = startTime,
+    endTime = endTime,
+    category = category,
     isCompleted = isCompleted
 )
 
@@ -26,7 +30,8 @@ fun Task.toEntity(): TaskEntity = TaskEntity(
     id = id,
     title = title,
     description = description,
-    time = time,
+    startTime = startTime,
+    endTime = endTime,
+    category = category,
     isCompleted = isCompleted
 )
-

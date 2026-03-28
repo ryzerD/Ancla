@@ -57,8 +57,27 @@
     <!-- TaskManagementScreen -->
     <string name="tasks_screen_title">Mis tareas diarias</string>
     <string name="tasks_screen_subtitle">Guarda las tareas que quieres tener presentes cada dia.</string>
+    <string name="tasks_back_content_description">Regresar</string>
+    <string name="tasks_form_title">Nueva Tarea</string>
     <string name="tasks_field_title">Titulo de la tarea</string>
+    <string name="tasks_field_title_placeholder">Titulo de la tarea</string>
     <string name="tasks_field_description">Descripcion (opcional)</string>
+    <string name="tasks_field_description_placeholder">Descripcion (opcional)</string>
+    <string name="tasks_field_category_label">Categoria</string>
+    <string name="tasks_category_routine">Rutina</string>
+    <string name="tasks_category_health">Salud</string>
+    <string name="tasks_category_work">Trabajo</string>
+    <string name="tasks_schedule_label">Horario</string>
+    <string name="tasks_schedule_start">Inicio</string>
+    <string name="tasks_schedule_end">Fin</string>
+    <string name="tasks_schedule_between">a</string>
+    <string name="tasks_today_label">Tareas de hoy</string>
+    <string name="tasks_remaining_count">%1$d restantes</string>
+    <string name="tasks_add_short">Anadir</string>
+    <string name="tasks_update_short">Actualizar</string>
+    <string name="tasks_complete_content_description">Marcar como completada</string>
+    <string name="tasks_reopen_content_description">Marcar como pendiente</string>
+    <string name="tasks_time_picker_title">Selecciona la hora de %1$s</string>
     <string name="tasks_field_time">Hora (ej: 08:00 AM)</string>
     <string name="tasks_add_button">Agregar tarea</string>
     <string name="tasks_save_button">Guardar cambios</string>

@@ -1,4 +1,5 @@
 package co.ryzer.ancla.data
+
 data class SensoryProfile(
     val id: Int = 1,
     val name: String = "",
@@ -11,7 +12,9 @@ data class Task(
     val id: String = java.util.UUID.randomUUID().toString(),
     val title: String,
     val description: String,
-    val time: String,
+    val startTime: String,
+    val endTime: String,
+    val category: String,
     val isCompleted: Boolean = false
 )
 
@@ -46,4 +49,3 @@ val DefaultToolOrder: List<ToolOrderEntry> = listOf(
     ToolOrderEntry(toolId = ToolIds.BREATHING, position = 3),
     ToolOrderEntry(toolId = ToolIds.SOS, position = 4)
 )
-

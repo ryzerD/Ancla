@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-    @Query("SELECT * FROM tasks ORDER BY isCompleted ASC, time ASC")
+    @Query("SELECT * FROM tasks ORDER BY isCompleted ASC, startTime ASC")
     fun observeTasks(): Flow<List<TaskEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -24,4 +24,3 @@ interface TaskDao {
     @Query("UPDATE tasks SET isCompleted = :isCompleted WHERE id = :taskId")
     suspend fun updateCompleted(taskId: String, isCompleted: Boolean)
 }
-

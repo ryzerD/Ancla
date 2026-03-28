@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.*
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.ui.theme.*
@@ -23,7 +24,7 @@ import co.ryzer.ancla.ui.theme.*
 @Composable
 fun HomeScreen(
     userName: String = "",
-    currentTasks: List<Task> = emptyList(),
+    currentActivity: Task? = null,
     onTaskComplete: (String) -> Unit = {},
     windowSizeClass: WindowSizeClass? = null
 ) {
@@ -58,10 +59,10 @@ fun HomeScreen(
                 .fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            if (currentTasks.isEmpty()) {
-                EmptyTasksState(isExpanded = isExpanded)
+            if (currentActivity != null) {
+                ActivityCard(currentActivity, onTaskComplete, isExpanded = isExpanded)
             } else {
-                TaskCard(currentTasks.first(), onTaskComplete, isExpanded = isExpanded)
+                RestCard(isExpanded = isExpanded)
             }
         }
 
@@ -70,7 +71,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun TaskCard(
+fun ActivityCard(
     task: Task,
     onComplete: (String) -> Unit,
     isExpanded: Boolean = false
@@ -103,7 +104,7 @@ fun TaskCard(
                 )
             )
             Text(
-                text = stringResource(R.string.current_task_label),
+                text = task.category.uppercase(),
                 style = AnclaTextStyles.sectionLabel,
                 color = TextSecondary,
                 textAlign = TextAlign.Center
@@ -116,7 +117,7 @@ fun TaskCard(
                 modifier = Modifier.padding(vertical = HomeScreenDimens.taskTitleVerticalPadding)
             )
             Text(
-                text = stringResource(R.string.task_time_format, task.time),
+                text = "${task.startTime} - ${task.endTime}",
                 style = AnclaTextStyles.taskTime,
                 color = TextSecondary,
                 textAlign = TextAlign.Center
@@ -157,36 +158,42 @@ fun TaskCard(
 }
 
 @Composable
-fun EmptyTasksState(isExpanded: Boolean = false) {
-    Column(
+fun RestCard(isExpanded: Boolean = false) {
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(HomeScreenDimens.emptyStatePadding),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .widthIn(max = if (isExpanded) HomeScreenDimens.cardMaxWidthExpanded else HomeScreenDimens.cardMaxWidthCompact),
+        shape = RoundedCornerShape(HomeScreenDimens.cardCornerRadius),
+        colors = CardDefaults.cardColors(containerColor = CardLavender),
+        elevation = CardDefaults.cardElevation(defaultElevation = HomeScreenDimens.cardElevation)
     ) {
-        Icon(
-            imageVector = Icons.Default.Info,
-            contentDescription = null,
-            tint = TextSecondary.copy(alpha = 0.3f),
-            modifier = Modifier.size(
-                if (isExpanded) HomeScreenDimens.emptyIconSizeExpanded else HomeScreenDimens.emptyIconSizeCompact
+        Column(
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.Spa,
+                contentDescription = null,
+                tint = TextPrimary,
+                modifier = Modifier.size(
+                    if (isExpanded) HomeScreenDimens.taskIconSizeExpanded else HomeScreenDimens.taskIconSizeCompact
+                )
             )
-        )
-        Spacer(modifier = Modifier.height(HomeScreenDimens.emptyIconToTitleSpacer))
-        Text(
-            text = stringResource(R.string.empty_tasks_title),
-            style = if (isExpanded) AnclaTextStyles.emptyStateTitleExpanded else AnclaTextStyles.emptyStateTitle,
-            color = TextSecondary,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(HomeScreenDimens.emptyTitleToSubtitleSpacer))
-        Text(
-            text = stringResource(R.string.empty_tasks_subtitle),
-            style = AnclaTextStyles.emptyStateSubtitle,
-            color = TextSecondary.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center
-        )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Tiempo de Calma",
+                style = if (isExpanded) AnclaTextStyles.taskTitleExpanded else AnclaTextStyles.taskTitle,
+                color = TextPrimary,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "No tienes actividades programadas. Aprovecha para descansar y respirar profundo.",
+                style = AnclaTextStyles.taskDescription,
+                color = TextPrimary.copy(alpha = 0.8f),
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
 
@@ -196,41 +203,24 @@ fun HomeScreenCompactPreview() {
     AnclaTheme {
         HomeScreen(
             userName = "David",
-            currentTasks = listOf(
-                Task(
-                    title = "Meditar 10 minutos",
-                    description = "Busca un lugar tranquilo y concéntrate en tu respiración.",
-                    time = "08:00 AM"
-                )
+            currentActivity = Task(
+                title = "Meditar 10 minutos",
+                description = "Busca un lugar tranquilo y concéntrate en tu respiración.",
+                startTime = "08:00",
+                endTime = "08:10",
+                category = "Rutina"
             )
         )
     }
 }
 
-@Preview(showBackground = true, widthDp = 900, heightDp = 600)
+@Preview(showBackground = true, widthDp = 400, heightDp = 800)
 @Composable
-fun HomeScreenExpandedPreview() {
+fun HomeScreenRestPreview() {
     AnclaTheme {
         HomeScreen(
             userName = "David",
-            currentTasks = listOf(
-                Task(
-                    title = "Meditar 10 minutos",
-                    description = "Busca un lugar tranquilo y concéntrate en tu respiración.",
-                    time = "08:00 AM"
-                )
-            )
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HomeScreenEmptyPreview() {
-    AnclaTheme {
-        HomeScreen(
-            userName = "David",
-            currentTasks = emptyList()
+            currentActivity = null
         )
     }
 }
