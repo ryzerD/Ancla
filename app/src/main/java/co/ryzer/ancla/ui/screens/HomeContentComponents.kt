@@ -53,8 +53,8 @@ import co.ryzer.ancla.ui.theme.ScriptReaderButton
 import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
 import co.ryzer.ancla.ui.theme.TextSecondary
-import java.time.LocalTime
 import kotlinx.coroutines.delay
+import java.time.LocalTime
 
 @Composable
 fun HomeGreetingSection(userName: String, isExpanded: Boolean) {
@@ -101,7 +101,7 @@ fun HomeQuickControlsSection(
             Text(
                 text = stringResource(R.string.home_quick_controls_title),
                 style = AnclaTextStyles.sectionLabel,
-                color = TextSecondary
+                color = TextPrimary
             )
 
             OutlinedButton(
