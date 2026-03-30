@@ -152,6 +152,7 @@ class TasksViewModel @Inject constructor(
                 alarmManager.scheduleAlarm(newTask)
             } else {
                 val previousTask = currentState.tasks.firstOrNull { it.id == editingTaskId }
+                val isReopeningCompletedTask = previousTask?.isCompleted == true
                 val updatedTask = Task(
                     id = editingTaskId,
                     title = title,
@@ -159,8 +160,9 @@ class TasksViewModel @Inject constructor(
                     startTime = startTime,
                     endTime = endTime,
                     category = category,
-                    startedAt = previousTask?.startedAt,
-                    completedAt = previousTask?.completedAt
+                    // If a completed task is edited, reopen it as pending.
+                    startedAt = if (isReopeningCompletedTask) null else previousTask?.startedAt,
+                    completedAt = if (isReopeningCompletedTask) null else previousTask?.completedAt
                 )
                 repository.updateTask(updatedTask)
                 alarmManager.scheduleAlarm(updatedTask)
