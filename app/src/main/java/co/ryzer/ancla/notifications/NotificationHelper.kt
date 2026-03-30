@@ -10,6 +10,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.content.edit
 import co.ryzer.ancla.R
 import co.ryzer.ancla.MainActivity
 import android.Manifest
@@ -20,6 +21,8 @@ object NotificationHelper {
     const val CHANNEL_DESC = "Notificaciones suaves para tus próximas actividades"
     const val EXTRA_OPEN_HOME_FROM_NOTIFICATION = "extra_open_home_from_notification"
     private const val LOG_TAG = "AnclaNotifications"
+    private const val PREFS_NAME = "ancla_notification_prefs"
+    private const val PREF_KEY_TASK_NOTIFICATIONS_SILENCED = "task_notifications_silenced"
 
     fun createNotificationChannel(context: Context) {
         try {
@@ -118,5 +121,27 @@ object NotificationHelper {
         } catch (e: Exception) {
             Log.e(LOG_TAG, "Failed to show task notification for taskId=$notificationId", e)
         }
+    }
+
+    fun setTaskNotificationsSilenced(context: Context, silenced: Boolean) {
+        runCatching {
+            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+                .edit {
+                    putBoolean(PREF_KEY_TASK_NOTIFICATIONS_SILENCED, silenced)
+                }
+
+            if (silenced) {
+                val notificationManager =
+                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.cancelAll()
+            }
+        }.onFailure { error ->
+            Log.e(LOG_TAG, "Failed to set task notification silence=$silenced", error)
+        }
+    }
+
+    fun areTaskNotificationsSilenced(context: Context): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(PREF_KEY_TASK_NOTIFICATIONS_SILENCED, false)
     }
 }

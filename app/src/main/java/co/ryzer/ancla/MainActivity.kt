@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import co.ryzer.ancla.notifications.NotificationHelper
+import co.ryzer.ancla.ui.home.HomeViewModel
 import co.ryzer.ancla.ui.profile.ProfileViewModel
 import co.ryzer.ancla.navigation.NavigationRoutes
 import co.ryzer.ancla.ui.screens.MainScreen
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             val tasksViewModel: TasksViewModel = viewModel()
+            val homeViewModel: HomeViewModel = viewModel()
             val scriptsViewModel: ScriptsViewModel = viewModel()
             val profileViewModel: ProfileViewModel = viewModel()
             val profileUiState by profileViewModel.uiState.collectAsState()
@@ -84,6 +86,7 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     windowSizeClass = windowSizeClass,
                     tasksViewModel = tasksViewModel,
+                    homeViewModel = homeViewModel,
                     scriptsViewModel = scriptsViewModel,
                     profileViewModel = profileViewModel
                 )

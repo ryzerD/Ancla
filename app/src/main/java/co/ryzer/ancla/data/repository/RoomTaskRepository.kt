@@ -18,6 +18,17 @@ class RoomTaskRepository @Inject constructor(
         }
     }
 
+    override fun observeHomeTaskCandidate(currentTime: String, preparingUntil: String): Flow<Task?> {
+        return taskDao.observeHomeTaskCandidate(
+            currentTime = currentTime,
+            preparingUntil = preparingUntil
+        ).map { it?.toDomain() }
+    }
+
+    override suspend fun getTaskById(taskId: String): Task? {
+        return taskDao.getTaskById(taskId)?.toDomain()
+    }
+
     override suspend fun addTask(task: Task) {
         taskDao.insert(task.toEntity())
     }
@@ -26,11 +37,27 @@ class RoomTaskRepository @Inject constructor(
         taskDao.update(task.toEntity())
     }
 
+    override suspend fun setTaskInProgress(taskId: String, isInProgress: Boolean) {
+        if (isInProgress) {
+            taskDao.markStarted(taskId)
+        }
+    }
+
     override suspend fun setTaskCompleted(taskId: String, isCompleted: Boolean) {
-        taskDao.updateCompleted(taskId = taskId, isCompleted = isCompleted)
+        if (isCompleted) {
+            taskDao.markCompleted(taskId)
+        }
     }
 
     override suspend fun deleteTask(taskId: String) {
         taskDao.deleteById(taskId)
+    }
+
+    override suspend fun getPendingTasksStartingFrom(fromTime: String): List<Task> {
+        return taskDao.getPendingTasksStartingFrom(fromTime).map { it.toDomain() }
+    }
+
+    override suspend fun postponePendingTasksStartingFrom(fromTime: String, minutes: Long): Int {
+        return taskDao.postponePendingTasksStartingFrom(fromTime = fromTime, minutes = minutes)
     }
 }
