@@ -109,6 +109,9 @@
     <string name="tasks_delete_dialog_title">Eliminar tarea</string>
     <string name="tasks_delete_dialog_message">Deseas eliminar "%1$s"?</string>
     <string name="tasks_time_picker_description">Seleccionar hora</string>
+    <string name="tasks_filter_all">Todas</string>
+    <string name="tasks_filter_pending">Pendientes</string>
+    <string name="tasks_filter_completed">Completadas</string>
 
     <!-- ScriptsScreen -->
     <string name="scripts_screen_title">Mis guiones</string>
