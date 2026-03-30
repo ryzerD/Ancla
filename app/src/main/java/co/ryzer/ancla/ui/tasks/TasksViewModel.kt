@@ -173,8 +173,6 @@ class TasksViewModel @Inject constructor(
         viewModelScope.launch {
             repository.setTaskCompleted(taskId = taskId, isCompleted = isCompleted)
 
-            // Forzamos un refresco inmediato de la actividad actual
-            // para que desaparezca del Home al instante
             val updatedTasks = uiState.value.tasks.map {
                 if (it.id == taskId) {
                     it.copy(
@@ -196,28 +194,30 @@ class TasksViewModel @Inject constructor(
 
     fun onHomeTaskPrimaryAction(taskId: String) {
         viewModelScope.launch {
-            val task = uiState.value.tasks.firstOrNull { it.id == taskId } ?: return@launch
+            // Read from repository first to avoid acting on stale in-memory task state.
+            val task = repository.getTaskById(taskId)
+                ?: uiState.value.tasks.firstOrNull { it.id == taskId }
+                ?: return@launch
+
             if (task.isCompleted) return@launch
 
-            if (!task.isInProgress) {
-                // Start the task - update BD first
+            if (task.isInProgress) {
+                // Complete the task when it is already in progress.
+                setTaskCompleted(taskId = taskId, isCompleted = true)
+            } else {
+                // Start the task.
                 repository.setTaskInProgress(taskId = taskId, isInProgress = true)
 
-                // Wait a bit for Room to process and emit the change
-                delay(100)
-
-                // Then update local state with the new timestamp for immediate UI feedback
+                // Optimistic refresh so Home updates immediately even before Flow emission.
+                val startedAtNow = System.currentTimeMillis()
                 val updatedTasks = uiState.value.tasks.map {
                     if (it.id == taskId) {
-                        it.copy(startedAt = System.currentTimeMillis())
+                        it.copy(startedAt = it.startedAt ?: startedAtNow, completedAt = null)
                     } else {
                         it
                     }
                 }
                 refreshCurrentActivityWithList(updatedTasks)
-            } else {
-                // Complete the task
-                setTaskCompleted(taskId = taskId, isCompleted = true)
             }
         }
     }
