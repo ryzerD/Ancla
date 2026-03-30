@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.ui.home.ActivityState
@@ -40,6 +41,8 @@ fun HomeScreen(
     hasOverlap: Boolean = false,
     isRecoveryMode: Boolean = false,
     onTaskComplete: (String) -> Unit = {},
+    onToggleRecoveryMode: () -> Unit = {},
+    onPostponeRemaining: (Long) -> Unit = {},
     onStartMeditation: () -> Unit = {},
     windowSizeClass: WindowSizeClass? = null
 ) {
@@ -79,6 +82,47 @@ fun HomeScreen(
             color = TextPrimary,
             modifier = Modifier.padding(bottom = HomeScreenDimens.greetingBottomPadding)
         )
+
+        Surface(
+            color = SurfaceWhite,
+            shape = RoundedCornerShape(HomeScreenDimens.overlapBannerCornerRadius),
+            tonalElevation = 1.dp,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(HomeScreenDimens.overlapBannerHorizontalPadding),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.home_quick_controls_title),
+                    style = AnclaTextStyles.sectionLabel,
+                    color = TextSecondary
+                )
+
+                OutlinedButton(
+                    onClick = onToggleRecoveryMode,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = if (isRecoveryMode) {
+                            stringResource(R.string.home_btn_disable_recovery)
+                        } else {
+                            stringResource(R.string.home_btn_enable_recovery)
+                        }
+                    )
+                }
+
+                OutlinedButton(
+                    onClick = { onPostponeRemaining(15L) },
+                    enabled = !isRecoveryMode,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = stringResource(R.string.home_btn_postpone_15))
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(HomeScreenDimens.periodGreetingBottomPadding))
 
         Box(
             modifier = Modifier

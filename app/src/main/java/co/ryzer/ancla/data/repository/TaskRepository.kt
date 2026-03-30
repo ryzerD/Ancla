@@ -13,4 +13,5 @@ interface TaskRepository {
     suspend fun setTaskCompleted(taskId: String, isCompleted: Boolean)
     suspend fun deleteTask(taskId: String)
     suspend fun getPendingTasksStartingFrom(fromTime: String): List<Task>
+    suspend fun postponePendingTasksStartingFrom(fromTime: String, minutes: Long): Int
 }

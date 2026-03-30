@@ -25,6 +25,10 @@
     <string name="home_task_in_progress">Esta actividad esta en transcurso.</string>
     <string name="home_btn_start_task">Iniciar actividad</string>
     <string name="home_btn_finish_task">Finalizar actividad</string>
+    <string name="home_quick_controls_title">Controles rapidos</string>
+    <string name="home_btn_enable_recovery">Activar modo recuperacion</string>
+    <string name="home_btn_disable_recovery">Desactivar modo recuperacion</string>
+    <string name="home_btn_postpone_15">Posponer tareas 15 min</string>
 
     <!-- ToolsScreen -->
     <string name="tools_support_label">Mi Apoyo</string>

@@ -1,10 +1,13 @@
 package co.ryzer.ancla.ui.home
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.data.repository.TaskRepository
+import co.ryzer.ancla.notifications.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -24,15 +27,19 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val taskRepository: TaskRepository
+    private val taskRepository: TaskRepository,
+    @param:ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     companion object {
         private const val TICKER_INTERVAL_MILLIS = 60_000L
         private const val PREPARING_BUFFER_MINUTES = 15L
+        private const val MINUTES_PER_DAY = 1_440L
     }
 
-    private val recoveryMode = MutableStateFlow(false)
+    private val recoveryMode = MutableStateFlow(
+        NotificationHelper.areTaskNotificationsSilenced(appContext)
+    )
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
     private val nowTicker: Flow<LocalTime> = flow {
@@ -95,28 +102,69 @@ class HomeViewModel @Inject constructor(
         initialValue = HomeUiState()
     )
 
+    val homeDisplayState: StateFlow<HomeDisplayState> = combine(
+        recoveryMode,
+        uiState
+    ) { recovery, homeState ->
+        val taskToShow = if (recovery) null else homeState.currentTask
+        val content = when {
+            recovery -> HomeContent.RECOVERY
+            taskToShow != null -> HomeContent.TASK
+            else -> HomeContent.REST
+        }
+
+        HomeDisplayState(
+            isRecoveryMode = recovery,
+            currentTask = taskToShow,
+            content = content
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = HomeDisplayState()
+    )
+
     fun toggleRecoveryMode() {
-        recoveryMode.update { !it }
+        recoveryMode.update { previous ->
+            val enabled = !previous
+            NotificationHelper.setTaskNotificationsSilenced(appContext, enabled)
+            enabled
+        }
     }
 
     fun postponeAllRemaining(minutes: Long) {
         if (minutes <= 0L) return
+        val safeMinutes = normalizeMinutes(minutes)
+        if (safeMinutes == 0L) return
 
         viewModelScope.launch {
             val nowText = LocalTime.now().format(timeFormatter)
-            val pendingTasks = taskRepository.getPendingTasksStartingFrom(nowText)
+            val updatedRows = taskRepository.postponePendingTasksStartingFrom(
+                fromTime = nowText,
+                minutes = safeMinutes
+            )
 
-            pendingTasks.forEach { task ->
-                val shifted = shiftTaskByMinutes(task, minutes)
-                taskRepository.updateTask(shifted)
+            // Fallback path for malformed time rows not handled by SQL time() conversion.
+            if (updatedRows == 0) {
+                val pendingTasks = taskRepository.getPendingTasksStartingFrom(nowText)
+                pendingTasks.forEach { task ->
+                    val shifted = shiftTaskByMinutes(task, safeMinutes)
+                    if (shifted != task) {
+                        taskRepository.updateTask(shifted)
+                    }
+                }
             }
         }
     }
 
     private fun shiftTaskByMinutes(task: Task, minutes: Long): Task {
+        val safeMinutes = normalizeMinutes(minutes)
+        if (safeMinutes == 0L) return task
+
         return try {
-            val shiftedStart = LocalTime.parse(task.startTime).plusMinutes(minutes)
-            val shiftedEnd = LocalTime.parse(task.endTime).plusMinutes(minutes)
+            // LocalTime.plusMinutes wraps at 24h, so midnight transitions are handled safely.
+            val shiftedStart = LocalTime.parse(task.startTime).plusMinutes(safeMinutes)
+            val shiftedEnd = LocalTime.parse(task.endTime).plusMinutes(safeMinutes)
             task.copy(
                 startTime = shiftedStart.format(timeFormatter),
                 endTime = shiftedEnd.format(timeFormatter)
@@ -124,6 +172,11 @@ class HomeViewModel @Inject constructor(
         } catch (_: Exception) {
             task
         }
+    }
+
+    private fun normalizeMinutes(minutes: Long): Long {
+        val modulo = minutes % MINUTES_PER_DAY
+        return if (modulo >= 0L) modulo else modulo + MINUTES_PER_DAY
     }
 
     private fun isPreparing(task: Task, now: LocalTime): Boolean {

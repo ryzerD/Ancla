@@ -20,6 +20,11 @@ class TaskAlarmReceiver : BroadcastReceiver() {
                 return
             }
 
+            if (NotificationHelper.areTaskNotificationsSilenced(context)) {
+                Log.d(LOG_TAG, "Task notifications are silenced, skipping alarm for taskId=$taskId")
+                return
+            }
+
             // Use taskId hash as notification ID (ensure it's positive)
             val notificationId = kotlin.math.abs(taskId.hashCode())
 

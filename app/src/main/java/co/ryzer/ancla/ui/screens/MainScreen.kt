@@ -98,6 +98,7 @@ fun MainScreen(
     val scriptsUiState by scriptsViewModel.uiState.collectAsState()
     val profileUiState by profileViewModel.uiState.collectAsState()
     val homeUiState by homeViewModel.uiState.collectAsState()
+    val homeDisplayState by homeViewModel.homeDisplayState.collectAsState()
 
     val startDestination = resolveStartDestination(profileUiState) ?: return
 
@@ -186,12 +187,18 @@ fun MainScreen(
                 composable(NavigationRoutes.HOME) {
                     HomeScreen(
                         userName = profileUiState.name,
-                        currentActivity = homeUiState.currentTask,
+                        currentActivity = homeDisplayState.currentTask,
                         activityState = homeUiState.activityState,
                         hasOverlap = homeUiState.hasOverlap,
-                        isRecoveryMode = homeUiState.isRecoveryMode,
+                        isRecoveryMode = homeDisplayState.isRecoveryMode,
                         onTaskComplete = { taskId ->
                             tasksViewModel.onHomeTaskPrimaryAction(taskId)
+                        },
+                        onToggleRecoveryMode = {
+                            homeViewModel.toggleRecoveryMode()
+                        },
+                        onPostponeRemaining = { minutes ->
+                            homeViewModel.postponeAllRemaining(minutes)
                         },
                         onStartMeditation = {
                             navController.navigate(NavigationRoutes.BREATHING)

@@ -56,4 +56,8 @@ class RoomTaskRepository @Inject constructor(
     override suspend fun getPendingTasksStartingFrom(fromTime: String): List<Task> {
         return taskDao.getPendingTasksStartingFrom(fromTime).map { it.toDomain() }
     }
+
+    override suspend fun postponePendingTasksStartingFrom(fromTime: String, minutes: Long): Int {
+        return taskDao.postponePendingTasksStartingFrom(fromTime = fromTime, minutes = minutes)
+    }
 }

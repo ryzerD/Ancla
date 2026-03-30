@@ -70,4 +70,18 @@ interface TaskDao {
         """
     )
     suspend fun getPendingTasksStartingFrom(fromTime: String): List<TaskEntity>
+
+    @Query(
+        """
+        UPDATE tasks
+        SET
+            startTime = strftime('%H:%M', time(startTime, '+' || :minutes || ' minutes')),
+            endTime = strftime('%H:%M', time(endTime, '+' || :minutes || ' minutes'))
+        WHERE completedAt IS NULL
+          AND startTime >= :fromTime
+          AND time(startTime) IS NOT NULL
+          AND time(endTime) IS NOT NULL
+        """
+    )
+    suspend fun postponePendingTasksStartingFrom(fromTime: String, minutes: Long): Int
 }
