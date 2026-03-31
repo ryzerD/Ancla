@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,6 +40,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import co.ryzer.ancla.R
@@ -87,7 +89,10 @@ fun HomeGreetingSection(userName: String, isExpanded: Boolean) {
 fun HomeQuickControlsSection(
     isRecoveryMode: Boolean,
     onToggleRecoveryMode: () -> Unit,
-    onPostponeRemaining: (Long) -> Unit
+    onPostponeRemaining: (Long) -> Unit,
+    onReducePostponement: (Long) -> Unit = {},
+    onClearPostponement: () -> Unit = {},
+    currentPostponementMinutes: Long = 0L
 ) {
     Surface(
         color = SurfaceWhite,
@@ -118,12 +123,73 @@ fun HomeQuickControlsSection(
                 )
             }
 
+            // Mostrar indicador de postponement si hay
+            if (currentPostponementMinutes > 0L) {
+                Surface(
+                    color = CardGreen.copy(alpha = 0.2f),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = stringResource(
+                                R.string.home_postponement_indicator,
+                                currentPostponementMinutes
+                            ),
+                            style = AnclaTextStyles.toolCardSubtitle,
+                            color = TextPrimary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                // Botones para ajustar postponement
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { onReducePostponement(15L) },
+                        enabled = !isRecoveryMode,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_btn_reduce_postpone_15),
+                            fontSize = androidx.compose.ui.unit.TextUnit.Unspecified
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = { onClearPostponement() },
+                        enabled = !isRecoveryMode,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_btn_clear_postponement),
+                            fontSize = androidx.compose.ui.unit.TextUnit.Unspecified
+                        )
+                    }
+                }
+            }
+
             OutlinedButton(
                 onClick = { onPostponeRemaining(15L) },
                 enabled = !isRecoveryMode,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(text = stringResource(R.string.home_btn_postpone_15))
+                Text(
+                    text = if (currentPostponementMinutes > 0L) {
+                        stringResource(
+                            R.string.home_btn_postpone_15_more,
+                            currentPostponementMinutes
+                        )
+                    } else {
+                        stringResource(R.string.home_btn_postpone_15)
+                    }
+                )
             }
         }
     }

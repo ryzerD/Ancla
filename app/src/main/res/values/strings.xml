@@ -119,6 +119,10 @@
     <string name="tasks_filter_all">Todas</string>
     <string name="tasks_filter_pending">Pendientes</string>
     <string name="tasks_filter_completed">Completadas</string>
+    <string name="home_postponement_indicator">⏰ Pospuesto: %1$d minutos más</string>
+    <string name="home_btn_postpone_15_more">➕ Posponer 15 min más (%1$d min acumulados)</string>
+    <string name="home_btn_reduce_postpone_15">➖ Menos 15 min</string>
+    <string name="home_btn_clear_postponement">🗑️ Cancelar pospuesto</string>
 
     <!-- ScriptsScreen -->
     <string name="scripts_screen_title">Mis guiones</string>

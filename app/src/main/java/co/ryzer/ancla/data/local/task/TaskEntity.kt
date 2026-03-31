@@ -14,7 +14,8 @@ data class TaskEntity(
     val endTime: String,
     val category: String,
     val startedAt: Long? = null,
-    val completedAt: Long? = null
+    val completedAt: Long? = null,
+    val postponementOffsetMinutes: Long? = null
 )
 
 fun TaskEntity.toDomain(): Task = Task(

@@ -21,10 +21,13 @@ class DailyResetWorker(
                 applicationContext,
                 DailyResetWorkerEntryPoint::class.java
             )
-            entryPoint.taskRepository().runDailyRoutineReset(
+            val repo = entryPoint.taskRepository()
+            repo.runDailyRoutineReset(
                 snapshotDate = LocalDate.now().toString(),
                 recordedAt = System.currentTimeMillis()
             )
+            // Limpiar postponements al reiniciar el día
+            repo.clearAllPostponements()
             Result.success()
         } catch (_: Exception) {
             Result.retry()

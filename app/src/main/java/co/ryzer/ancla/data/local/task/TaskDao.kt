@@ -34,6 +34,15 @@ interface TaskDao {
     @Query(
         """
         UPDATE tasks
+        SET startedAt = :timestamp
+        WHERE id = :taskId
+        """
+    )
+    suspend fun markStarted(taskId: String, timestamp: Long = System.currentTimeMillis())
+
+    @Query(
+        """
+        UPDATE tasks
         SET completedAt = NULL
         WHERE id = :taskId
         """
@@ -42,12 +51,21 @@ interface TaskDao {
 
     @Query(
         """
-        UPDATE tasks 
-        SET startedAt = CASE WHEN startedAt IS NULL THEN :timestamp ELSE startedAt END
+        UPDATE tasks
+        SET postponementOffsetMinutes = :offsetMinutes
         WHERE id = :taskId
         """
     )
-    suspend fun markStarted(taskId: String, timestamp: Long = System.currentTimeMillis())
+    suspend fun savePostponementBackup(taskId: String, offsetMinutes: Long)
+
+    @Query(
+        """
+        UPDATE tasks
+        SET postponementOffsetMinutes = NULL
+        WHERE postponementOffsetMinutes IS NOT NULL
+        """
+    )
+    suspend fun clearAllPostponements(): Int
 
     @Query("SELECT * FROM tasks WHERE id = :taskId LIMIT 1")
     suspend fun getTaskById(taskId: String): TaskEntity?

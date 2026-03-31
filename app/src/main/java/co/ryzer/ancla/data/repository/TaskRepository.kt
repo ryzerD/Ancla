@@ -15,5 +15,7 @@ interface TaskRepository {
     suspend fun deleteTask(taskId: String)
     suspend fun getPendingTasksStartingFrom(fromTime: String): List<Task>
     suspend fun postponePendingTasksStartingFrom(fromTime: String, minutes: Long): Int
+    suspend fun savePostponementBackup(taskId: String, offsetMinutes: Long)
+    suspend fun clearAllPostponements(): Int
     suspend fun runDailyRoutineReset(snapshotDate: String, recordedAt: Long): Int
 }

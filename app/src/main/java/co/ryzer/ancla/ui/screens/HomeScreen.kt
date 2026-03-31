@@ -8,12 +8,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.ui.home.ActivityState
 import co.ryzer.ancla.ui.theme.AnclaBackground
@@ -27,9 +30,12 @@ fun HomeScreen(
     activityState: ActivityState = ActivityState.SCHEDULED,
     hasOverlap: Boolean = false,
     isRecoveryMode: Boolean = false,
+    currentPostponementMinutes: Long = 0L,
     onTaskComplete: (String) -> Unit = {},
     onToggleRecoveryMode: () -> Unit = {},
     onPostponeRemaining: (Long) -> Unit = {},
+    onReducePostponement: (Long) -> Unit = {},
+    onClearPostponement: () -> Unit = {},
     onStartMeditation: () -> Unit = {},
     windowSizeClass: WindowSizeClass? = null
 ) {
@@ -42,6 +48,7 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(AnclaBackground)
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = horizontalPadding)
     ) {
         Spacer(
@@ -55,9 +62,7 @@ fun HomeScreen(
         Spacer(modifier = Modifier.height(HomeScreenDimens.periodGreetingBottomPadding))
 
         Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             HomeMainContentSection(
@@ -76,8 +81,13 @@ fun HomeScreen(
         HomeQuickControlsSection(
             isRecoveryMode = isRecoveryMode,
             onToggleRecoveryMode = onToggleRecoveryMode,
-            onPostponeRemaining = onPostponeRemaining
+            onPostponeRemaining = onPostponeRemaining,
+            onReducePostponement = onReducePostponement,
+            onClearPostponement = onClearPostponement,
+            currentPostponementMinutes = currentPostponementMinutes
         )
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 

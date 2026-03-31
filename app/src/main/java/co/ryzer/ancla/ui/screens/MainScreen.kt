@@ -191,6 +191,7 @@ fun MainScreen(
                         activityState = homeUiState.activityState,
                         hasOverlap = homeUiState.hasOverlap,
                         isRecoveryMode = homeDisplayState.isRecoveryMode,
+                        currentPostponementMinutes = homeDisplayState.currentPostponementMinutes,
                         onTaskComplete = { taskId ->
                             tasksViewModel.onHomeTaskPrimaryAction(taskId)
                         },
@@ -199,6 +200,12 @@ fun MainScreen(
                         },
                         onPostponeRemaining = { minutes ->
                             homeViewModel.postponeAllRemaining(minutes)
+                        },
+                        onReducePostponement = { minutes ->
+                            homeViewModel.reducePostponement(minutes)
+                        },
+                        onClearPostponement = {
+                            homeViewModel.clearPostponement()
                         },
                         onStartMeditation = {
                             navController.navigate(NavigationRoutes.BREATHING)

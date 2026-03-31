@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.data.repository.TaskRepository
 import co.ryzer.ancla.notifications.NotificationHelper
+import co.ryzer.ancla.notifications.TaskAlarmManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -23,11 +25,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import co.ryzer.ancla.data.withPostponementOffset
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val taskRepository: TaskRepository,
+    private val taskAlarmManager: TaskAlarmManager,
     @param:ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
@@ -40,7 +44,22 @@ class HomeViewModel @Inject constructor(
     private val recoveryMode = MutableStateFlow(
         NotificationHelper.areTaskNotificationsSilenced(appContext)
     )
+    private val postponementMinutes = MutableStateFlow(0L)
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    // Detecta cambio de día y limpia offset automáticamente a medianoche
+    private val midnightDetector: Flow<Unit> = flow {
+        var lastDate = LocalDate.now()
+        while (true) {
+            val today = LocalDate.now()
+            if (today.isAfter(lastDate)) {
+                lastDate = today
+                postponementMinutes.value = 0L
+                emit(Unit)
+            }
+            delay(60_000L)
+        }
+    }
 
     private val nowTicker: Flow<LocalTime> = flow {
         while (true) {
@@ -56,18 +75,28 @@ class HomeViewModel @Inject constructor(
             currentTime = nowText,
             preparingUntil = preparingUntilText
         )
+    }.combine(postponementMinutes) { candidate, offset ->
+        candidate?.withPostponementOffset(offset)
     }
 
     val uiState: StateFlow<HomeUiState> = combine(
         recoveryMode,
         nowTicker,
         candidateTaskFlow,
-        taskRepository.observeTasks()
-    ) { recovery, now, candidateTask, allTasks ->
+        taskRepository.observeTasks(),
+        postponementMinutes
+    ) { recovery, now, candidateTask, allTasks, offset ->
+        // Aplicar offset visual a todas las tareas
+        val tasksWithOffset = if (offset > 0L) {
+            allTasks.map { it.withPostponementOffset(offset) }
+        } else {
+            allTasks
+        }
+
         val overlapNow = hasOverlapNow(allTasks, now)
         
         // If no candidate in the immediate window, get the next pending task
-        val taskToShow = candidateTask ?: allTasks.filter { !it.isCompleted }
+        val taskToShow = candidateTask ?: tasksWithOffset.filter { !it.isCompleted }
             .minByOrNull { task ->
                 try {
                     val start = LocalTime.parse(task.startTime)
@@ -93,7 +122,7 @@ class HomeViewModel @Inject constructor(
         HomeUiState(
             currentTask = if (recovery) null else taskToShow,
             activityState = state,
-            hasOverlap = overlapNow,
+            hasOverlap = overlapNow && offset == 0L,
             isRecoveryMode = recovery
         )
     }.stateIn(
@@ -104,8 +133,9 @@ class HomeViewModel @Inject constructor(
 
     val homeDisplayState: StateFlow<HomeDisplayState> = combine(
         recoveryMode,
-        uiState
-    ) { recovery, homeState ->
+        uiState,
+        postponementMinutes
+    ) { recovery, homeState, postponementOffset ->
         val taskToShow = if (recovery) null else homeState.currentTask
         val content = when {
             recovery -> HomeContent.RECOVERY
@@ -116,7 +146,8 @@ class HomeViewModel @Inject constructor(
         HomeDisplayState(
             isRecoveryMode = recovery,
             currentTask = taskToShow,
-            content = content
+            content = content,
+            currentPostponementMinutes = postponementOffset
         )
     }.stateIn(
         scope = viewModelScope,
@@ -134,43 +165,81 @@ class HomeViewModel @Inject constructor(
 
     fun postponeAllRemaining(minutes: Long) {
         if (minutes <= 0L) return
+        // Actualiza solo el offset en memoria, SIN tocar BD
         val safeMinutes = normalizeMinutes(minutes)
         if (safeMinutes == 0L) return
 
-        viewModelScope.launch {
-            val nowText = LocalTime.now().format(timeFormatter)
-            val updatedRows = taskRepository.postponePendingTasksStartingFrom(
-                fromTime = nowText,
-                minutes = safeMinutes
-            )
+        val newPostponementValue = postponementMinutes.value + safeMinutes
+        postponementMinutes.update { current ->
+            normalizeMinutes(current + safeMinutes)
+        }
 
-            // Fallback path for malformed time rows not handled by SQL time() conversion.
-            if (updatedRows == 0) {
-                val pendingTasks = taskRepository.getPendingTasksStartingFrom(nowText)
-                pendingTasks.forEach { task ->
-                    val shifted = shiftTaskByMinutes(task, safeMinutes)
-                    if (shifted != task) {
-                        taskRepository.updateTask(shifted)
-                    }
+        // Reprogramar alarmas de tareas pendientes con el nuevo offset
+        viewModelScope.launch {
+            try {
+                val pendingTasks = taskRepository.observeTasks().stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = emptyList()
+                ).value.filter { !it.isCompleted }
+
+                for (task in pendingTasks) {
+                    taskAlarmManager.scheduleAlarmWithPostponement(task, newPostponementValue)
                 }
+            } catch (_: Exception) {
+                // Si falla reprogramación de alarmas, continuamos
             }
         }
     }
 
-    private fun shiftTaskByMinutes(task: Task, minutes: Long): Task {
+    fun reducePostponement(minutes: Long) {
+        if (minutes <= 0L) return
         val safeMinutes = normalizeMinutes(minutes)
-        if (safeMinutes == 0L) return task
+        if (safeMinutes == 0L) return
 
-        return try {
-            // LocalTime.plusMinutes wraps at 24h, so midnight transitions are handled safely.
-            val shiftedStart = LocalTime.parse(task.startTime).plusMinutes(safeMinutes)
-            val shiftedEnd = LocalTime.parse(task.endTime).plusMinutes(safeMinutes)
-            task.copy(
-                startTime = shiftedStart.format(timeFormatter),
-                endTime = shiftedEnd.format(timeFormatter)
-            )
-        } catch (_: Exception) {
-            task
+        val newPostponementValue = (postponementMinutes.value - safeMinutes).coerceAtLeast(0L)
+        postponementMinutes.value = newPostponementValue
+
+        // Reprogramar alarmas con el nuevo offset reducido
+        viewModelScope.launch {
+            try {
+                val pendingTasks = taskRepository.observeTasks().stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = emptyList()
+                ).value.filter { !it.isCompleted }
+
+                for (task in pendingTasks) {
+                    if (newPostponementValue > 0L) {
+                        taskAlarmManager.scheduleAlarmWithPostponement(task, newPostponementValue)
+                    } else {
+                        taskAlarmManager.scheduleAlarm(task)
+                    }
+                }
+            } catch (_: Exception) {
+                // Si falla reprogramación, continuamos
+            }
+        }
+    }
+
+    fun clearPostponement() {
+        postponementMinutes.value = 0L
+
+        // Reprogramar alarmas a hora original
+        viewModelScope.launch {
+            try {
+                val pendingTasks = taskRepository.observeTasks().stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = emptyList()
+                ).value.filter { !it.isCompleted }
+
+                for (task in pendingTasks) {
+                    taskAlarmManager.scheduleAlarm(task)
+                }
+            } catch (_: Exception) {
+                // Si falla reprogramación, continuamos
+            }
         }
     }
 
@@ -206,6 +275,14 @@ class HomeViewModel @Inject constructor(
             LocalTime.parse(value)
         } catch (_: Exception) {
             null
+        }
+    }
+
+    init {
+        // Suscribirse a detector de medianoche para limpiar offset automáticamente
+        viewModelScope.launch {
+            @Suppress("UNREACHABLE_CODE")
+            midnightDetector.collect { }
         }
     }
 }
