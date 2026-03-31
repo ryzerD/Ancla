@@ -358,6 +358,22 @@ private fun ScreeningResultsScreen(
         Spacer(modifier = Modifier.height(ToolsScreenDimens.headerBottomSpacer.times(2)))
 
         Button(
+            onClick = onRetake,
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .height(48.dp),
+            shape = RoundedCornerShape(percent = 50),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = ScriptReaderButton.copy(alpha = 0.2f),
+                contentColor = ScriptReaderButton
+            )
+        ) {
+            Text(stringResource(R.string.screening_button_retake))
+        }
+
+        Spacer(modifier = Modifier.height(ToolsScreenDimens.cardContentPadding))
+
+        Button(
             onClick = onClose,
             modifier = Modifier
                 .fillMaxWidth(0.8f)

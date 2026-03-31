@@ -32,7 +32,16 @@ class ScreeningViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val previousAssessment = repository.getAssessment()
-            _uiState.value = _uiState.value.copy(previousAssessment = previousAssessment)
+            _uiState.value = if (previousAssessment?.hasCompletedAssessment == true) {
+                _uiState.value.copy(
+                    totalScore = previousAssessment.totalScore,
+                    primaryTrait = previousAssessment.primaryTrait,
+                    hasSubmitted = true,
+                    previousAssessment = previousAssessment
+                )
+            } else {
+                _uiState.value.copy(previousAssessment = previousAssessment)
+            }
         }
     }
 
@@ -78,7 +87,8 @@ class ScreeningViewModel @Inject constructor(
                     totalScore = totalScore,
                     primaryTrait = primaryTrait,
                     hasSubmitted = true,
-                    isLoading = false
+                    isLoading = false,
+                    previousAssessment = assessment
                 )
 
                 onComplete()
