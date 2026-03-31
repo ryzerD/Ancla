@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import co.ryzer.ancla.data.repository.TaskRepository
+import co.ryzer.ancla.data.preferences.PostponementPreferencesManager
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -27,7 +28,7 @@ class DailyResetWorker(
                 recordedAt = System.currentTimeMillis()
             )
             // Limpiar postponements al reiniciar el día
-            repo.clearAllPostponements()
+            PostponementPreferencesManager.clearPostponement(applicationContext)
             Result.success()
         } catch (_: Exception) {
             Result.retry()

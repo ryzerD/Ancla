@@ -91,12 +91,4 @@ class RoomTaskRepository @Inject constructor(
             recordedAt = recordedAt
         )
     }
-
-    override suspend fun savePostponementBackup(taskId: String, offsetMinutes: Long) {
-        taskDao.savePostponementBackup(taskId, offsetMinutes)
-    }
-
-    override suspend fun clearAllPostponements(): Int {
-        return taskDao.clearAllPostponements()
-    }
 }

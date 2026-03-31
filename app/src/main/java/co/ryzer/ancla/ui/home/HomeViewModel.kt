@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.data.repository.TaskRepository
+import co.ryzer.ancla.data.preferences.PostponementPreferencesManager
 import co.ryzer.ancla.notifications.NotificationHelper
 import co.ryzer.ancla.notifications.TaskAlarmManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
@@ -44,20 +46,24 @@ class HomeViewModel @Inject constructor(
     private val recoveryMode = MutableStateFlow(
         NotificationHelper.areTaskNotificationsSilenced(appContext)
     )
-    private val postponementMinutes = MutableStateFlow(0L)
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    // Flow persistente del postponement desde DataStore
+    private val persistentPostponementFlow: Flow<Long> = 
+        PostponementPreferencesManager.getPostponementMinutesFlow(appContext)
 
     // Detecta cambio de día y limpia offset automáticamente a medianoche
     private val midnightDetector: Flow<Unit> = flow {
         var lastDate = LocalDate.now()
         while (true) {
+            delay(60_000L)  // Chequear cada minuto
             val today = LocalDate.now()
             if (today.isAfter(lastDate)) {
                 lastDate = today
-                postponementMinutes.value = 0L
+                // Guardar limpieza en DataStore (persistencia)
+                PostponementPreferencesManager.clearPostponement(appContext)
                 emit(Unit)
             }
-            delay(60_000L)
         }
     }
 
@@ -75,7 +81,7 @@ class HomeViewModel @Inject constructor(
             currentTime = nowText,
             preparingUntil = preparingUntilText
         )
-    }.combine(postponementMinutes) { candidate, offset ->
+    }.combine(persistentPostponementFlow) { candidate, offset ->
         candidate?.withPostponementOffset(offset)
     }
 
@@ -84,7 +90,7 @@ class HomeViewModel @Inject constructor(
         nowTicker,
         candidateTaskFlow,
         taskRepository.observeTasks(),
-        postponementMinutes
+        persistentPostponementFlow
     ) { recovery, now, candidateTask, allTasks, offset ->
         // Aplicar offset visual a todas las tareas
         val tasksWithOffset = if (offset > 0L) {
@@ -134,7 +140,7 @@ class HomeViewModel @Inject constructor(
     val homeDisplayState: StateFlow<HomeDisplayState> = combine(
         recoveryMode,
         uiState,
-        postponementMinutes
+        persistentPostponementFlow
     ) { recovery, homeState, postponementOffset ->
         val taskToShow = if (recovery) null else homeState.currentTask
         val content = when {
@@ -165,18 +171,20 @@ class HomeViewModel @Inject constructor(
 
     fun postponeAllRemaining(minutes: Long) {
         if (minutes <= 0L) return
-        // Actualiza solo el offset en memoria, SIN tocar BD
+        // Actualiza el offset de postponement
         val safeMinutes = normalizeMinutes(minutes)
         if (safeMinutes == 0L) return
 
-        val newPostponementValue = postponementMinutes.value + safeMinutes
-        postponementMinutes.update { current ->
-            normalizeMinutes(current + safeMinutes)
-        }
-
-        // Reprogramar alarmas de tareas pendientes con el nuevo offset
         viewModelScope.launch {
             try {
+                // Obtener el valor actual desde DataStore (solo el primer valor)
+                val currentPostponement = persistentPostponementFlow.first()
+                val newPostponementValue = normalizeMinutes(currentPostponement + safeMinutes)
+                
+                // Guardar el nuevo valor en DataStore (persistencia)
+                PostponementPreferencesManager.savePostponementMinutes(appContext, newPostponementValue)
+                
+                // Reprogramar alarmas de tareas pendientes con el nuevo offset
                 val pendingTasks = taskRepository.observeTasks().stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5_000),
@@ -197,12 +205,16 @@ class HomeViewModel @Inject constructor(
         val safeMinutes = normalizeMinutes(minutes)
         if (safeMinutes == 0L) return
 
-        val newPostponementValue = (postponementMinutes.value - safeMinutes).coerceAtLeast(0L)
-        postponementMinutes.value = newPostponementValue
-
-        // Reprogramar alarmas con el nuevo offset reducido
         viewModelScope.launch {
             try {
+                // Obtener el valor actual desde DataStore (solo el primer valor)
+                val currentPostponement = persistentPostponementFlow.first()
+                val newPostponementValue = (currentPostponement - safeMinutes).coerceAtLeast(0L)
+
+                // Guardar el nuevo valor en DataStore (persistencia)
+                PostponementPreferencesManager.savePostponementMinutes(appContext, newPostponementValue)
+
+                // Reprogramar alarmas con el nuevo offset reducido
                 val pendingTasks = taskRepository.observeTasks().stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5_000),
@@ -223,7 +235,10 @@ class HomeViewModel @Inject constructor(
     }
 
     fun clearPostponement() {
-        postponementMinutes.value = 0L
+        // Guardar limpieza en DataStore (persistencia)
+        viewModelScope.launch {
+            PostponementPreferencesManager.clearPostponement(appContext)
+        }
 
         // Reprogramar alarmas a hora original
         viewModelScope.launch {
@@ -259,8 +274,12 @@ class HomeViewModel @Inject constructor(
         val end = parseTime(task.endTime) ?: return false
 
         return if (start < end) {
+            // Rango normal: 08:00-09:00
+            // Activo si: now >= start AND now < end (NO incluye el end exacto)
             !now.isBefore(start) && now.isBefore(end)
         } else {
+            // Rango overnight: 22:00-02:00
+            // Activo si: now >= start OR now < end (NO incluye el end exacto)
             !now.isBefore(start) || now.isBefore(end)
         }
     }

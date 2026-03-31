@@ -49,23 +49,6 @@ interface TaskDao {
     )
     suspend fun markPending(taskId: String)
 
-    @Query(
-        """
-        UPDATE tasks
-        SET postponementOffsetMinutes = :offsetMinutes
-        WHERE id = :taskId
-        """
-    )
-    suspend fun savePostponementBackup(taskId: String, offsetMinutes: Long)
-
-    @Query(
-        """
-        UPDATE tasks
-        SET postponementOffsetMinutes = NULL
-        WHERE postponementOffsetMinutes IS NOT NULL
-        """
-    )
-    suspend fun clearAllPostponements(): Int
 
     @Query("SELECT * FROM tasks WHERE id = :taskId LIMIT 1")
     suspend fun getTaskById(taskId: String): TaskEntity?
