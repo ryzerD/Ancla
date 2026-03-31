@@ -8,10 +8,11 @@ import co.ryzer.ancla.data.local.script.ScriptDao
 import co.ryzer.ancla.data.local.script.ScriptEntity
 import co.ryzer.ancla.data.local.task.TaskDao
 import co.ryzer.ancla.data.local.task.TaskEntity
+import co.ryzer.ancla.data.local.task.TaskHistoryEntity
 
 @Database(
-    entities = [TaskEntity::class, ScriptEntity::class, SensoryProfileEntity::class],
-    version = 6,
+    entities = [TaskEntity::class, TaskHistoryEntity::class, ScriptEntity::class, SensoryProfileEntity::class],
+    version = 7,
     exportSchema = false
 )
 abstract class AnclaDatabase : RoomDatabase() {

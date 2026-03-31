@@ -12,6 +12,10 @@ class RoomTaskRepository @Inject constructor(
     private val taskDao: TaskDao
 ) : TaskRepository {
 
+    companion object {
+        private const val ROUTINE_CATEGORY = "Rutina"
+    }
+
     override fun observeTasks(): Flow<List<Task>> {
         return taskDao.observeTasks().map { entities ->
             entities.map { it.toDomain() }
@@ -78,5 +82,13 @@ class RoomTaskRepository @Inject constructor(
 
     override suspend fun postponePendingTasksStartingFrom(fromTime: String, minutes: Long): Int {
         return taskDao.postponePendingTasksStartingFrom(fromTime = fromTime, minutes = minutes)
+    }
+
+    override suspend fun runDailyRoutineReset(snapshotDate: String, recordedAt: Long): Int {
+        return taskDao.archiveAndResetRoutineTasks(
+            routineCategory = ROUTINE_CATEGORY,
+            snapshotDate = snapshotDate,
+            recordedAt = recordedAt
+        )
     }
 }

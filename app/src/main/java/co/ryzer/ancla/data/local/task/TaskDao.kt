@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
@@ -50,6 +51,45 @@ interface TaskDao {
 
     @Query("SELECT * FROM tasks WHERE id = :taskId LIMIT 1")
     suspend fun getTaskById(taskId: String): TaskEntity?
+
+    @Query(
+        """
+        INSERT INTO task_history (taskId, taskTitle, taskCategory, wasCompleted, recordedAt, snapshotDate)
+        SELECT id, title, category, CASE WHEN completedAt IS NOT NULL THEN 1 ELSE 0 END, :recordedAt, :snapshotDate
+        FROM tasks
+        WHERE category = :routineCategory
+        """
+    )
+    suspend fun saveRoutineTaskSnapshot(
+        routineCategory: String,
+        snapshotDate: String,
+        recordedAt: Long
+    )
+
+    @Query(
+        """
+        UPDATE tasks
+        SET startedAt = NULL,
+            completedAt = NULL
+        WHERE category = :routineCategory
+          AND completedAt IS NOT NULL
+        """
+    )
+    suspend fun resetRoutineTasks(routineCategory: String): Int
+
+    @Transaction
+    suspend fun archiveAndResetRoutineTasks(
+        routineCategory: String,
+        snapshotDate: String,
+        recordedAt: Long
+    ): Int {
+        saveRoutineTaskSnapshot(
+            routineCategory = routineCategory,
+            snapshotDate = snapshotDate,
+            recordedAt = recordedAt
+        )
+        return resetRoutineTasks(routineCategory)
+    }
 
     @Query(
         """

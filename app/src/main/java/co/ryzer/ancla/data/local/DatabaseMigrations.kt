@@ -102,4 +102,34 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
     }
 }
 
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS task_history (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                taskId TEXT NOT NULL,
+                taskTitle TEXT NOT NULL,
+                taskCategory TEXT NOT NULL,
+                wasCompleted INTEGER NOT NULL,
+                recordedAt INTEGER NOT NULL,
+                snapshotDate TEXT NOT NULL
+            )
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS index_task_history_taskId
+            ON task_history(taskId)
+            """.trimIndent()
+        )
+        db.execSQL(
+            """
+            CREATE INDEX IF NOT EXISTS index_task_history_snapshotDate
+            ON task_history(snapshotDate)
+            """.trimIndent()
+        )
+    }
+}
+
 
