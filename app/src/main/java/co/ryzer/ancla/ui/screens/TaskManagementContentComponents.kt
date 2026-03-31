@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
+import co.ryzer.ancla.ui.common.formatTimeRangeForDisplay
 import co.ryzer.ancla.ui.components.AnclaOutlinedButton
 import co.ryzer.ancla.ui.components.AnclaPrimaryButton
 import co.ryzer.ancla.ui.components.AnclaTextField
@@ -176,16 +177,14 @@ fun TaskFormSection(
             Spacer(modifier = Modifier.height(20.dp))
 
             Row(modifier = Modifier.fillMaxWidth()) {
-                if (uiState.editingTaskId != null) {
-                    AnclaOutlinedButton(
-                        text = stringResource(R.string.dialog_cancel),
-                        onClick = onCancelEdit,
-                        modifier = Modifier.weight(1f),
-                        contentColor = TextSecondary,
-                        borderColor = CardLavender
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
+                AnclaOutlinedButton(
+                    text = stringResource(R.string.dialog_cancel),
+                    onClick = onCancelEdit,
+                    modifier = Modifier.weight(1f),
+                    contentColor = TextSecondary,
+                    borderColor = CardLavender
+                )
+                Spacer(modifier = Modifier.width(8.dp))
 
                 AnclaPrimaryButton(
                     text = if (uiState.editingTaskId == null) {
@@ -382,7 +381,7 @@ private fun TaskListItem(
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "${task.startTime} - ${task.endTime}",
+                        text = formatTimeRangeForDisplay(task.startTime, task.endTime),
                         style = AnclaTextStyles.taskTime,
                         color = TextSecondary
                     )

@@ -37,6 +37,23 @@ class RoomTaskRepository @Inject constructor(
         taskDao.update(task.toEntity())
     }
 
+    override suspend fun getOverlappingTask(
+        newStart: String,
+        newEnd: String,
+        excludeTaskId: String?
+    ): Task? {
+        val overlap = if (excludeTaskId == null) {
+            taskDao.getOverlappingTask(newStart = newStart, newEnd = newEnd)
+        } else {
+            taskDao.getOverlappingTaskExcludingId(
+                newStart = newStart,
+                newEnd = newEnd,
+                excludeTaskId = excludeTaskId
+            )
+        }
+        return overlap?.toDomain()
+    }
+
     override suspend fun setTaskInProgress(taskId: String, isInProgress: Boolean) {
         if (isInProgress) {
             taskDao.markStarted(taskId)

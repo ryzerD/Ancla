@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
+import co.ryzer.ancla.ui.common.formatTimeRangeForDisplay
 import co.ryzer.ancla.ui.home.ActivityState
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
 import co.ryzer.ancla.ui.theme.CardGreen
@@ -323,7 +324,7 @@ fun ActivityCard(
                 modifier = Modifier.padding(vertical = HomeScreenDimens.taskTitleVerticalPadding)
             )
             Text(
-                text = "${task.startTime} - ${task.endTime}",
+                text = formatTimeRangeForDisplay(task.startTime, task.endTime),
                 style = AnclaTextStyles.taskTime,
                 color = TextSecondary,
                 textAlign = TextAlign.Center

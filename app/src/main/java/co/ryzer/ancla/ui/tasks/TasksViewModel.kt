@@ -5,11 +5,15 @@ import androidx.lifecycle.viewModelScope
 import co.ryzer.ancla.data.Task
 import co.ryzer.ancla.data.repository.TaskRepository
 import co.ryzer.ancla.notifications.TaskAlarmManager
+import co.ryzer.ancla.ui.common.formatTimeRangeForDisplay
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -30,6 +34,10 @@ class TasksViewModel @Inject constructor(
     }
 
     private val formState = MutableStateFlow(TasksUiState())
+    private val _saveError = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val saveError: SharedFlow<String> = _saveError.asSharedFlow()
+    private val _saveSuccess = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val saveSuccess: SharedFlow<Unit> = _saveSuccess.asSharedFlow()
 
     private val _currentActivity = MutableStateFlow<Task?>(null)
 
@@ -140,6 +148,24 @@ class TasksViewModel @Inject constructor(
 
         viewModelScope.launch {
             val editingTaskId = currentState.editingTaskId
+            val overlappingTask = repository.getOverlappingTask(
+                newStart = startTime,
+                newEnd = endTime,
+                excludeTaskId = editingTaskId
+            )
+
+            if (overlappingTask != null) {
+                val conflictingRange = formatTimeRangeForDisplay(
+                    overlappingTask.startTime,
+                    overlappingTask.endTime
+                )
+                _saveError.tryEmit(
+                    "Esta hora choca con: ${overlappingTask.title} ($conflictingRange). " +
+                        "Por favor cambia la hora."
+                )
+                return@launch
+            }
+
             if (editingTaskId == null) {
                 val newTask = Task(
                     title = title,
@@ -168,6 +194,7 @@ class TasksViewModel @Inject constructor(
                 alarmManager.scheduleAlarm(updatedTask)
             }
             cancelEditing()
+            _saveSuccess.tryEmit(Unit)
         }
     }
 

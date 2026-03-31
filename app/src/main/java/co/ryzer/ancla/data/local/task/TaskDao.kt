@@ -45,6 +45,29 @@ interface TaskDao {
     @Query(
         """
         SELECT * FROM tasks
+        WHERE (:newStart < endTime) AND (:newEnd > startTime)
+        LIMIT 1
+        """
+    )
+    suspend fun getOverlappingTask(newStart: String, newEnd: String): TaskEntity?
+
+    @Query(
+        """
+        SELECT * FROM tasks
+        WHERE id != :excludeTaskId
+          AND (:newStart < endTime) AND (:newEnd > startTime)
+        LIMIT 1
+        """
+    )
+    suspend fun getOverlappingTaskExcludingId(
+        newStart: String,
+        newEnd: String,
+        excludeTaskId: String
+    ): TaskEntity?
+
+    @Query(
+        """
+        SELECT * FROM tasks
         WHERE completedAt IS NULL
           AND (
             (:currentTime >= startTime AND :currentTime < endTime)

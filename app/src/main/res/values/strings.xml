@@ -108,6 +108,9 @@
     <string name="tasks_delete_content_description">Eliminar tarea</string>
     <string name="tasks_delete_dialog_title">Eliminar tarea</string>
     <string name="tasks_delete_dialog_message">Deseas eliminar "%1$s"?</string>
+    <string name="tasks_discard_dialog_title">Descartar cambios</string>
+    <string name="tasks_discard_dialog_message">Tienes cambios sin guardar. Deseas descartarlos?</string>
+    <string name="tasks_discard_dialog_confirm">Descartar</string>
     <string name="tasks_time_picker_description">Seleccionar hora</string>
     <string name="tasks_filter_all">Todas</string>
     <string name="tasks_filter_pending">Pendientes</string>

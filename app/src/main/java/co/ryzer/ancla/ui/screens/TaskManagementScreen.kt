@@ -1,34 +1,45 @@
 package co.ryzer.ancla.ui.screens
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -46,6 +57,34 @@ import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.theme.ScriptReaderButton
 import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+
+private data class TaskFormSnapshot(
+    val title: String = "",
+    val description: String = "",
+    val startTime: String = "08:00",
+    val endTime: String = "09:00",
+    val category: String = "Rutina"
+) {
+    companion object {
+        fun fromTask(task: Task): TaskFormSnapshot = TaskFormSnapshot(
+            title = task.title,
+            description = task.description,
+            startTime = task.startTime,
+            endTime = task.endTime,
+            category = task.category
+        )
+
+        fun fromUiState(uiState: TasksUiState): TaskFormSnapshot = TaskFormSnapshot(
+            title = uiState.newTitle,
+            description = uiState.newDescription,
+            startTime = uiState.newStartTime,
+            endTime = uiState.newEndTime,
+            category = uiState.newCategory
+        )
+    }
+}
 
 @Composable
 fun TaskManagementScreen(
@@ -68,11 +107,13 @@ fun TaskManagementScreen(
             viewModel.setTaskCompleted(taskId, isCompleted)
         },
         onEditTask = viewModel::startEditing,
-        onDeleteTask = viewModel::deleteTask
+        onDeleteTask = viewModel::deleteTask,
+        saveErrorEvents = viewModel.saveError,
+        saveSuccessEvents = viewModel.saveSuccess
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun TaskManagementContent(
     uiState: TasksUiState,
@@ -86,14 +127,66 @@ fun TaskManagementContent(
     onCancelEdit: () -> Unit,
     onToggleCompleted: (taskId: String, isCompleted: Boolean) -> Unit,
     onEditTask: (Task) -> Unit,
-    onDeleteTask: (String) -> Unit
+    onDeleteTask: (String) -> Unit,
+    saveErrorEvents: Flow<String> = emptyFlow(),
+    saveSuccessEvents: Flow<Unit> = emptyFlow()
 ) {
     var showFormSheet by remember { mutableStateOf(false) }
-    val formSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var formErrorMessage by remember { mutableStateOf<String?>(null) }
+    var showDiscardDialog by remember { mutableStateOf(false) }
+    var initialFormSnapshot by remember { mutableStateOf<TaskFormSnapshot?>(null) }
+    val currentSnapshot = TaskFormSnapshot.fromUiState(uiState)
+    val hasUnsavedChanges by remember(currentSnapshot, initialFormSnapshot) {
+        derivedStateOf {
+            initialFormSnapshot != null && currentSnapshot != initialFormSnapshot
+        }
+    }
+    val latestHasUnsavedChanges by rememberUpdatedState(hasUnsavedChanges)
+    val formSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { targetValue ->
+            if (targetValue == SheetValue.Hidden && latestHasUnsavedChanges) {
+                showDiscardDialog = true
+                false
+            } else {
+                true
+            }
+        }
+    )
+    val isImeVisible = WindowInsets.isImeVisible
+    val sheetHeightFraction = if (isImeVisible) 0.92f else 0.74f
+
+    fun closeSheet(forceDiscard: Boolean = false) {
+        if (!forceDiscard && hasUnsavedChanges) {
+            showDiscardDialog = true
+            return
+        }
+        showDiscardDialog = false
+        showFormSheet = false
+        formErrorMessage = null
+        initialFormSnapshot = null
+        onCancelEdit()
+    }
 
     LaunchedEffect(uiState.editingTaskId) {
         if (uiState.editingTaskId != null) {
             showFormSheet = true
+        }
+    }
+
+    LaunchedEffect(saveErrorEvents) {
+        saveErrorEvents.collect { message ->
+            formErrorMessage = message
+            showFormSheet = true
+        }
+    }
+
+    LaunchedEffect(saveSuccessEvents) {
+        saveSuccessEvents.collect {
+            formErrorMessage = null
+            showDiscardDialog = false
+            initialFormSnapshot = null
+            showFormSheet = false
         }
     }
 
@@ -105,6 +198,9 @@ fun TaskManagementContent(
             FloatingActionButton(
                 onClick = {
                     onCancelEdit()
+                    formErrorMessage = null
+                    showDiscardDialog = false
+                    initialFormSnapshot = TaskFormSnapshot()
                     showFormSheet = true
                 },
                 containerColor = ScriptReaderButton,
@@ -129,6 +225,8 @@ fun TaskManagementContent(
                 onToggleCompleted = onToggleCompleted,
                 onEditTask = {
                     onEditTask(it)
+                    initialFormSnapshot = TaskFormSnapshot.fromTask(it)
+                    showDiscardDialog = false
                     showFormSheet = true
                 },
                 onDeleteTask = onDeleteTask,
@@ -138,41 +236,90 @@ fun TaskManagementContent(
 
         if (showFormSheet) {
             ModalBottomSheet(
-                onDismissRequest = {
-                    showFormSheet = false
-                    onCancelEdit()
-                },
+                onDismissRequest = { closeSheet() },
                 sheetState = formSheetState,
                 containerColor = AnclaBackground,
-                contentWindowInsets = { BottomSheetDefaults.modalWindowInsets }
+                contentWindowInsets = { WindowInsets(0) }
             ) {
-                Column(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
+                        .fillMaxHeight(sheetHeightFraction)
                         .imePadding()
                         .navigationBarsPadding()
-                        .padding(horizontal = 24.dp)
-                        .padding(bottom = 16.dp)
                 ) {
-                    TaskFormSection(
-                        uiState = uiState,
-                        onTitleChange = onTitleChange,
-                        onDescriptionChange = onDescriptionChange,
-                        onStartTimeChange = onStartTimeChange,
-                        onEndTimeChange = onEndTimeChange,
-                        onCategoryChange = onCategoryChange,
-                        onAddTask = {
-                            onAddTask()
-                            if (uiState.newTitle.isNotBlank()) showFormSheet = false
-                        },
-                        onCancelEdit = {
-                            onCancelEdit()
-                            showFormSheet = false
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp)
+                    ) {
+                        formErrorMessage?.let { message ->
+                            item {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.errorContainer,
+                                    shape = MaterialTheme.shapes.medium,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(
+                                        text = message,
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        style = AnclaTextStyles.toolCardSubtitle,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+                                    )
+                                }
+                            }
                         }
-                    )
+
+                        item {
+                            TaskFormSection(
+                                uiState = uiState,
+                                onTitleChange = {
+                                    formErrorMessage = null
+                                    onTitleChange(it)
+                                },
+                                onDescriptionChange = {
+                                    formErrorMessage = null
+                                    onDescriptionChange(it)
+                                },
+                                onStartTimeChange = {
+                                    formErrorMessage = null
+                                    onStartTimeChange(it)
+                                },
+                                onEndTimeChange = {
+                                    formErrorMessage = null
+                                    onEndTimeChange(it)
+                                },
+                                onCategoryChange = {
+                                    formErrorMessage = null
+                                    onCategoryChange(it)
+                                },
+                                onAddTask = onAddTask,
+                                onCancelEdit = { closeSheet() }
+                            )
+                        }
+                    }
                 }
             }
+        }
+
+        if (showDiscardDialog) {
+            AlertDialog(
+                onDismissRequest = { showDiscardDialog = false },
+                title = { Text(text = stringResource(R.string.tasks_discard_dialog_title)) },
+                text = { Text(text = stringResource(R.string.tasks_discard_dialog_message)) },
+                confirmButton = {
+                    TextButton(onClick = { closeSheet(forceDiscard = true) }) {
+                        Text(text = stringResource(R.string.tasks_discard_dialog_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDiscardDialog = false }) {
+                        Text(text = stringResource(R.string.dialog_cancel))
+                    }
+                }
+            )
         }
     }
 }
@@ -248,7 +395,9 @@ fun TaskManagementScreenPreview() {
             onCancelEdit = {},
             onToggleCompleted = { _, _ -> },
             onEditTask = {},
-            onDeleteTask = {}
+            onDeleteTask = {},
+            saveErrorEvents = emptyFlow(),
+            saveSuccessEvents = emptyFlow()
         )
     }
 }
