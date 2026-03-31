@@ -38,6 +38,7 @@ import co.ryzer.ancla.ui.components.AnclaNavigationBar
 import co.ryzer.ancla.ui.components.NavigationItem
 import co.ryzer.ancla.ui.profile.ProfileViewModel
 import co.ryzer.ancla.ui.scripts.ScriptsViewModel
+import co.ryzer.ancla.ui.screening.ScreeningPagerScreen
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 
 private const val ROUTE_HOME = "home"
@@ -51,6 +52,7 @@ private const val ROUTE_TASKS = "tasks"
 private const val ROUTE_SCRIPTS = "scripts"
 private const val ROUTE_BREATHING = "breathing"
 private const val ROUTE_CALMA_TOTAL = "calma_total"
+private const val ROUTE_CALM_MAP = "calm_map"
 private const val ROUTE_NEW_SCRIPT = "new_script"
 private const val ROUTE_SCRIPT_READER = "script_reader/{scriptId}"
 private const val ARG_SCRIPT_ID = "scriptId"
@@ -102,6 +104,7 @@ fun MainScreen(
             currentRoute == ROUTE_NEW_SCRIPT ||
             currentRoute == ROUTE_BREATHING ||
             currentRoute == ROUTE_CALMA_TOTAL ||
+            currentRoute == ROUTE_CALM_MAP ||
             currentRoute == ROUTE_ONBOARDING
     var toolOrder by remember {
         mutableStateOf(DefaultToolOrder)
@@ -208,8 +211,10 @@ fun MainScreen(
                         onNavigateToScripts = { navController.navigate(ROUTE_SCRIPTS) },
                         onNavigateToBreathing = { navController.navigate(ROUTE_BREATHING) },
                         onNavigateToCalmaTotal = { navController.navigate(ROUTE_CALMA_TOTAL) },
+                        onNavigateToCalmMap = { navController.navigate(ROUTE_CALM_MAP) },
                         windowSizeClass = windowSizeClass,
-                        toolOrder = toolOrder
+                        toolOrder = toolOrder,
+                        hasCompletedAssessment = profileUiState.hasCompletedAssessment
                     )
                 }
                 composable(ROUTE_SETTINGS) {
@@ -277,6 +282,12 @@ fun MainScreen(
                 }
                 composable(ROUTE_CALMA_TOTAL) {
                     CalmaTotalScreen(onExit = { navController.popBackStack() })
+                }
+                composable(ROUTE_CALM_MAP) {
+                    ScreeningPagerScreen(
+                        onClose = { navController.popBackStack() },
+                        onComplete = {} // Solo actualiza estado, no cierra
+                    )
                 }
                 composable(ROUTE_TASKS) {
                     TaskManagementScreen(

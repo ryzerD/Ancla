@@ -25,6 +25,8 @@
     <string name="breathing_total_remaining">Tiempo restante: %1$s</string>
     <string name="tool_sos_title">SOS Sobrecarga</string>
     <string name="tool_sos_subtitle">Activar calma total</string>
+    <string name="tool_calm_map_title">Tu Mapa de Calma</string>
+    <string name="tool_calm_map_subtitle">Explora tu perfil sensorial y cognitivo</string>
     <string name="tool_move_up">Subir</string>
     <string name="tool_move_down">Bajar</string>
 
@@ -133,5 +135,32 @@
     <string name="onboarding_sensorial_preference_title">3. Tu Preferencia Sensorial</string>
     <string name="onboarding_sensorial_palette_hint">Elige un color para tu app.</string>
     <string name="onboarding_sensorial_cta_start">Empezar ahora</string>
+
+    <!-- ScreeningPagerScreen -->
+    <string name="screening_question_1">1. ¿Qué tan incómodas o agotadoras te resultan las luces brillantes, parpadeantes o fluorescentes?</string>
+    <string name="screening_question_2">2. ¿Qué tan intensos o dolorosos sientes los sonidos fuertes e inesperados (como sirenas, ladridos o alarmas)?</string>
+    <string name="screening_question_3">3. ¿Qué tanta molestia te causan ciertas texturas en la ropa, como etiquetas, costuras o telas ásperas?</string>
+    <string name="screening_question_4">4. En un lugar con ruido ambiental, ¿qué tan difícil te resulta filtrar los sonidos para entender a quien te habla?</string>
+    <string name="screening_question_5">5. ¿Qué tan agotador te resulta mantener una conversación social, incluso con personas cercanas?</string>
+    <string name="screening_question_6">6. ¿Qué tan importante es para ti que las personas sean directas y literales, sin usar indirectas o sarcasmos?</string>
+    <string name="screening_question_7">7. ¿Qué tanta ansiedad o malestar te genera que tus planes u horarios cambien de repente sin aviso?</string>
+    <string name="screening_question_8">8. ¿Qué tan intensamente te enfocas en tus intereses o hobbies, llegando a olvidar comer o descansar?</string>
+    <string name="screening_question_9">9. ¿Sientes que necesitas más tiempo que el promedio para procesar instrucciones nuevas o cambios en tu entorno?</string>
+    <string name="screening_question_10">10. Después de un día fuera de casa, ¿qué tan necesaria es para ti la soledad absoluta y el silencio total?</string>
+
+    <string name="screening_response_option_1">Nada</string>
+    <string name="screening_response_option_2">Un poco</string>
+    <string name="screening_response_option_3">Moderadamente</string>
+    <string name="screening_response_option_4">Bastante</string>
+    <string name="screening_response_option_5">Extremadamente</string>
+
+    <string name="screening_progress_format">Pregunta %1$d de 10</string>
+    <string name="screening_results_title">¡Tu Mapa está listo!</string>
+    <string name="screening_score_format">Puntuación: %1$d/40</string>
+    <string name="screening_button_previous">Anterior</string>
+    <string name="screening_button_next">Siguiente</string>
+    <string name="screening_button_finish">Finalizar</string>
+    <string name="screening_button_done">Listo</string>
+    <string name="screening_button_retake">Repetir Test</string>
 
 </resources>

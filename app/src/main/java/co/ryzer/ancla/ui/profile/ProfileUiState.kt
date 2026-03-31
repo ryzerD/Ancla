@@ -7,9 +7,8 @@ data class ProfileUiState(
     val selectedColorId: String = "lavender",
     val effectiveSelectedColorId: String = selectedColorId,
     val hasPendingPaletteChanges: Boolean = false,
-    val isLoaded: Boolean = false
+    val isLoaded: Boolean = false,
+    val hasCompletedAssessment: Boolean = false
 ) {
     val requiresOnboarding: Boolean = isLoaded && name.isBlank()
 }
-
-

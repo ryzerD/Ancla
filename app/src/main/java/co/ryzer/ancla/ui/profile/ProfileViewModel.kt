@@ -3,6 +3,7 @@ package co.ryzer.ancla.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.ryzer.ancla.data.repository.SensoryProfileRepository
+import co.ryzer.ancla.data.repository.UserAssessmentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,15 +15,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val repository: SensoryProfileRepository
+    private val sensoryProfileRepository: SensoryProfileRepository,
+    assessmentRepository: UserAssessmentRepository
 ) : ViewModel() {
 
     private val palettePreviewColorId = MutableStateFlow<String?>(null)
 
     val uiState: StateFlow<ProfileUiState> = combine(
-        repository.observeProfile(),
+        sensoryProfileRepository.observeProfile(),
+        assessmentRepository.observeAssessment(),
         palettePreviewColorId
-    ) { profile, previewColorId ->
+    ) { profile, assessment, previewColorId ->
         val effectiveColorId = previewColorId ?: profile.selectedColorId
         val hasPendingChanges = previewColorId != null && previewColorId != profile.selectedColorId
 
@@ -33,7 +36,8 @@ class ProfileViewModel @Inject constructor(
             selectedColorId = profile.selectedColorId,
             effectiveSelectedColorId = effectiveColorId,
             hasPendingPaletteChanges = hasPendingChanges,
-            isLoaded = true
+            isLoaded = true,
+            hasCompletedAssessment = assessment?.hasCompletedAssessment ?: false
         )
     }
         .stateIn(
@@ -56,8 +60,8 @@ class ProfileViewModel @Inject constructor(
         if (!currentState.hasPendingPaletteChanges) return
 
         viewModelScope.launch {
-            val currentProfile = repository.getProfile()
-            repository.saveProfile(
+            val currentProfile = sensoryProfileRepository.getProfile()
+            sensoryProfileRepository.saveProfile(
                 currentProfile.copy(selectedColorId = currentState.effectiveSelectedColorId)
             )
             palettePreviewColorId.value = null

@@ -8,6 +8,8 @@ import co.ryzer.ancla.data.local.AnclaDatabase
 import co.ryzer.ancla.data.local.MIGRATION_1_2
 import co.ryzer.ancla.data.local.MIGRATION_2_3
 import co.ryzer.ancla.data.local.MIGRATION_3_4
+import co.ryzer.ancla.data.local.MIGRATION_4_5
+import co.ryzer.ancla.data.local.assessment.UserAssessmentDao
 import co.ryzer.ancla.data.local.seedDefaultScripts
 import co.ryzer.ancla.data.local.seedDefaultSensoryProfile
 import co.ryzer.ancla.data.local.profile.SensoryProfileDao
@@ -33,7 +35,7 @@ object DatabaseModule {
             context,
             AnclaDatabase::class.java,
             "ancla.db"
-        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+        ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
@@ -53,5 +55,9 @@ object DatabaseModule {
     @Provides
     fun provideSensoryProfileDao(database: AnclaDatabase): SensoryProfileDao =
         database.sensoryProfileDao()
+
+    @Provides
+    fun provideUserAssessmentDao(database: AnclaDatabase): UserAssessmentDao =
+        database.userAssessmentDao()
 }
 

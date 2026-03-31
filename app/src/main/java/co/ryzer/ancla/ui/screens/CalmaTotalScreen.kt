@@ -54,7 +54,7 @@ fun CalmaTotalScreen(
     sessionDurationMillis: Long = DEFAULT_SESSION_DURATION_MILLIS,
     longPressDurationMillis: Long = DEFAULT_LONG_PRESS_DURATION_MILLIS,
     fadeOutDurationMillis: Long = DEFAULT_FADE_OUT_DURATION_MILLIS,
-    @RawRes mediaResId: Int = R.raw.resonant_rumble
+    @RawRes mediaResId: Int = R.raw.song1
 ) {
     val context = LocalContext.current
     val isInspectionMode = LocalInspectionMode.current

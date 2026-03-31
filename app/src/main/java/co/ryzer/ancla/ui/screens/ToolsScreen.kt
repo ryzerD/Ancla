@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.FrontHand
 import androidx.compose.material.icons.outlined.PanToolAlt
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -67,8 +68,10 @@ fun ToolsScreen(
     onNavigateToScripts: () -> Unit,
     onNavigateToBreathing: () -> Unit,
     onNavigateToCalmaTotal: () -> Unit,
+    onNavigateToCalmMap: () -> Unit,
     windowSizeClass: WindowSizeClass? = null,
-    toolOrder: List<ToolOrderEntry> = DefaultToolOrder
+    toolOrder: List<ToolOrderEntry> = DefaultToolOrder,
+    hasCompletedAssessment: Boolean = false
 ) {
     val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     val horizontalPadding = if (isExpanded) {
@@ -122,6 +125,14 @@ fun ToolsScreen(
             icon = Icons.Outlined.Build,
             color = CardRose,
             onClick = onNavigateToCalmaTotal
+        ),
+        ToolItemUi(
+            toolId = ToolIds.CALM_MAP,
+            titleResId = R.string.tool_calm_map_title,
+            subtitleResId = R.string.tool_calm_map_subtitle,
+            icon = Icons.Outlined.Favorite,
+            color = CardLavender,
+            onClick = onNavigateToCalmMap
         )
     )
 
@@ -238,7 +249,8 @@ fun ToolsScreenCompactPreview() {
             onNavigateToTasks = {},
             onNavigateToScripts = {},
             onNavigateToBreathing = {},
-            onNavigateToCalmaTotal = {}
+            onNavigateToCalmaTotal = {},
+            onNavigateToCalmMap = {}
         )
     }
 }
@@ -252,7 +264,8 @@ fun ToolsScreenExpandedPreview() {
             onNavigateToTasks = {},
             onNavigateToScripts = {},
             onNavigateToBreathing = {},
-            onNavigateToCalmaTotal = {}
+            onNavigateToCalmaTotal = {},
+            onNavigateToCalmMap = {}
         )
     }
 }
