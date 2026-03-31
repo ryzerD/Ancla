@@ -32,6 +32,15 @@ interface TaskDao {
 
     @Query(
         """
+        UPDATE tasks
+        SET completedAt = NULL
+        WHERE id = :taskId
+        """
+    )
+    suspend fun markPending(taskId: String)
+
+    @Query(
+        """
         UPDATE tasks 
         SET startedAt = CASE WHEN startedAt IS NULL THEN :timestamp ELSE startedAt END
         WHERE id = :taskId

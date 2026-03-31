@@ -86,6 +86,11 @@ private data class TaskFormSnapshot(
     }
 }
 
+private data class PendingToggleAction(
+    val taskId: String,
+    val targetCompleted: Boolean
+)
+
 @Composable
 fun TaskManagementScreen(
     onBack: () -> Unit,
@@ -134,6 +139,7 @@ fun TaskManagementContent(
     var showFormSheet by remember { mutableStateOf(false) }
     var formErrorMessage by remember { mutableStateOf<String?>(null) }
     var showDiscardDialog by remember { mutableStateOf(false) }
+    var pendingToggleAction by remember { mutableStateOf<PendingToggleAction?>(null) }
     var initialFormSnapshot by remember { mutableStateOf<TaskFormSnapshot?>(null) }
     val currentSnapshot = TaskFormSnapshot.fromUiState(uiState)
     val hasUnsavedChanges by remember(currentSnapshot, initialFormSnapshot) {
@@ -222,7 +228,12 @@ fun TaskManagementContent(
             TaskTodaySection(
                 tasks = uiState.tasks,
                 pendingCount = uiState.pendingTasks.size,
-                onToggleCompleted = onToggleCompleted,
+                onToggleCompleted = { taskId, isCompleted ->
+                    pendingToggleAction = PendingToggleAction(
+                        taskId = taskId,
+                        targetCompleted = isCompleted
+                    )
+                },
                 onEditTask = {
                     onEditTask(it)
                     initialFormSnapshot = TaskFormSnapshot.fromTask(it)
@@ -316,6 +327,46 @@ fun TaskManagementContent(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDiscardDialog = false }) {
+                        Text(text = stringResource(R.string.dialog_cancel))
+                    }
+                }
+            )
+        }
+
+        pendingToggleAction?.let { action ->
+            val taskName = uiState.tasks.firstOrNull { it.id == action.taskId }?.title ?: "esta tarea"
+            AlertDialog(
+                onDismissRequest = { pendingToggleAction = null },
+                title = {
+                    Text(
+                        text = if (action.targetCompleted) {
+                            stringResource(R.string.tasks_complete_confirm_title)
+                        } else {
+                            stringResource(R.string.tasks_reopen_confirm_title)
+                        }
+                    )
+                },
+                text = {
+                    Text(
+                        text = if (action.targetCompleted) {
+                            stringResource(R.string.tasks_complete_confirm_message, taskName)
+                        } else {
+                            stringResource(R.string.tasks_reopen_confirm_message, taskName)
+                        }
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onToggleCompleted(action.taskId, action.targetCompleted)
+                            pendingToggleAction = null
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.dialog_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingToggleAction = null }) {
                         Text(text = stringResource(R.string.dialog_cancel))
                     }
                 }

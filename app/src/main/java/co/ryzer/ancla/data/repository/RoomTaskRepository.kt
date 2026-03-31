@@ -63,6 +63,8 @@ class RoomTaskRepository @Inject constructor(
     override suspend fun setTaskCompleted(taskId: String, isCompleted: Boolean) {
         if (isCompleted) {
             taskDao.markCompleted(taskId)
+        } else {
+            taskDao.markPending(taskId)
         }
     }
 
