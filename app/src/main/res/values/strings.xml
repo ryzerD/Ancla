@@ -156,16 +156,21 @@
     <string name="screening_progress_format">Pregunta %1$d de 10</string>
     <string name="screening_results_title">¡Tu Mapa está listo!</string>
     <string name="screening_score_format">Puntuacion: %1$d/30</string>
-    <string name="screening_trait_low">Baja sensibilidad</string>
-    <string name="screening_trait_moderate">Sensibilidad moderada</string>
-    <string name="screening_trait_elevated">Sensibilidad elevada</string>
-    <string name="screening_trait_high">Alta sensibilidad</string>
-    <string name="screening_trait_hyper">Hipersensibilidad</string>
-    <string name="screening_trait_unknown">Perfil sensorial</string>
     <string name="screening_button_previous">Anterior</string>
     <string name="screening_button_next">Siguiente</string>
     <string name="screening_button_finish">Finalizar</string>
     <string name="screening_button_done">Listo</string>
     <string name="screening_button_retake">Repetir Test</string>
+
+    <!-- Screening Results Descriptions -->
+    <string name="result_title_low">Sensibilidad Equilibrada</string>
+    <string name="result_title_medium">Sensibilidad Moderada</string>
+    <string name="result_title_high">Sensibilidad Profunda</string>
+
+    <string name="result_desc_low">Tus respuestas sugieren que procesas los estímulos de forma fluida. Ancla será tu apoyo para mantener ese equilibrio diario.</string>
+    <string name="result_desc_medium">Percibes el mundo con una intensidad particular. Esto valida por qué a veces necesitas un respiro extra para recargar tu energía.</string>
+    <string name="result_desc_high">Tu sistema nervioso es altamente receptivo. No estás solo en esto; Ancla será tu refugio para navegar el mundo sin agotarte.</string>
+
+    <string name="result_disclaimer">Recuerda: Este perfil es una guía de autoconocimiento y no sustituye un diagnóstico clínico profesional.</string>
 
 </resources>

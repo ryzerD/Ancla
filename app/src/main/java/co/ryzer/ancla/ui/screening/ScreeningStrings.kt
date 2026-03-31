@@ -34,14 +34,22 @@ internal fun screeningResponseOptions(): List<String> {
 }
 
 @StringRes
-internal fun primaryTraitLabelRes(totalScore: Int): Int {
+internal fun resultTitleRes(totalScore: Int): Int {
     return when (totalScore) {
-        in Int.MIN_VALUE..6 -> R.string.screening_trait_low
-        in 7..12 -> R.string.screening_trait_moderate
-        in 13..18 -> R.string.screening_trait_elevated
-        in 19..24 -> R.string.screening_trait_high
-        in 25..Int.MAX_VALUE -> R.string.screening_trait_hyper
-        else -> R.string.screening_trait_unknown
+        in Int.MIN_VALUE..6 -> R.string.result_title_low
+        in 7..18 -> R.string.result_title_medium
+        in 19..Int.MAX_VALUE -> R.string.result_title_high
+        else -> R.string.result_title_low
+    }
+}
+
+@StringRes
+internal fun resultDescriptionRes(totalScore: Int): Int {
+    return when (totalScore) {
+        in Int.MIN_VALUE..6 -> R.string.result_desc_low
+        in 7..18 -> R.string.result_desc_medium
+        in 19..Int.MAX_VALUE -> R.string.result_desc_high
+        else -> R.string.result_desc_low
     }
 }
 
