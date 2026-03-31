@@ -72,11 +72,10 @@ class ScreeningViewModel @Inject constructor(
             try {
                 val answers = _uiState.value.answers
                 val totalScore = answers.sum()
-                val primaryTrait = calculatePrimaryTrait(totalScore)
 
                 val assessment = UserAssessmentResult(
                     totalScore = totalScore,
-                    primaryTrait = primaryTrait,
+                    primaryTrait = "",
                     completedAt = System.currentTimeMillis(),
                     assessmentData = answers.joinToString(",")
                 )
@@ -85,7 +84,7 @@ class ScreeningViewModel @Inject constructor(
 
                 _uiState.value = _uiState.value.copy(
                     totalScore = totalScore,
-                    primaryTrait = primaryTrait,
+                    primaryTrait = "",
                     hasSubmitted = true,
                     isLoading = false,
                     previousAssessment = assessment
@@ -103,16 +102,6 @@ class ScreeningViewModel @Inject constructor(
         _uiState.value = ScreeningUiState(
             previousAssessment = _uiState.value.previousAssessment
         )
-    }
-
-    private fun calculatePrimaryTrait(totalScore: Int): String {
-        return when {
-            totalScore <= 6 -> "Baja Sensibilidad"
-            totalScore <= 12 -> "Sensibilidad Moderada"
-            totalScore <= 18 -> "Sensibilidad Elevada"
-            totalScore <= 24 -> "Alta Sensibilidad"
-            else -> "Hipersensibilidad"
-        }
     }
 }
 

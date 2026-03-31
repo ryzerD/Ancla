@@ -35,7 +35,7 @@ data class UserAssessmentResult(
     val assessmentData: String = "" // JSON string
 ) {
     val hasCompletedAssessment: Boolean
-        get() = totalScore > 0 && primaryTrait.isNotEmpty()
+        get() = completedAt > 0L
 }
 
 object ToolIds {

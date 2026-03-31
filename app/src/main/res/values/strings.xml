@@ -156,6 +156,12 @@
     <string name="screening_progress_format">Pregunta %1$d de 10</string>
     <string name="screening_results_title">¡Tu Mapa está listo!</string>
     <string name="screening_score_format">Puntuacion: %1$d/30</string>
+    <string name="screening_trait_low">Baja sensibilidad</string>
+    <string name="screening_trait_moderate">Sensibilidad moderada</string>
+    <string name="screening_trait_elevated">Sensibilidad elevada</string>
+    <string name="screening_trait_high">Alta sensibilidad</string>
+    <string name="screening_trait_hyper">Hipersensibilidad</string>
+    <string name="screening_trait_unknown">Perfil sensorial</string>
     <string name="screening_button_previous">Anterior</string>
     <string name="screening_button_next">Siguiente</string>
     <string name="screening_button_finish">Finalizar</string>
