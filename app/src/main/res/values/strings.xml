@@ -25,6 +25,8 @@
     <string name="breathing_total_remaining">Tiempo restante: %1$s</string>
     <string name="tool_sos_title">SOS Sobrecarga</string>
     <string name="tool_sos_subtitle">Activar calma total</string>
+    <string name="tool_calm_map_title">Tu Mapa de Calma</string>
+    <string name="tool_calm_map_subtitle">Explora tu perfil sensorial y cognitivo</string>
     <string name="tool_move_up">Subir</string>
     <string name="tool_move_down">Bajar</string>
 
@@ -133,5 +135,42 @@
     <string name="onboarding_sensorial_preference_title">3. Tu Preferencia Sensorial</string>
     <string name="onboarding_sensorial_palette_hint">Elige un color para tu app.</string>
     <string name="onboarding_sensorial_cta_start">Empezar ahora</string>
+
+    <!-- ScreeningPagerScreen -->
+    <string name="screening_question_1">¿Cuánto te afectan las luces muy brillantes o parpadeantes?</string>
+    <string name="screening_question_2">¿Cuánto te afectan los sonidos fuertes o inesperados (sirenas, ladridos o alarmas)?</string>
+    <string name="screening_question_3">¿Cuánto te afectan algunas texturas en la ropa (etiquetas, costuras o telas)?</string>
+    <string name="screening_question_4">¿Cuánto te cuesta concentrarte cuando hay mucho ruido alrededor?</string>
+    <string name="screening_question_5">¿Cuánto te agota conversar, incluso con personas cercanas?</string>
+    <string name="screening_question_6">¿Cuánto te cuesta entender indirectas o sarcasmos?</string>
+    <string name="screening_question_7">¿Cuánto te afectan los cambios de planes sin aviso?</string>
+    <string name="screening_question_8">¿Cuánto se te dificulta notar hambre o sueño cuando estás muy enfocado/a?</string>
+    <string name="screening_question_9">¿Cuánto te cuesta adaptarte a instrucciones nuevas o cambios en tu entorno?</string>
+    <string name="screening_question_10">¿Cuánto necesitas silencio y soledad para recuperarte después de salir?</string>
+
+    <string name="screening_response_option_1">No me afecta</string>
+    <string name="screening_response_option_2">Me afecta un poco</string>
+    <string name="screening_response_option_3">Me afecta bastante</string>
+    <string name="screening_response_option_4">Me afecta mucho</string>
+
+    <string name="screening_progress_format">Pregunta %1$d de 10</string>
+    <string name="screening_results_title">¡Tu Mapa está listo!</string>
+    <string name="screening_score_format">Puntuacion: %1$d/30</string>
+    <string name="screening_button_previous">Anterior</string>
+    <string name="screening_button_next">Siguiente</string>
+    <string name="screening_button_finish">Finalizar</string>
+    <string name="screening_button_done">Listo</string>
+    <string name="screening_button_retake">Repetir Test</string>
+
+    <!-- Screening Results Descriptions -->
+    <string name="result_title_low">Sensibilidad Equilibrada</string>
+    <string name="result_title_medium">Sensibilidad Moderada</string>
+    <string name="result_title_high">Sensibilidad Profunda</string>
+
+    <string name="result_desc_low">Tus respuestas sugieren que procesas los estímulos de forma fluida. Ancla será tu apoyo para mantener ese equilibrio diario.</string>
+    <string name="result_desc_medium">Percibes el mundo con una intensidad particular. Esto valida por qué a veces necesitas un respiro extra para recargar tu energía.</string>
+    <string name="result_desc_high">Tu sistema nervioso es altamente receptivo. No estás solo en esto; Ancla será tu refugio para navegar el mundo sin agotarte.</string>
+
+    <string name="result_disclaimer">Recuerda: Este perfil es una guía de autoconocimiento y no sustituye un diagnóstico clínico profesional.</string>
 
 </resources>

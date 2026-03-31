@@ -3,9 +3,11 @@ package co.ryzer.ancla.di
 import co.ryzer.ancla.data.repository.RoomTaskRepository
 import co.ryzer.ancla.data.repository.RoomScriptRepository
 import co.ryzer.ancla.data.repository.RoomSensoryProfileRepository
+import co.ryzer.ancla.data.repository.RoomUserAssessmentRepository
 import co.ryzer.ancla.data.repository.SensoryProfileRepository
 import co.ryzer.ancla.data.repository.ScriptRepository
 import co.ryzer.ancla.data.repository.TaskRepository
+import co.ryzer.ancla.data.repository.UserAssessmentRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -33,5 +35,11 @@ abstract class RepositoryModule {
     abstract fun bindSensoryProfileRepository(
         repository: RoomSensoryProfileRepository
     ): SensoryProfileRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserAssessmentRepository(
+        repository: RoomUserAssessmentRepository
+    ): UserAssessmentRepository
 }
 

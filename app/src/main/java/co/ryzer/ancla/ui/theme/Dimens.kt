@@ -57,7 +57,6 @@ object HomeScreenDimens {
 object ToolsScreenDimens {
 
     // -- Responsive rules --
-    val expandedBreakpoint = 600.dp
     val horizontalPaddingCompact = 24.dp
     val horizontalPaddingExpanded = 48.dp
     val verticalPadding = 24.dp
@@ -77,6 +76,25 @@ object ToolsScreenDimens {
     const val iconPlaceholderAlpha = 0.05f
     val iconToTextSpacer = 12.dp
     val orderControlsSpacing = 8.dp
+}
+
+/**
+ * Dimension tokens for ScreeningResultsScreen.
+ */
+object ScreeningResultsDimens {
+    const val scoreCardWidthFraction = 0.85f
+    const val descriptionWidthFraction = 0.95f
+    const val disclaimerWidthFraction = 0.92f
+    const val actionButtonsWidthFraction = 0.85f
+
+    val resultTitleTopPadding = 16.dp
+    val scoreCardHeight = 70.dp
+    val scoreCardContentPadding = 16.dp
+    val descriptionTopPadding = 8.dp
+    val disclaimerTopPadding = 16.dp
+    val actionsTopPadding = 12.dp
+    val actionsSpacing = 12.dp
+    val actionButtonHeight = 48.dp
 }
 
 /**
@@ -117,7 +135,6 @@ object NewScriptScreenDimens {
     val closeActionTopSpacing = 8.dp
 
     // -- Shapes --
-    val inputCornerRadius = 24.dp
     val chipCornerRadius = 18.dp
     val swatchCornerRadius = 18.dp
     val swatchBorderWidth = 3.dp
@@ -147,10 +164,6 @@ object OnboardingSensorialDimens {
     val pickerUnselectedBorderWidth = 1.dp
     val pickerIconSize = 30.dp
 
-    val logoSize = 56.dp
-    val logoCornerRadius = 14.dp
-    val logoInnerSpacing = 6.dp
-
     val ctaTopSpacing = 24.dp
     val ctaBottomSpacing = 8.dp
     val ctaMinHeight = 56.dp
@@ -177,8 +190,6 @@ object SettingsScreenDimens {
     val horizontalPaddingExpanded = 48.dp
     val verticalPadding = 24.dp
 
-    val logoSize = 24.dp
-    val logoBottomSpacing = 20.dp
     val titleBottomSpacing = 24.dp
 
     val menuItemSpacing = 16.dp
@@ -193,10 +204,6 @@ object SettingsScreenDimens {
     val menuIconSize = 28.dp
     val iconTextSpacing = 12.dp
     val chevronSize = 30.dp
-
-    val saveButtonTopSpacing = 20.dp
-    val saveButtonMinHeight = 60.dp
-    val saveButtonCornerRadius = 50.dp
 }
 
 /**
