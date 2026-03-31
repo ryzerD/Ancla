@@ -140,6 +140,7 @@ fun TaskManagementContent(
     var formErrorMessage by remember { mutableStateOf<String?>(null) }
     var showDiscardDialog by remember { mutableStateOf(false) }
     var pendingToggleAction by remember { mutableStateOf<PendingToggleAction?>(null) }
+    var pendingDeleteTaskId by remember { mutableStateOf<String?>(null) }
     var initialFormSnapshot by remember { mutableStateOf<TaskFormSnapshot?>(null) }
     val currentSnapshot = TaskFormSnapshot.fromUiState(uiState)
     val hasUnsavedChanges by remember(currentSnapshot, initialFormSnapshot) {
@@ -240,7 +241,9 @@ fun TaskManagementContent(
                     showDiscardDialog = false
                     showFormSheet = true
                 },
-                onDeleteTask = onDeleteTask,
+                onDeleteTask = { taskId ->
+                    pendingDeleteTaskId = taskId
+                },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -327,6 +330,30 @@ fun TaskManagementContent(
                 },
                 dismissButton = {
                     TextButton(onClick = { showDiscardDialog = false }) {
+                        Text(text = stringResource(R.string.dialog_cancel))
+                    }
+                }
+            )
+        }
+
+        pendingDeleteTaskId?.let { taskId ->
+            val taskName = uiState.tasks.firstOrNull { it.id == taskId }?.title ?: "esta tarea"
+            AlertDialog(
+                onDismissRequest = { pendingDeleteTaskId = null },
+                title = { Text(text = stringResource(R.string.tasks_delete_dialog_title)) },
+                text = { Text(text = stringResource(R.string.tasks_delete_dialog_message, taskName)) },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onDeleteTask(taskId)
+                            pendingDeleteTaskId = null
+                        }
+                    ) {
+                        Text(text = stringResource(R.string.dialog_confirm))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingDeleteTaskId = null }) {
                         Text(text = stringResource(R.string.dialog_cancel))
                     }
                 }
