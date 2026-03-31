@@ -137,21 +137,21 @@
     <string name="onboarding_sensorial_cta_start">Empezar ahora</string>
 
     <!-- ScreeningPagerScreen -->
-    <string name="screening_question_1">¿Qué tanto desgaste te generan las luces brillantes, parpadeantes o fluorescentes?</string>
-    <string name="screening_question_2">¿Qué tanto agotan tu energía los sonidos fuertes e inesperados (como sirenas, ladridos o alarmas)?</string>
-    <string name="screening_question_3">¿Qué tanto malestar o cansancio físico te causan ciertas texturas en la ropa (etiquetas, costuras, telas)?</string>
-    <string name="screening_question_4">En el ruido ambiental, ¿qué tanto esfuerzo energético necesitas para filtrar sonidos y entender a alguien?</string>
-    <string name="screening_question_5">¿Qué tanto te descarga emocionalmente mantener una conversación social, incluso con personas cercanas?</string>
-    <string name="screening_question_6">¿Qué tanto esfuerzo mental te exige interpretar indirectas o sarcasmos en lugar de un lenguaje directo?</string>
-    <string name="screening_question_7">¿Qué tanto desgaste o ansiedad te genera que tus planes u horarios cambien de repente sin aviso?</string>
-    <string name="screening_question_8">¿Qué tanto descuido de tu energía física (hambre, sueño) ocurre cuando te enfocas intensamente en tus intereses?</string>
-    <string name="screening_question_9">¿Qué tanto esfuerzo extra sientes que necesitas para procesar instrucciones nuevas o cambios en tu entorno?</string>
-    <string name="screening_question_10">¿Qué tan urgente es para tu batería personal estar en soledad y silencio absoluto después de un día fuera?</string>
+    <string name="screening_question_1">¿Cuánto te afectan las luces muy brillantes o parpadeantes?</string>
+    <string name="screening_question_2">¿Cuánto te afectan los sonidos fuertes o inesperados (sirenas, ladridos o alarmas)?</string>
+    <string name="screening_question_3">¿Cuánto te afectan algunas texturas en la ropa (etiquetas, costuras o telas)?</string>
+    <string name="screening_question_4">¿Cuánto te cuesta concentrarte cuando hay mucho ruido alrededor?</string>
+    <string name="screening_question_5">¿Cuánto te agota conversar, incluso con personas cercanas?</string>
+    <string name="screening_question_6">¿Cuánto te cuesta entender indirectas o sarcasmos?</string>
+    <string name="screening_question_7">¿Cuánto te afectan los cambios de planes sin aviso?</string>
+    <string name="screening_question_8">¿Cuánto se te dificulta notar hambre o sueño cuando estás muy enfocado/a?</string>
+    <string name="screening_question_9">¿Cuánto te cuesta adaptarte a instrucciones nuevas o cambios en tu entorno?</string>
+    <string name="screening_question_10">¿Cuánto necesitas silencio y soledad para recuperarte después de salir?</string>
 
-    <string name="screening_response_option_1">"No afecta mi energía"</string>
-    <string name="screening_response_option_2">Me quita un poco de energía</string>
-    <string name="screening_response_option_3">Me desgasta considerablemente</string>
-    <string name="screening_response_option_4">Me deja sin energía</string>
+    <string name="screening_response_option_1">No me afecta</string>
+    <string name="screening_response_option_2">Me afecta un poco</string>
+    <string name="screening_response_option_3">Me afecta bastante</string>
+    <string name="screening_response_option_4">Me afecta mucho</string>
 
     <string name="screening_progress_format">Pregunta %1$d de 10</string>
     <string name="screening_results_title">¡Tu Mapa está listo!</string>
