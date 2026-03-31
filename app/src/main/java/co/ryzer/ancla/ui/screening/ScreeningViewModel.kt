@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 data class ScreeningUiState(
     val currentQuestion: Int = 0,
-    val answers: List<Int> = List(10) { 0 }, // 0-4 score per question
+    val answers: List<Int> = List(10) { 0 }, // 0-3 score per question
     val totalScore: Int = 0,
     val primaryTrait: String = "",
     val isLoading: Boolean = false,
@@ -38,7 +38,7 @@ class ScreeningViewModel @Inject constructor(
 
     fun answerQuestion(questionIndex: Int, score: Int) {
         val updatedAnswers = _uiState.value.answers.toMutableList()
-        updatedAnswers[questionIndex] = score.coerceIn(0, 4)
+        updatedAnswers[questionIndex] = score.coerceIn(0, 3)
         _uiState.value = _uiState.value.copy(answers = updatedAnswers)
     }
 
@@ -97,10 +97,10 @@ class ScreeningViewModel @Inject constructor(
 
     private fun calculatePrimaryTrait(totalScore: Int): String {
         return when {
-            totalScore <= 5 -> "Baja Sensibilidad"
-            totalScore <= 10 -> "Sensibilidad Moderada"
-            totalScore <= 15 -> "Sensibilidad Elevada"
-            totalScore <= 20 -> "Alta Sensibilidad"
+            totalScore <= 6 -> "Baja Sensibilidad"
+            totalScore <= 12 -> "Sensibilidad Moderada"
+            totalScore <= 18 -> "Sensibilidad Elevada"
+            totalScore <= 24 -> "Alta Sensibilidad"
             else -> "Hipersensibilidad"
         }
     }

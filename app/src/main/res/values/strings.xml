@@ -137,26 +137,25 @@
     <string name="onboarding_sensorial_cta_start">Empezar ahora</string>
 
     <!-- ScreeningPagerScreen -->
-    <string name="screening_question_1">1. ¿Qué tan incómodas o agotadoras te resultan las luces brillantes, parpadeantes o fluorescentes?</string>
-    <string name="screening_question_2">2. ¿Qué tan intensos o dolorosos sientes los sonidos fuertes e inesperados (como sirenas, ladridos o alarmas)?</string>
-    <string name="screening_question_3">3. ¿Qué tanta molestia te causan ciertas texturas en la ropa, como etiquetas, costuras o telas ásperas?</string>
-    <string name="screening_question_4">4. En un lugar con ruido ambiental, ¿qué tan difícil te resulta filtrar los sonidos para entender a quien te habla?</string>
-    <string name="screening_question_5">5. ¿Qué tan agotador te resulta mantener una conversación social, incluso con personas cercanas?</string>
-    <string name="screening_question_6">6. ¿Qué tan importante es para ti que las personas sean directas y literales, sin usar indirectas o sarcasmos?</string>
-    <string name="screening_question_7">7. ¿Qué tanta ansiedad o malestar te genera que tus planes u horarios cambien de repente sin aviso?</string>
-    <string name="screening_question_8">8. ¿Qué tan intensamente te enfocas en tus intereses o hobbies, llegando a olvidar comer o descansar?</string>
-    <string name="screening_question_9">9. ¿Sientes que necesitas más tiempo que el promedio para procesar instrucciones nuevas o cambios en tu entorno?</string>
-    <string name="screening_question_10">10. Después de un día fuera de casa, ¿qué tan necesaria es para ti la soledad absoluta y el silencio total?</string>
+    <string name="screening_question_1">¿Qué tanto desgaste te generan las luces brillantes, parpadeantes o fluorescentes?</string>
+    <string name="screening_question_2">¿Qué tanto agotan tu energía los sonidos fuertes e inesperados (como sirenas, ladridos o alarmas)?</string>
+    <string name="screening_question_3">¿Qué tanto malestar o cansancio físico te causan ciertas texturas en la ropa (etiquetas, costuras, telas)?</string>
+    <string name="screening_question_4">En el ruido ambiental, ¿qué tanto esfuerzo energético necesitas para filtrar sonidos y entender a alguien?</string>
+    <string name="screening_question_5">¿Qué tanto te descarga emocionalmente mantener una conversación social, incluso con personas cercanas?</string>
+    <string name="screening_question_6">¿Qué tanto esfuerzo mental te exige interpretar indirectas o sarcasmos en lugar de un lenguaje directo?</string>
+    <string name="screening_question_7">¿Qué tanto desgaste o ansiedad te genera que tus planes u horarios cambien de repente sin aviso?</string>
+    <string name="screening_question_8">¿Qué tanto descuido de tu energía física (hambre, sueño) ocurre cuando te enfocas intensamente en tus intereses?</string>
+    <string name="screening_question_9">¿Qué tanto esfuerzo extra sientes que necesitas para procesar instrucciones nuevas o cambios en tu entorno?</string>
+    <string name="screening_question_10">¿Qué tan urgente es para tu batería personal estar en soledad y silencio absoluto después de un día fuera?</string>
 
-    <string name="screening_response_option_1">Nada</string>
-    <string name="screening_response_option_2">Un poco</string>
-    <string name="screening_response_option_3">Moderadamente</string>
-    <string name="screening_response_option_4">Bastante</string>
-    <string name="screening_response_option_5">Extremadamente</string>
+    <string name="screening_response_option_1">"No afecta mi energía"</string>
+    <string name="screening_response_option_2">Me quita un poco de energía</string>
+    <string name="screening_response_option_3">Me desgasta considerablemente</string>
+    <string name="screening_response_option_4">Me deja sin energía</string>
 
     <string name="screening_progress_format">Pregunta %1$d de 10</string>
     <string name="screening_results_title">¡Tu Mapa está listo!</string>
-    <string name="screening_score_format">Puntuación: %1$d/40</string>
+    <string name="screening_score_format">Puntuacion: %1$d/30</string>
     <string name="screening_button_previous">Anterior</string>
     <string name="screening_button_next">Siguiente</string>
     <string name="screening_button_finish">Finalizar</string>

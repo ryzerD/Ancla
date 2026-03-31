@@ -1,12 +1,5 @@
 package co.ryzer.ancla.ui.screening
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,13 +30,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import co.ryzer.ancla.R
@@ -78,8 +69,7 @@ private fun getResponseOptions(): List<String> {
         stringResource(R.string.screening_response_option_1),
         stringResource(R.string.screening_response_option_2),
         stringResource(R.string.screening_response_option_3),
-        stringResource(R.string.screening_response_option_4),
-        stringResource(R.string.screening_response_option_5)
+        stringResource(R.string.screening_response_option_4)
     )
 }
 
@@ -184,37 +174,13 @@ private fun ScreeningQuestionScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(ToolsScreenDimens.headerBottomSpacer)
         ) {
-            AnimatedContent(
-                targetState = uiState.currentQuestion,
-                transitionSpec = {
-                    val isForward = targetState > initialState
-                    val enter = slideInHorizontally(
-                        initialOffsetX = { fullWidth -> if (isForward) fullWidth else -fullWidth },
-                        animationSpec = tween(durationMillis = 220)
-                    ) + fadeIn(animationSpec = tween(durationMillis = 160, delayMillis = 60))
-                    val exit = slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> if (isForward) -fullWidth else fullWidth },
-                        animationSpec = tween(durationMillis = 180)
-                    ) + fadeOut(animationSpec = tween(durationMillis = 120))
-
-                    (enter togetherWith exit).using(SizeTransform(clip = true))
-                },
-                contentKey = { it },
-                label = "Question Animation"
-            ) { questionIndex ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clipToBounds()
-                ) {
-                    Text(
-                        text = screeningQuestions[questionIndex],
-                        style = AnclaTextStyles.toolsTitle,
-                        color = TextPrimary,
-                        textAlign = TextAlign.Start
-                    )
-                }
-            }
+            Text(
+                text = screeningQuestions[uiState.currentQuestion],
+                style = AnclaTextStyles.toolsTitle,
+                color = TextPrimary,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(ToolsScreenDimens.headerBottomSpacer))
 
