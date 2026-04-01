@@ -71,7 +71,6 @@ fun ToolsScreen(
     onNavigateToCalmMap: () -> Unit,
     windowSizeClass: WindowSizeClass? = null,
     toolOrder: List<ToolOrderEntry> = DefaultToolOrder,
-    hasCompletedAssessment: Boolean = false
 ) {
     val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     val horizontalPadding = if (isExpanded) {
