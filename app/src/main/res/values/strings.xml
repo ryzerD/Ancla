@@ -93,6 +93,7 @@
     <string name="tasks_schedule_start">Inicio</string>
     <string name="tasks_schedule_end">Fin</string>
     <string name="tasks_schedule_between">a</string>
+    <string name="tasks_invalid_time_range_message">La hora de inicio debe ser anterior a la hora de fin</string>
     <string name="tasks_today_label">Tareas de hoy</string>
     <string name="tasks_remaining_count">%1$d restantes</string>
     <string name="tasks_add_short">Anadir</string>
@@ -121,6 +122,12 @@
     <string name="tasks_filter_all">Todas</string>
     <string name="tasks_filter_pending">Pendientes</string>
     <string name="tasks_filter_completed">Completadas</string>
+    <string name="tasks_empty_all_title">Tu día está listo para empezar</string>
+    <string name="tasks_empty_all_subtitle">Agrega una tarea cuando quieras. Vamos paso a paso.</string>
+    <string name="tasks_empty_pending_title">Todo al día por ahora</string>
+    <string name="tasks_empty_pending_subtitle">No tienes pendientes. Respira y sigue a tu ritmo.</string>
+    <string name="tasks_empty_completed_title">Aún no has finalizado tareas</string>
+    <string name="tasks_empty_completed_subtitle">Cuando completes una, aparecerá aquí.</string>
     <string name="home_postponement_indicator">⏰ Pospuesto: %1$d minutos más</string>
     <string name="home_btn_postpone_15_more">➕ Posponer 15 min más (%1$d min acumulados)</string>
     <string name="home_btn_reduce_postpone_15">➖ Menos 15 min</string>

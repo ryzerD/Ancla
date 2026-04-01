@@ -31,6 +31,7 @@ class TasksViewModel @Inject constructor(
     companion object {
         const val TITLE_MAX_LENGTH = 60
         const val DESCRIPTION_MAX_LENGTH = 200
+        private const val AUTO_END_OFFSET_MINUTES = 10
     }
 
     private val formState = MutableStateFlow(TasksUiState())
@@ -99,7 +100,14 @@ class TasksViewModel @Inject constructor(
     }
 
     fun onStartTimeChange(value: String) {
-        formState.update { it.copy(newStartTime = value) }
+        // Auto-set endTime to +10 minutes for better UX feedback
+        val endTime = addMinutesToTime(value)
+        formState.update {
+            it.copy(
+                newStartTime = value,
+                newEndTime = endTime
+            )
+        }
     }
 
     fun onEndTimeChange(value: String) {
@@ -145,6 +153,15 @@ class TasksViewModel @Inject constructor(
         val category = currentState.newCategory
 
         if (title.isBlank()) return
+
+        // Validate that startTime < endTime
+        if (!isValidTimeRange(startTime, endTime)) {
+            _saveError.tryEmit(
+                "La hora de inicio debe ser anterior a la hora de fin. " +
+                    "Por favor ajusta los horarios."
+            )
+            return
+        }
 
         viewModelScope.launch {
             val editingTaskId = currentState.editingTaskId
@@ -274,6 +291,32 @@ class TasksViewModel @Inject constructor(
             val task = uiState.value.tasks.firstOrNull { it.id == taskId }
             if (task != null) alarmManager.cancelAlarm(task)
             repository.deleteTask(taskId)
+        }
+    }
+
+    private fun addMinutesToTime(timeStr: String): String {
+        return try {
+            val parts = timeStr.split(":")
+            val hour = parts.getOrNull(0)?.toIntOrNull() ?: 0
+            val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
+
+            val totalMinutes = hour * 60 + minute + AUTO_END_OFFSET_MINUTES
+            val newHour = (totalMinutes / 60) % 24
+            val newMinute = totalMinutes % 60
+
+            "%02d:%02d".format(newHour, newMinute)
+        } catch (_: Exception) {
+            "09:00"
+        }
+    }
+
+    private fun isValidTimeRange(startTime: String, endTime: String): Boolean {
+        return try {
+            val start = LocalTime.parse(startTime)
+            val end = LocalTime.parse(endTime)
+            start.isBefore(end)
+        } catch (_: Exception) {
+            false
         }
     }
 }

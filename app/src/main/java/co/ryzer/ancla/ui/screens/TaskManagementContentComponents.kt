@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import co.ryzer.ancla.R
@@ -58,6 +59,26 @@ import co.ryzer.ancla.ui.theme.TextPrimary
 import co.ryzer.ancla.ui.theme.TextSecondary
 
 private enum class TaskFilter { ALL, PENDING, COMPLETED }
+
+private data class EmptyTaskStateText(
+    val titleRes: Int,
+    val subtitleRes: Int
+)
+
+private fun TaskFilter.emptyStateText(): EmptyTaskStateText = when (this) {
+    TaskFilter.ALL -> EmptyTaskStateText(
+        titleRes = R.string.tasks_empty_all_title,
+        subtitleRes = R.string.tasks_empty_all_subtitle
+    )
+    TaskFilter.PENDING -> EmptyTaskStateText(
+        titleRes = R.string.tasks_empty_pending_title,
+        subtitleRes = R.string.tasks_empty_pending_subtitle
+    )
+    TaskFilter.COMPLETED -> EmptyTaskStateText(
+        titleRes = R.string.tasks_empty_completed_title,
+        subtitleRes = R.string.tasks_empty_completed_subtitle
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -172,6 +193,34 @@ fun TaskFormSection(
                     onValueChange = onEndTimeChange,
                     modifier = Modifier.weight(1f)
                 )
+            }
+
+            // Validation feedback for invalid time range
+            val isValidTimeRange = try {
+                val start = java.time.LocalTime.parse(uiState.newStartTime)
+                val end = java.time.LocalTime.parse(uiState.newEndTime)
+                start.isBefore(end)
+            } catch (_: Exception) {
+                false
+            }
+
+            if (!isValidTimeRange && uiState.newStartTime.isNotEmpty() && uiState.newEndTime.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.errorContainer,
+                            shape = RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.tasks_invalid_time_range_message),
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onErrorContainer,
+                        style = AnclaTextStyles.toolCardSubtitle
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -289,19 +338,52 @@ fun TaskTodaySection(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            contentPadding = PaddingValues(bottom = 24.dp)
-        ) {
-            items(filteredTasks.sortedBy { it.isCompleted }) { task ->
-                TaskListItem(
-                    task = task,
-                    onToggleCompleted = {
-                        onToggleCompleted(task.id, !task.isCompleted)
-                    },
-                    onEdit = { onEditTask(task) },
-                    onDelete = { onDeleteTask(task.id) }
-                )
+        if (filteredTasks.isEmpty()) {
+            val emptyText = selectedFilter.emptyStateText()
+            Card(
+                colors = CardDefaults.cardColors(containerColor = SurfaceWhite.copy(alpha = 0.75f)),
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(emptyText.titleRes),
+                        style = AnclaTextStyles.sectionLabel,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = stringResource(emptyText.subtitleRes),
+                        style = AnclaTextStyles.toolCardSubtitle,
+                        color = TextSecondary,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(bottom = 24.dp)
+            ) {
+                items(filteredTasks.sortedBy { it.isCompleted }) { task ->
+                    TaskListItem(
+                        task = task,
+                        onToggleCompleted = {
+                            onToggleCompleted(task.id, !task.isCompleted)
+                        },
+                        onEdit = { onEditTask(task) },
+                        onDelete = { onDeleteTask(task.id) }
+                    )
+                }
             }
         }
     }
