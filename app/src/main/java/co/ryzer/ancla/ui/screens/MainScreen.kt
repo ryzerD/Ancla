@@ -25,33 +25,34 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavType
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navArgument
 import co.ryzer.ancla.data.DefaultToolOrder
-import co.ryzer.ancla.data.ToolOrderEntry
+import co.ryzer.ancla.navigation.feature.FeatureRegistry
 import co.ryzer.ancla.navigation.EMERGENCY_CONTACT_DEFAULT
 import co.ryzer.ancla.navigation.NavigationRoutes
 import co.ryzer.ancla.ui.components.AnclaNavigationBar
 import co.ryzer.ancla.ui.components.NavigationItem
 import co.ryzer.ancla.ui.home.HomeViewModel
+import co.ryzer.ancla.ui.home.navigation.HomeFeatureEntry
 import co.ryzer.ancla.ui.profile.ProfileUiState
 import co.ryzer.ancla.ui.profile.ProfileViewModel
 import co.ryzer.ancla.ui.screening.ScreeningPagerScreen
 import co.ryzer.ancla.ui.scripts.ScriptsViewModel
+import co.ryzer.ancla.ui.scripts.navigation.ScriptsFeatureEntry
+import co.ryzer.ancla.ui.settings.navigation.SettingsFeatureEntry
 import co.ryzer.ancla.ui.tasks.TasksViewModel
-
-private const val ROUTE_CALM_MAP = "calm_map"
+import co.ryzer.ancla.ui.tasks.navigation.TasksFeatureEntry
+import co.ryzer.ancla.ui.tools.navigation.ToolsFeatureEntry
 
 private fun shouldHideNavigationChrome(currentRoute: String?): Boolean {
     return currentRoute == NavigationRoutes.SCRIPT_READER ||
             currentRoute == NavigationRoutes.NEW_SCRIPT ||
             currentRoute == NavigationRoutes.BREATHING ||
             currentRoute == NavigationRoutes.CALMA_TOTAL ||
-            currentRoute == ROUTE_CALM_MAP ||
+            currentRoute == NavigationRoutes.CALM_MAP ||
             currentRoute == NavigationRoutes.ONBOARDING
 }
 
@@ -129,6 +130,67 @@ fun MainScreen(
     val homeDisplayState by homeViewModel.homeDisplayState.collectAsState()
 
     val startDestination = resolveStartDestination(profileUiState) ?: return
+    val featureRegistry = FeatureRegistry(
+        entries = listOf(
+            HomeFeatureEntry(
+                windowSizeClass = windowSizeClass,
+                userName = profileUiState.name,
+                currentActivity = homeDisplayState.currentTask,
+                activityState = homeUiState.activityState,
+                hasOverlap = homeUiState.hasOverlap,
+                isRecoveryMode = homeDisplayState.isRecoveryMode,
+                currentPostponementMinutes = homeDisplayState.currentPostponementMinutes,
+                onTaskComplete = { taskId -> tasksViewModel.onHomeTaskPrimaryAction(taskId) },
+                onToggleRecoveryMode = { homeViewModel.toggleRecoveryMode() },
+                onPostponeRemaining = { minutes -> homeViewModel.postponeAllRemaining(minutes) },
+                onReducePostponement = { minutes -> homeViewModel.reducePostponement(minutes) },
+                onClearPostponement = { homeViewModel.clearPostponement() },
+                onStartMeditation = { navController.navigate(NavigationRoutes.BREATHING) }
+            ),
+            ToolsFeatureEntry(
+                windowSizeClass = windowSizeClass,
+                toolOrder = toolOrder
+            ),
+            SettingsFeatureEntry(
+                windowSizeClass = windowSizeClass,
+                toolOrder = toolOrder,
+                scripts = scriptsUiState.scripts,
+                selectedColorId = profileUiState.effectiveSelectedColorId,
+                hasPendingPaletteChanges = profileUiState.hasPendingPaletteChanges,
+                onToolsOrderChanged = { updatedOrder ->
+                    toolOrder = updatedOrder
+                },
+                onScriptsOrderChanged = { orderedScriptIds ->
+                    scriptsViewModel.reorderScripts(orderedScriptIds)
+                },
+                onPalettePreviewChanged = { colorId ->
+                    profileViewModel.onPalettePreviewSelected(colorId)
+                },
+                onSavePalette = {
+                    profileViewModel.savePaletteSelection()
+                },
+                onDiscardPalettePreview = {
+                    profileViewModel.discardPalettePreview()
+                }
+            ),
+            ScriptsFeatureEntry(
+                windowSizeClass = windowSizeClass,
+                scripts = scriptsUiState.scripts,
+                emergencyContact = profileUiState.emergencyContact.ifBlank {
+                    EMERGENCY_CONTACT_DEFAULT
+                },
+                onAddScript = { phrase, categoryId, styleId ->
+                    scriptsViewModel.addScript(
+                        phrase = phrase,
+                        categoryId = categoryId,
+                        styleId = styleId
+                    )
+                },
+                getScriptById = { scriptId -> scriptsViewModel.getScriptById(scriptId) }
+            ),
+            TasksFeatureEntry(tasksViewModel = tasksViewModel)
+        )
+    )
 
     val navigationItems = remember { mainNavigationItems() }
 
@@ -193,160 +255,20 @@ fun MainScreen(
                         }
                     )
                 }
-                composable(NavigationRoutes.HOME) {
-                    HomeScreen(
-                        userName = profileUiState.name,
-                        currentActivity = homeDisplayState.currentTask,
-                        activityState = homeUiState.activityState,
-                        hasOverlap = homeUiState.hasOverlap,
-                        isRecoveryMode = homeDisplayState.isRecoveryMode,
-                        currentPostponementMinutes = homeDisplayState.currentPostponementMinutes,
-                        onTaskComplete = { taskId ->
-                            tasksViewModel.onHomeTaskPrimaryAction(taskId)
-                        },
-                        onToggleRecoveryMode = {
-                            homeViewModel.toggleRecoveryMode()
-                        },
-                        onPostponeRemaining = { minutes ->
-                            homeViewModel.postponeAllRemaining(minutes)
-                        },
-                        onReducePostponement = { minutes ->
-                            homeViewModel.reducePostponement(minutes)
-                        },
-                        onClearPostponement = {
-                            homeViewModel.clearPostponement()
-                        },
-                        onStartMeditation = {
-                            navController.navigate(NavigationRoutes.BREATHING)
-                        },
-                        windowSizeClass = windowSizeClass
-                    )
-                }
-                composable(NavigationRoutes.TOOLS) {
-                    ToolsScreen(
-                        onNavigateToTasks = { navController.navigate(NavigationRoutes.TASKS) },
-                        onNavigateToScripts = { navController.navigate(NavigationRoutes.SCRIPTS) },
-                        onNavigateToBreathing = { navController.navigate(NavigationRoutes.BREATHING) },
-                        onNavigateToCalmaTotal = { navController.navigate(NavigationRoutes.CALMA_TOTAL) },
-                        onNavigateToCalmMap = { navController.navigate(ROUTE_CALM_MAP) },
-                        windowSizeClass = windowSizeClass,
-                        toolOrder = toolOrder,
-                    )
-                }
-                composable(NavigationRoutes.SETTINGS) {
-                    SettingsScreen(
-                        windowSizeClass = windowSizeClass,
-                        toolOrder = toolOrder,
-                        scripts = scriptsUiState.scripts,
-                        selectedColorId = profileUiState.effectiveSelectedColorId,
-                        hasPendingPaletteChanges = profileUiState.hasPendingPaletteChanges,
-                        onToolsOrderChanged = { updatedOrder: List<ToolOrderEntry> ->
-                            toolOrder = updatedOrder
-                        },
-                        onScriptsOrderChanged = { orderedScriptIds ->
-                            scriptsViewModel.reorderScripts(orderedScriptIds)
-                        },
-                        onPalettePreviewChanged = { colorId ->
-                            profileViewModel.onPalettePreviewSelected(colorId)
-                        },
-                        onSavePalette = {
-                            profileViewModel.savePaletteSelection()
-                        },
-                        onDiscardPalettePreview = {
-                            profileViewModel.discardPalettePreview()
-                        },
-                        onVisualPreferencesClick = {
-                            navController.navigate(NavigationRoutes.SETTINGS_VISUAL)
-                        },
-                        onToolsOrganizationClick = {
-                            navController.navigate(NavigationRoutes.SETTINGS_ORDER)
-                        }
-                    )
-                }
-                composable(NavigationRoutes.SETTINGS_ORDER) {
-                    SettingsToolsOrderScreen(
-                        windowSizeClass = windowSizeClass,
-                        toolOrder = toolOrder,
-                        scripts = scriptsUiState.scripts,
-                        onToolsOrderChanged = { updatedOrder: List<ToolOrderEntry> ->
-                            toolOrder = updatedOrder
-                        },
-                        onScriptsOrderChanged = { orderedScriptIds ->
-                            scriptsViewModel.reorderScripts(orderedScriptIds)
-                        }
-                    )
-                }
-                composable(NavigationRoutes.SETTINGS_VISUAL) {
-                    SettingsVisualPreferencesScreen(
-                        windowSizeClass = windowSizeClass,
-                        selectedColorId = profileUiState.effectiveSelectedColorId,
-                        hasPendingPaletteChanges = profileUiState.hasPendingPaletteChanges,
-                        onPalettePreviewChanged = { colorId ->
-                            profileViewModel.onPalettePreviewSelected(colorId)
-                        },
-                        onSavePalette = {
-                            profileViewModel.savePaletteSelection()
-                        },
-                        onDiscardPalettePreview = {
-                            profileViewModel.discardPalettePreview()
-                        }
-                    )
-                }
+                featureRegistry.registerAll(
+                    navGraphBuilder = this,
+                    navController = navController
+                )
                 composable(NavigationRoutes.BREATHING) {
                     BreathingScreen(onExit = { navController.popBackStack() })
                 }
                 composable(NavigationRoutes.CALMA_TOTAL) {
                     CalmaTotalScreen(onExit = { navController.popBackStack() })
                 }
-                composable(NavigationRoutes.TASKS) {
-                    TaskManagementScreen(
-                        onBack = { navController.popBackStack() },
-                        viewModel = tasksViewModel
-                    )
-                }
-                composable(ROUTE_CALM_MAP) {
+                composable(NavigationRoutes.CALM_MAP) {
                     ScreeningPagerScreen(
                         onClose = { navController.popBackStack() },
                         onComplete = {}
-                    )
-                }
-                composable(NavigationRoutes.SCRIPTS) {
-                    ScriptsScreen(
-                        windowSizeClass = windowSizeClass,
-                        scripts = scriptsUiState.scripts,
-                        onScriptClick = { scriptId ->
-                            navController.navigate(NavigationRoutes.scriptReaderRoute(scriptId))
-                        },
-                        onNewScriptClick = { navController.navigate(NavigationRoutes.NEW_SCRIPT) }
-                    )
-                }
-                composable(NavigationRoutes.NEW_SCRIPT) {
-                    NewScriptScreen(
-                        windowSizeClass = windowSizeClass,
-                        onSaveScript = { phrase, categoryId, styleId ->
-                            scriptsViewModel.addScript(
-                                phrase = phrase,
-                                categoryId = categoryId,
-                                styleId = styleId
-                            )
-                            navController.popBackStack()
-                        },
-                        onCloseWithoutSaving = { navController.popBackStack() }
-                    )
-                }
-                composable(
-                    route = NavigationRoutes.SCRIPT_READER,
-                    arguments = listOf(navArgument(NavigationRoutes.ARG_SCRIPT_ID) { type = NavType.StringType })
-                ) { backStackEntry ->
-                    val scriptId = backStackEntry.arguments?.getString(NavigationRoutes.ARG_SCRIPT_ID).orEmpty()
-                    val selectedScript = scriptsViewModel.getScriptById(scriptId)
-                    ScriptReaderScreen(
-                        mainText = selectedScript?.message ?: "NECESITO APOYO",
-                        showEmergencyInfo = selectedScript?.showEmergencyContact ?: false,
-                        emergencyContact = profileUiState.emergencyContact.ifBlank {
-                            EMERGENCY_CONTACT_DEFAULT
-                        },
-                        onClose = { navController.popBackStack() }
                     )
                 }
             }

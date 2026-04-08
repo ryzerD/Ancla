@@ -39,6 +39,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:navigation"))
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.datastore.preferences.core)

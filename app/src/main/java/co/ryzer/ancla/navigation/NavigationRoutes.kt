@@ -21,6 +21,7 @@ object NavigationRoutes {
     const val SCRIPTS = "scripts"
     const val BREATHING = "breathing"
     const val CALMA_TOTAL = "calma_total"
+    const val CALM_MAP = "calm_map"
 
     // ── Script management ────────────────────────────────────────
     const val NEW_SCRIPT = "new_script"
