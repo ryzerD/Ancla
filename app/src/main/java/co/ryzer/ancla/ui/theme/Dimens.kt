@@ -164,25 +164,34 @@ object NewScriptScreenDimens {
  */
 object OnboardingSensorialDimens {
     val screenPadding = 24.dp
+    val topPadding = 48.dp
+    val contentBottomPadding = 140.dp
     val sectionSpacing = 24.dp
     val titleToSubtitleSpacing = 8.dp
     val sectionTitleToFieldSpacing = 10.dp
-    val fieldToHintSpacing = 8.dp
-    val hintToSectionSpacing = 18.dp
+    val sectionBadgeSize = 42.dp
+    val sectionTitleTextSpacing = 14.dp
 
     val textFieldCornerRadius = 12.dp
     val textFieldMinHeight = 58.dp
+    val contactCardCornerRadius = 28.dp
+    val contactCardPadding = 20.dp
+    val contactFieldSpacing = 14.dp
 
     val pickerItemSize = 92.dp
+    val pickerLargeItemSize = 170.dp
+    val pickerLargeGridSpacing = 12.dp
+    val pickerLargeLabelBottomSpacing = 16.dp
     val pickerItemCornerRadius = 16.dp
     val pickerGridSpacing = 12.dp
     val pickerSelectedBorderWidth = 3.dp
     val pickerUnselectedBorderWidth = 1.dp
     val pickerIconSize = 30.dp
-
-    val ctaTopSpacing = 24.dp
-    val ctaBottomSpacing = 8.dp
+    val pickerSelectedIconSize = 28.dp
     val ctaMinHeight = 56.dp
+    val ctaButtonCornerRadius = 999.dp
+    val ctaButtonHorizontalPadding = 24.dp
+    val ctaButtonVerticalPadding = 24.dp
 }
 
 /**

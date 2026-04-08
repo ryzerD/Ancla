@@ -1,24 +1,31 @@
 package co.ryzer.ancla.ui.screens
 
-import android.app.Activity
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.PersonAdd
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +35,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
@@ -36,24 +46,30 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.core.content.ContextCompat
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.SensoryProfile
 import co.ryzer.ancla.data.repository.SensoryProfileRepository
 import co.ryzer.ancla.ui.components.AnclaTextField
-import co.ryzer.ancla.ui.components.SensoryPalettePicker
 import co.ryzer.ancla.ui.contacts.resolvePickedContact
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTheme
+import co.ryzer.ancla.ui.theme.CardGreen
+import co.ryzer.ancla.ui.theme.CardLavender
+import co.ryzer.ancla.ui.theme.CardPeach
+import co.ryzer.ancla.ui.theme.CardRose
 import co.ryzer.ancla.ui.theme.OnboardingSensorialDimens
+import co.ryzer.ancla.ui.theme.ScriptReaderButton
+import co.ryzer.ancla.ui.theme.SurfaceWhite
 import co.ryzer.ancla.ui.theme.TextPrimary
 import co.ryzer.ancla.ui.theme.TextSecondary
 import co.ryzer.ancla.ui.theme.applySensoryPalette
@@ -64,8 +80,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private val SoftText = Color(0xFF2D2D2D)
-private val SoftAccent = Color(0xFFA3C1AD)
 private const val ONBOARDING_CONTACT_PICKER_TAG = "OnboardingContactPicker"
 
 data class OnboardingSensorialUiState(
@@ -213,151 +227,353 @@ fun OnboardingSensorialContent(
     onImportEmergencyContact: () -> Unit,
     onContinue: () -> Unit
 ) {
-    val titleStyle = MaterialTheme.typography.headlineMedium.copy(
+    val titleStyle = MaterialTheme.typography.headlineLarge.copy(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.ExtraBold,
         color = TextPrimary
     )
     val subtitleStyle = MaterialTheme.typography.bodyLarge.copy(
         fontFamily = FontFamily.SansSerif,
         color = TextSecondary
     )
-    val sectionTitleStyle = MaterialTheme.typography.titleMedium.copy(
-        fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.SemiBold,
-        color = SoftText
-    )
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(AnclaBackground)
-            .padding(OnboardingSensorialDimens.screenPadding)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+        val showMissingNameFeedback = state.name.isBlank()
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    start = OnboardingSensorialDimens.screenPadding,
+                    top = OnboardingSensorialDimens.topPadding,
+                    end = OnboardingSensorialDimens.screenPadding,
+                    bottom = OnboardingSensorialDimens.contentBottomPadding
+                )
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.sectionSpacing)
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(verticalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.titleToSubtitleSpacing)) {
                 Text(
                     text = stringResource(R.string.onboarding_sensorial_welcome_title),
                     style = titleStyle
                 )
-                Spacer(modifier = Modifier.height(OnboardingSensorialDimens.titleToSubtitleSpacing))
                 Text(
                     text = stringResource(R.string.onboarding_sensorial_welcome_subtitle),
                     style = subtitleStyle
                 )
             }
-            Spacer(modifier = Modifier.size(12.dp))
-        }
 
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionSpacing))
-
-        Text(
-            text = stringResource(R.string.onboarding_sensorial_identity_title),
-            style = sectionTitleStyle
-        )
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
-        CalmTextField(
-            value = state.name,
-            onValueChange = onNameChange,
-            placeholder = stringResource(R.string.onboarding_sensorial_name_placeholder)
-        )
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.fieldToHintSpacing))
-        Text(
-            text = stringResource(R.string.onboarding_sensorial_name_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary
-        )
-
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.hintToSectionSpacing))
-
-        Text(
-            text = stringResource(R.string.onboarding_sensorial_safety_title),
-            style = sectionTitleStyle
-        )
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
-        CalmTextField(
-            value = state.emergencyContactName,
-            onValueChange = onEmergencyContactNameChange,
-            placeholder = stringResource(R.string.onboarding_sensorial_contact_name_label)
-        )
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
-        CalmTextField(
-            value = state.emergencyContact,
-            onValueChange = onEmergencyContactChange,
-            placeholder = stringResource(R.string.onboarding_sensorial_contact_number_label),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-        )
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
-        Button(
-            onClick = onImportEmergencyContact,
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = SoftAccent,
-                contentColor = SoftText
-            ),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = stringResource(R.string.onboarding_sensorial_import_contact_cta))
-        }
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.fieldToHintSpacing))
-        Text(
-            text = stringResource(R.string.onboarding_sensorial_contact_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary
-        )
-
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.hintToSectionSpacing))
-
-        Text(
-            text = stringResource(R.string.onboarding_sensorial_preference_title),
-            style = sectionTitleStyle
-        )
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.sectionTitleToFieldSpacing))
-        SensoryPalettePicker(
-            selectedColorId = state.selectedColorId,
-            onColorSelected = onColorSelected
-        )
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.fieldToHintSpacing))
-        Text(
-            text = stringResource(R.string.onboarding_sensorial_palette_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = TextSecondary
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.ctaTopSpacing))
-
-        Button(
-            onClick = onContinue,
-            enabled = state.canContinue,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(OnboardingSensorialDimens.ctaMinHeight)
-                .align(Alignment.Start),
-            shape = RoundedCornerShape(percent = 50),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = SoftAccent,
-                contentColor = SoftText,
-                disabledContainerColor = SoftAccent.copy(alpha = 0.6f),
-                disabledContentColor = SoftText.copy(alpha = 0.7f)
+            OnboardingSectionHeader(
+                number = 1,
+                title = stringResource(R.string.onboarding_sensorial_identity_title)
             )
+            Column(verticalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.sectionTitleToFieldSpacing)) {
+                Text(
+                    text = stringResource(R.string.onboarding_sensorial_name_hint),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+                CalmTextField(
+                    value = state.name,
+                    onValueChange = onNameChange,
+                    placeholder = stringResource(R.string.onboarding_sensorial_name_placeholder)
+                )
+            }
+
+            OnboardingSectionHeader(
+                number = 2,
+                title = stringResource(R.string.onboarding_sensorial_safety_title)
+            )
+            OnboardingContactCard(
+                contactName = state.emergencyContactName,
+                onContactNameChange = onEmergencyContactNameChange,
+                contactPhone = state.emergencyContact,
+                onContactPhoneChange = onEmergencyContactChange,
+                onImportEmergencyContact = onImportEmergencyContact
+            )
+
+            OnboardingSectionHeader(
+                number = 3,
+                title = stringResource(R.string.onboarding_sensorial_preference_title)
+            )
+            Text(
+                text = stringResource(R.string.onboarding_sensorial_palette_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary
+            )
+            OnboardingPaletteGrid(
+                selectedColorId = state.selectedColorId,
+                onColorSelected = onColorSelected
+            )
+        }
+
+        OnboardingPrimaryActionButton(
+            enabled = state.canContinue,
+            text = stringResource(R.string.onboarding_sensorial_cta_start),
+            onClick = onContinue,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(
+                    start = OnboardingSensorialDimens.ctaButtonHorizontalPadding,
+                    end = OnboardingSensorialDimens.ctaButtonHorizontalPadding,
+                    bottom = OnboardingSensorialDimens.ctaButtonVerticalPadding
+                )
+        )
+
+        if (showMissingNameFeedback) {
+            Text(
+                text = stringResource(R.string.onboarding_sensorial_name_required_feedback),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontFamily = FontFamily.SansSerif,
+                    fontWeight = FontWeight.SemiBold,
+                    color = TextSecondary
+                ),
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(
+                        start = OnboardingSensorialDimens.ctaButtonHorizontalPadding,
+                        end = OnboardingSensorialDimens.ctaButtonHorizontalPadding,
+                        bottom = OnboardingSensorialDimens.ctaButtonVerticalPadding +
+                                OnboardingSensorialDimens.ctaMinHeight + 12.dp
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+private fun OnboardingSectionHeader(
+    number: Int,
+    title: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.sectionTitleTextSpacing)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(OnboardingSensorialDimens.sectionBadgeSize)
+                .clip(CircleShape)
+                .background(SurfaceWhite.copy(alpha = 0.75f)),
+            contentAlignment = Alignment.Center
         ) {
             Text(
-                text = stringResource(R.string.onboarding_sensorial_cta_start),
+                text = number.toString(),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontFamily = FontFamily.SansSerif,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.Bold,
+                    color = TextPrimary
                 )
             )
         }
 
-        Spacer(modifier = Modifier.height(OnboardingSensorialDimens.ctaBottomSpacing))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.Bold,
+                color = TextPrimary
+            )
+        )
     }
 }
+
+@Composable
+private fun OnboardingContactCard(
+    contactName: String,
+    onContactNameChange: (String) -> Unit,
+    contactPhone: String,
+    onContactPhoneChange: (String) -> Unit,
+    onImportEmergencyContact: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(OnboardingSensorialDimens.contactCardCornerRadius))
+            .background(CardPeach.copy(alpha = 0.35f))
+            .padding(OnboardingSensorialDimens.contactCardPadding),
+        verticalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.contactFieldSpacing)
+    ) {
+        Text(
+            text = stringResource(R.string.onboarding_sensorial_contact_name_label),
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFamily = FontFamily.SansSerif,
+                fontWeight = FontWeight.SemiBold,
+                color = TextPrimary
+            )
+        )
+        CalmTextField(
+            value = contactName,
+            onValueChange = onContactNameChange,
+            placeholder = stringResource(R.string.onboarding_sensorial_contact_name_label),
+            containerAlpha = 0.95f
+        )
+        CalmTextField(
+            value = contactPhone,
+            onValueChange = onContactPhoneChange,
+            placeholder = stringResource(R.string.onboarding_sensorial_contact_number_label),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+            containerAlpha = 0.95f
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onImportEmergencyContact)
+                .padding(top = 4.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PersonAdd,
+                    contentDescription = null,
+                    tint = TextPrimary
+                )
+                Text(
+                    text = stringResource(R.string.onboarding_sensorial_import_contact_cta),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextPrimary
+                    )
+                )
+                }
+            }
+        }
+    }
+
+@Composable
+private fun OnboardingPaletteGrid(
+    selectedColorId: String,
+    onColorSelected: (String) -> Unit
+) {
+    val paletteOptions = listOf(
+        OnboardingPaletteOption(
+            id = "sage",
+            labelRes = R.string.palette_sage,
+            color = CardGreen
+        ),
+        OnboardingPaletteOption(
+            id = "lavender",
+            labelRes = R.string.palette_lavender,
+            color = CardLavender
+        ),
+        OnboardingPaletteOption(
+            id = "rose",
+            labelRes = R.string.palette_rose,
+            color = CardRose
+        ),
+        OnboardingPaletteOption(
+            id = "peach",
+            labelRes = R.string.palette_peach,
+            color = CardPeach
+        )
+    )
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.pickerLargeGridSpacing)
+    ) {
+        paletteOptions.chunked(2).forEach { rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                rowItems.forEach { option ->
+                    val isSelected = option.id == selectedColorId
+                    Box(
+                        modifier = Modifier
+                            .size(OnboardingSensorialDimens.pickerLargeItemSize)
+                            .clip(CircleShape)
+                            .background(option.color)
+                            .clickable { onColorSelected(option.id) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(option.labelRes).uppercase(),
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontFamily = FontFamily.SansSerif,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) SurfaceWhite else TextPrimary.copy(alpha = 0.45f),
+                                textAlign = TextAlign.Center
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = OnboardingSensorialDimens.pickerLargeLabelBottomSpacing)
+                        )
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Filled.CheckCircle,
+                                contentDescription = stringResource(option.labelRes),
+                                tint = SurfaceWhite,
+                                modifier = Modifier.size(OnboardingSensorialDimens.pickerSelectedIconSize)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OnboardingPrimaryActionButton(
+    enabled: Boolean,
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(OnboardingSensorialDimens.ctaMinHeight)
+            .shadow(
+                elevation = if (enabled) 8.dp else 0.dp,
+                shape = RoundedCornerShape(OnboardingSensorialDimens.ctaButtonCornerRadius)
+            )
+            .clip(RoundedCornerShape(OnboardingSensorialDimens.ctaButtonCornerRadius))
+            .background(
+                brush = if (enabled) {
+                    Brush.horizontalGradient(colors = listOf(ScriptReaderButton, CardGreen))
+                } else {
+                    Brush.horizontalGradient(
+                        colors = listOf(CardPeach.copy(alpha = 0.8f), CardPeach.copy(alpha = 0.8f))
+                    )
+                }
+            )
+            .clickable(enabled = enabled, onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontFamily = FontFamily.SansSerif,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (enabled) TextPrimary else TextPrimary.copy(alpha = 0.55f)
+                )
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                tint = if (enabled) TextPrimary else TextPrimary.copy(alpha = 0.55f)
+            )
+        }
+    }
+}
+
+private data class OnboardingPaletteOption(
+    val id: String,
+    val labelRes: Int,
+    val color: Color
+)
 
 @Composable
 fun CalmTextField(
@@ -365,7 +581,8 @@ fun CalmTextField(
     onValueChange: (String) -> Unit,
     placeholder: String,
     modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    containerAlpha: Float = 0.8f
 ) {
     AnclaTextField(
         value = value,
@@ -374,6 +591,7 @@ fun CalmTextField(
         minHeight = OnboardingSensorialDimens.textFieldMinHeight,
         singleLine = true,
         keyboardOptions = keyboardOptions,
+        containerAlpha = containerAlpha,
         textStyle = MaterialTheme.typography.bodyLarge.copy(
             fontFamily = FontFamily.SansSerif,
             fontWeight = FontWeight.SemiBold,
