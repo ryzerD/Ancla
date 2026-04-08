@@ -17,7 +17,6 @@ object NavigationRoutes {
     const val SETTINGS_VISUAL = "settings_visual"
 
     // ── Tools sub-routes ────────────────────────────────────────
-    const val DECODER = "decoder"
     const val TASKS = "tasks"
     const val SCRIPTS = "scripts"
     const val BREATHING = "breathing"

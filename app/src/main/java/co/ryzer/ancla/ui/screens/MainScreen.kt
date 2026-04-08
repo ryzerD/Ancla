@@ -224,7 +224,6 @@ fun MainScreen(
                 }
                 composable(NavigationRoutes.TOOLS) {
                     ToolsScreen(
-                        onNavigateToDecoder = { navController.navigate(NavigationRoutes.DECODER) },
                         onNavigateToTasks = { navController.navigate(NavigationRoutes.TASKS) },
                         onNavigateToScripts = { navController.navigate(NavigationRoutes.SCRIPTS) },
                         onNavigateToBreathing = { navController.navigate(NavigationRoutes.BREATHING) },
@@ -232,7 +231,6 @@ fun MainScreen(
                         onNavigateToCalmMap = { navController.navigate(ROUTE_CALM_MAP) },
                         windowSizeClass = windowSizeClass,
                         toolOrder = toolOrder,
-                        hasCompletedAssessment = profileUiState.hasCompletedAssessment
                     )
                 }
                 composable(NavigationRoutes.SETTINGS) {
@@ -294,7 +292,6 @@ fun MainScreen(
                         }
                     )
                 }
-                composable(NavigationRoutes.DECODER) { DecoderScreen() }
                 composable(NavigationRoutes.BREATHING) {
                     BreathingScreen(onExit = { navController.popBackStack() })
                 }
@@ -310,7 +307,7 @@ fun MainScreen(
                 composable(ROUTE_CALM_MAP) {
                     ScreeningPagerScreen(
                         onClose = { navController.popBackStack() },
-                        onComplete = {} // Solo actualiza estado, no cierra
+                        onComplete = {}
                     )
                 }
                 composable(NavigationRoutes.SCRIPTS) {

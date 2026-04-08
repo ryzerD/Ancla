@@ -75,11 +75,11 @@ fun SettingsToolsOrderScreen(
     }
 
     val toolCatalog = listOf(
-        SettingsToolOrderItem(toolId = ToolIds.DECODER, titleResId = R.string.tool_decoder_title),
         SettingsToolOrderItem(toolId = ToolIds.TASKS, titleResId = R.string.tool_tasks_title),
         SettingsToolOrderItem(toolId = ToolIds.SCRIPTS, titleResId = R.string.tool_scripts_title),
         SettingsToolOrderItem(toolId = ToolIds.BREATHING, titleResId = R.string.tool_breathing_title),
-        SettingsToolOrderItem(toolId = ToolIds.SOS, titleResId = R.string.tool_sos_title)
+        SettingsToolOrderItem(toolId = ToolIds.SOS, titleResId = R.string.tool_sos_title),
+        SettingsToolOrderItem(toolId = ToolIds.CALM_MAP, titleResId = R.string.tool_calm_map_title)
     )
     val orderedToolIds = toolOrder.sortedBy { it.position }.map { it.toolId }
     val toolCatalogById = toolCatalog.associateBy { it.toolId }
@@ -342,6 +342,3 @@ private fun SettingsVisualPreferencesScreenPreview() {
         SettingsVisualPreferencesScreen(hasPendingPaletteChanges = true)
     }
 }
-
-
-

@@ -49,7 +49,6 @@ data class UserAssessmentResult(
 }
 
 object ToolIds {
-    const val DECODER = "decoder"
     const val TASKS = "tasks"
     const val SCRIPTS = "scripts"
     const val BREATHING = "breathing"
@@ -63,10 +62,9 @@ data class ToolOrderEntry(
 )
 
 val DefaultToolOrder: List<ToolOrderEntry> = listOf(
-    ToolOrderEntry(toolId = ToolIds.DECODER, position = 0),
-    ToolOrderEntry(toolId = ToolIds.TASKS, position = 1),
-    ToolOrderEntry(toolId = ToolIds.SCRIPTS, position = 2),
-    ToolOrderEntry(toolId = ToolIds.BREATHING, position = 3),
-    ToolOrderEntry(toolId = ToolIds.SOS, position = 4),
-    ToolOrderEntry(toolId = ToolIds.CALM_MAP, position = 5)
+    ToolOrderEntry(toolId = ToolIds.TASKS, position = 0),
+    ToolOrderEntry(toolId = ToolIds.SCRIPTS, position = 1),
+    ToolOrderEntry(toolId = ToolIds.BREATHING, position = 2),
+    ToolOrderEntry(toolId = ToolIds.SOS, position = 3),
+    ToolOrderEntry(toolId = ToolIds.CALM_MAP, position = 4)
 )

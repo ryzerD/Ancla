@@ -33,8 +33,6 @@
     <!-- ToolsScreen -->
     <string name="tools_support_label">Mi Apoyo</string>
     <string name="tools_title">Caja de Herramientas</string>
-    <string name="tool_decoder_title">Decodificador</string>
-    <string name="tool_decoder_subtitle">Analizar un mensaje</string>
     <string name="tool_tasks_title">Mis tareas diarias</string>
     <string name="tool_tasks_subtitle">Agregar y organizar mis tareas</string>
     <string name="tool_scripts_title">Mis Guiones</string>
