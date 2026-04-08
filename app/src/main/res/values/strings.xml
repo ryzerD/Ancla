@@ -4,17 +4,35 @@
     <!-- HomeScreen -->
     <string name="greeting">Hola</string>
     <string name="greeting_user">Hola, %1$s</string>
+    <string name="greeting_morning">Buenos dias</string>
+    <string name="greeting_afternoon">Buenas tardes</string>
+    <string name="greeting_evening">Buenas noches</string>
     <string name="current_task_label">Mi Tarea Actual</string>
     <string name="task_time_format">Hora: %1$s</string>
     <string name="btn_complete">Terminar</string>
     <string name="empty_tasks_title">Todo está en orden</string>
     <string name="empty_tasks_subtitle">No tienes tareas pendientes por ahora.\nDisfruta de tu tiempo libre.</string>
+    <string name="home_rest_title">Tiempo de Calma</string>
+    <string name="home_rest_subtitle">No tienes actividades programadas.\nAprovecha para descansar y respirar profundo.</string>
+    <string name="home_rest_cta">Empezar meditacion</string>
+    <string name="home_overlap_banner">Hay dos actividades superpuestas en este horario.</string>
+    <string name="home_state_preparing">Tu actividad empieza pronto.</string>
+    <string name="home_state_active">Actividad en curso.</string>
+    <string name="home_recovery_title">Modo Recuperacion</string>
+    <string name="home_recovery_subtitle">Las actividades están ocultas temporalmente para darte un espacio de calma.</string>
+    <string name="home_recovery_cta">Continuar en calma</string>
+    <string name="home_task_not_started">Esta actividad aún no está en curso.</string>
+    <string name="home_task_in_progress">Esta actividad está en transcurso.</string>
+    <string name="home_btn_start_task">Iniciar actividad</string>
+    <string name="home_btn_finish_task">Finalizar actividad</string>
+    <string name="home_quick_controls_title">Controles rapidos</string>
+    <string name="home_btn_enable_recovery">Activar modo recuperacion</string>
+    <string name="home_btn_disable_recovery">Desactivar modo recuperacion</string>
+    <string name="home_btn_postpone_15">Posponer tareas 15 min</string>
 
     <!-- ToolsScreen -->
     <string name="tools_support_label">Mi Apoyo</string>
     <string name="tools_title">Caja de Herramientas</string>
-    <string name="tool_decoder_title">Decodificador</string>
-    <string name="tool_decoder_subtitle">Analizar un mensaje</string>
     <string name="tool_tasks_title">Mis tareas diarias</string>
     <string name="tool_tasks_subtitle">Agregar y organizar mis tareas</string>
     <string name="tool_scripts_title">Mis Guiones</string>
@@ -33,7 +51,7 @@
     <!-- SettingsScreen -->
     <string name="settings_title">Ajustes</string>
     <string name="settings_profile_title">Tu Perfil</string>
-    <string name="settings_profile_subtitle">Nombre, informacion basica y contacto de emergencia (CRITICAL)</string>
+    <string name="settings_profile_subtitle">Nombre, información basica y contacto de emergencia (CRITICAL)</string>
     <string name="settings_visual_title">Preferencias Visuales</string>
     <string name="settings_visual_subtitle">Ajustar colores, contraste y modo oscuro</string>
     <string name="settings_tools_org_title">Organizacion de Herramientas</string>
@@ -59,8 +77,28 @@
     <!-- TaskManagementScreen -->
     <string name="tasks_screen_title">Mis tareas diarias</string>
     <string name="tasks_screen_subtitle">Guarda las tareas que quieres tener presentes cada dia.</string>
+    <string name="tasks_back_content_description">Regresar</string>
+    <string name="tasks_form_title">Nueva Tarea</string>
     <string name="tasks_field_title">Titulo de la tarea</string>
+    <string name="tasks_field_title_placeholder">Titulo de la tarea</string>
     <string name="tasks_field_description">Descripcion (opcional)</string>
+    <string name="tasks_field_description_placeholder">Descripcion (opcional)</string>
+    <string name="tasks_field_category_label">Categoria</string>
+    <string name="tasks_category_routine">Rutina</string>
+    <string name="tasks_category_health">Salud</string>
+    <string name="tasks_category_work">Trabajo</string>
+    <string name="tasks_schedule_label">Horario</string>
+    <string name="tasks_schedule_start">Inicio</string>
+    <string name="tasks_schedule_end">Fin</string>
+    <string name="tasks_schedule_between">a</string>
+    <string name="tasks_invalid_time_range_message">La hora de inicio debe ser anterior a la hora de fin</string>
+    <string name="tasks_today_label">Tareas de hoy</string>
+    <string name="tasks_remaining_count">%1$d restantes</string>
+    <string name="tasks_add_short">Anadir</string>
+    <string name="tasks_update_short">Actualizar</string>
+    <string name="tasks_complete_content_description">Marcar como completada</string>
+    <string name="tasks_reopen_content_description">Marcar como pendiente</string>
+    <string name="tasks_time_picker_title">Selecciona la hora de %1$s</string>
     <string name="tasks_field_time">Hora (ej: 08:00 AM)</string>
     <string name="tasks_add_button">Agregar tarea</string>
     <string name="tasks_save_button">Guardar cambios</string>
@@ -71,7 +109,27 @@
     <string name="tasks_delete_content_description">Eliminar tarea</string>
     <string name="tasks_delete_dialog_title">Eliminar tarea</string>
     <string name="tasks_delete_dialog_message">Deseas eliminar "%1$s"?</string>
+    <string name="tasks_complete_confirm_title">Finalizar tarea</string>
+    <string name="tasks_complete_confirm_message">Deseas marcar como finalizada "%1$s"?</string>
+    <string name="tasks_reopen_confirm_title">Reabrir tarea</string>
+    <string name="tasks_reopen_confirm_message">Deseas marcar como no finalizada "%1$s"?</string>
+    <string name="tasks_discard_dialog_title">Descartar cambios</string>
+    <string name="tasks_discard_dialog_message">Tienes cambios sin guardar. Deseas descartarlos?</string>
+    <string name="tasks_discard_dialog_confirm">Descartar</string>
     <string name="tasks_time_picker_description">Seleccionar hora</string>
+    <string name="tasks_filter_all">Todas</string>
+    <string name="tasks_filter_pending">Pendientes</string>
+    <string name="tasks_filter_completed">Completadas</string>
+    <string name="tasks_empty_all_title">Tu día está listo para empezar</string>
+    <string name="tasks_empty_all_subtitle">Agrega una tarea cuando quieras. Vamos paso a paso.</string>
+    <string name="tasks_empty_pending_title">Todo al día por ahora</string>
+    <string name="tasks_empty_pending_subtitle">No tienes pendientes. Respira y sigue a tu ritmo.</string>
+    <string name="tasks_empty_completed_title">Aún no has finalizado tareas</string>
+    <string name="tasks_empty_completed_subtitle">Cuando completes una, aparecerá aquí.</string>
+    <string name="home_postponement_indicator">⏰ Pospuesto: %1$d minutos más</string>
+    <string name="home_btn_postpone_15_more">➕ Posponer 15 min más (%1$d min acumulados)</string>
+    <string name="home_btn_reduce_postpone_15">➖ Menos 15 min</string>
+    <string name="home_btn_clear_postponement">🗑️ Cancelar pospuesto</string>
 
     <!-- ScriptsScreen -->
     <string name="scripts_screen_title">Mis guiones</string>

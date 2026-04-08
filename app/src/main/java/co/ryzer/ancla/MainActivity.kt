@@ -1,17 +1,25 @@
 package co.ryzer.ancla
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import co.ryzer.ancla.notifications.NotificationHelper
+import co.ryzer.ancla.ui.home.HomeViewModel
 import co.ryzer.ancla.ui.profile.ProfileViewModel
+import co.ryzer.ancla.navigation.NavigationRoutes
 import co.ryzer.ancla.ui.screens.MainScreen
 import co.ryzer.ancla.ui.scripts.ScriptsViewModel
 import co.ryzer.ancla.ui.theme.AnclaTheme
@@ -21,16 +29,34 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    private val shouldOpenHomeFromNotification = mutableStateOf(false)
+
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        shouldOpenHomeFromNotification.value =
+            intent?.getBooleanExtra(NotificationHelper.EXTRA_OPEN_HOME_FROM_NOTIFICATION, false) == true
         enableEdgeToEdge()
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
             val tasksViewModel: TasksViewModel = viewModel()
+            val homeViewModel: HomeViewModel = viewModel()
             val scriptsViewModel: ScriptsViewModel = viewModel()
             val profileViewModel: ProfileViewModel = viewModel()
             val profileUiState by profileViewModel.uiState.collectAsState()
+
+            // Solicitar permiso de notificaciones en Android 13+
+            val permissionLauncher = rememberLauncherForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) {
+                // Permiso otorgado o denegado
+            }
+
+            LaunchedEffect(Unit) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }
 
             LaunchedEffect(profileUiState.effectiveSelectedColorId) {
                 applySensoryPalette(profileUiState.effectiveSelectedColorId)
@@ -38,14 +64,40 @@ class MainActivity : ComponentActivity() {
 
             AnclaTheme {
                 val navController = rememberNavController()
+                LaunchedEffect(
+                    profileUiState.isLoaded,
+                    profileUiState.requiresOnboarding,
+                    shouldOpenHomeFromNotification.value
+                ) {
+                    if (
+                        shouldOpenHomeFromNotification.value &&
+                        profileUiState.isLoaded &&
+                        !profileUiState.requiresOnboarding
+                    ) {
+                        navController.navigate(NavigationRoutes.HOME) {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                        shouldOpenHomeFromNotification.value = false
+                    }
+                }
+
                 MainScreen(
                     navController = navController,
                     windowSizeClass = windowSizeClass,
                     tasksViewModel = tasksViewModel,
+                    homeViewModel = homeViewModel,
                     scriptsViewModel = scriptsViewModel,
                     profileViewModel = profileViewModel
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        shouldOpenHomeFromNotification.value =
+            intent.getBooleanExtra(NotificationHelper.EXTRA_OPEN_HOME_FROM_NOTIFICATION, false)
     }
 }

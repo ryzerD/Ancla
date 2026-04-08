@@ -12,32 +12,83 @@ class RoomTaskRepository @Inject constructor(
     private val taskDao: TaskDao
 ) : TaskRepository {
 
+    companion object {
+        private const val ROUTINE_CATEGORY = "Rutina"
+    }
+
     override fun observeTasks(): Flow<List<Task>> {
         return taskDao.observeTasks().map { entities ->
             entities.map { it.toDomain() }
         }
     }
 
-    override suspend fun addTask(title: String, description: String, time: String) {
-        taskDao.insert(
-            Task(
-                title = title,
-                description = description,
-                time = time
-            ).toEntity()
-        )
+    override fun observeHomeTaskCandidate(currentTime: String, preparingUntil: String): Flow<Task?> {
+        return taskDao.observeHomeTaskCandidate(
+            currentTime = currentTime,
+            preparingUntil = preparingUntil
+        ).map { it?.toDomain() }
+    }
+
+    override suspend fun getTaskById(taskId: String): Task? {
+        return taskDao.getTaskById(taskId)?.toDomain()
+    }
+
+    override suspend fun addTask(task: Task) {
+        taskDao.insert(task.toEntity())
     }
 
     override suspend fun updateTask(task: Task) {
         taskDao.update(task.toEntity())
     }
 
+    override suspend fun getOverlappingTask(
+        newStart: String,
+        newEnd: String,
+        excludeTaskId: String?
+    ): Task? {
+        val overlap = if (excludeTaskId == null) {
+            taskDao.getOverlappingTask(newStart = newStart, newEnd = newEnd)
+        } else {
+            taskDao.getOverlappingTaskExcludingId(
+                newStart = newStart,
+                newEnd = newEnd,
+                excludeTaskId = excludeTaskId
+            )
+        }
+        return overlap?.toDomain()
+    }
+
+    override suspend fun setTaskInProgress(taskId: String, isInProgress: Boolean) {
+        if (isInProgress) {
+            taskDao.markStarted(taskId)
+        }
+    }
+
     override suspend fun setTaskCompleted(taskId: String, isCompleted: Boolean) {
-        taskDao.updateCompleted(taskId = taskId, isCompleted = isCompleted)
+        if (isCompleted) {
+            taskDao.markCompleted(taskId)
+        } else {
+            taskDao.markPending(taskId)
+        }
     }
 
     override suspend fun deleteTask(taskId: String) {
         taskDao.deleteById(taskId)
     }
-}
 
+    override suspend fun getPendingTasksStartingFrom(fromTime: String): List<Task> {
+        return taskDao.getPendingTasksStartingFrom(fromTime).map { it.toDomain() }
+    }
+
+    override suspend fun postponePendingTasksStartingFrom(fromTime: String, minutes: Long): Int {
+        return taskDao.postponePendingTasksStartingFrom(fromTime = fromTime, minutes = minutes)
+    }
+
+    override suspend fun runDailyRoutineReset(snapshotDate: String, recordedAt: Long): Int {
+        return taskDao.archiveAndResetRoutineTasks(
+            routineCategory = ROUTINE_CATEGORY,
+            snapshotDate = snapshotDate,
+            recordedAt = recordedAt
+        )
+    }
+}

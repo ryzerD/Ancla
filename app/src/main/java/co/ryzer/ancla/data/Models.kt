@@ -12,9 +12,19 @@ data class Task(
     val id: String = java.util.UUID.randomUUID().toString(),
     val title: String,
     val description: String,
-    val time: String,
-    val isCompleted: Boolean = false
-)
+    val startTime: String,
+    val endTime: String,
+    val category: String,
+    val startedAt: Long? = null,      // Timestamp when task was started
+    val completedAt: Long? = null     // Timestamp when task was completed
+) {
+    // Derive boolean states from timestamps
+    val isInProgress: Boolean
+        get() = startedAt != null && completedAt == null
+    
+    val isCompleted: Boolean
+        get() = completedAt != null
+}
 
 data class Script(
     val id: String = java.util.UUID.randomUUID().toString(),
@@ -39,7 +49,6 @@ data class UserAssessmentResult(
 }
 
 object ToolIds {
-    const val DECODER = "decoder"
     const val TASKS = "tasks"
     const val SCRIPTS = "scripts"
     const val BREATHING = "breathing"
@@ -53,11 +62,9 @@ data class ToolOrderEntry(
 )
 
 val DefaultToolOrder: List<ToolOrderEntry> = listOf(
-    ToolOrderEntry(toolId = ToolIds.DECODER, position = 0),
-    ToolOrderEntry(toolId = ToolIds.TASKS, position = 1),
-    ToolOrderEntry(toolId = ToolIds.SCRIPTS, position = 2),
-    ToolOrderEntry(toolId = ToolIds.BREATHING, position = 3),
-    ToolOrderEntry(toolId = ToolIds.SOS, position = 4),
-    ToolOrderEntry(toolId = ToolIds.CALM_MAP, position = 5)
+    ToolOrderEntry(toolId = ToolIds.TASKS, position = 0),
+    ToolOrderEntry(toolId = ToolIds.SCRIPTS, position = 1),
+    ToolOrderEntry(toolId = ToolIds.BREATHING, position = 2),
+    ToolOrderEntry(toolId = ToolIds.SOS, position = 3),
+    ToolOrderEntry(toolId = ToolIds.CALM_MAP, position = 4)
 )
-

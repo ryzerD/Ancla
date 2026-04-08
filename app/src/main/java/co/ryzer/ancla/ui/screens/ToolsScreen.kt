@@ -19,10 +19,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Air
 import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FrontHand
 import androidx.compose.material.icons.outlined.PanToolAlt
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -63,7 +62,6 @@ private data class ToolItemUi(
 
 @Composable
 fun ToolsScreen(
-    onNavigateToDecoder: () -> Unit,
     onNavigateToTasks: () -> Unit,
     onNavigateToScripts: () -> Unit,
     onNavigateToBreathing: () -> Unit,
@@ -71,7 +69,6 @@ fun ToolsScreen(
     onNavigateToCalmMap: () -> Unit,
     windowSizeClass: WindowSizeClass? = null,
     toolOrder: List<ToolOrderEntry> = DefaultToolOrder,
-    hasCompletedAssessment: Boolean = false
 ) {
     val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     val horizontalPadding = if (isExpanded) {
@@ -86,14 +83,6 @@ fun ToolsScreen(
     }
 
     val catalog = listOf(
-        ToolItemUi(
-            toolId = ToolIds.DECODER,
-            titleResId = R.string.tool_decoder_title,
-            subtitleResId = R.string.tool_decoder_subtitle,
-            icon = Icons.Outlined.ChatBubbleOutline,
-            color = CardGreen,
-            onClick = onNavigateToDecoder
-        ),
         ToolItemUi(
             toolId = ToolIds.TASKS,
             titleResId = R.string.tool_tasks_title,
@@ -119,20 +108,20 @@ fun ToolsScreen(
             onClick = onNavigateToBreathing
         ),
         ToolItemUi(
-            toolId = ToolIds.SOS,
-            titleResId = R.string.tool_sos_title,
-            subtitleResId = R.string.tool_sos_subtitle,
-            icon = Icons.Outlined.Build,
-            color = CardRose,
-            onClick = onNavigateToCalmaTotal
-        ),
-        ToolItemUi(
             toolId = ToolIds.CALM_MAP,
             titleResId = R.string.tool_calm_map_title,
             subtitleResId = R.string.tool_calm_map_subtitle,
             icon = Icons.Outlined.Favorite,
             color = CardLavender,
             onClick = onNavigateToCalmMap
+        ),
+        ToolItemUi(
+            toolId = ToolIds.SOS,
+            titleResId = R.string.tool_sos_title,
+            subtitleResId = R.string.tool_sos_subtitle,
+            icon = Icons.Outlined.Build,
+            color = CardRose,
+            onClick = onNavigateToCalmaTotal
         )
     )
 
@@ -245,7 +234,6 @@ fun ToolCard(
 fun ToolsScreenCompactPreview() {
     AnclaTheme {
         ToolsScreen(
-            onNavigateToDecoder = {},
             onNavigateToTasks = {},
             onNavigateToScripts = {},
             onNavigateToBreathing = {},
@@ -260,7 +248,6 @@ fun ToolsScreenCompactPreview() {
 fun ToolsScreenExpandedPreview() {
     AnclaTheme {
         ToolsScreen(
-            onNavigateToDecoder = {},
             onNavigateToTasks = {},
             onNavigateToScripts = {},
             onNavigateToBreathing = {},
@@ -275,9 +262,9 @@ fun ToolsScreenExpandedPreview() {
 fun ToolCardPreview() {
     AnclaTheme {
         ToolCard(
-            title = "Decoder",
-            subtitle = "Translate your feelings",
-            icon = Icons.Outlined.ChatBubbleOutline,
+            title = "Respira",
+            subtitle = "Guia de calma visual",
+            icon = Icons.Outlined.Air,
             color = CardGreen,
             onClick = {}
         )
