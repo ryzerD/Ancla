@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Script
+import co.ryzer.ancla.ui.components.AnclaTopBar
 import co.ryzer.ancla.ui.model.ScriptCardUi
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
@@ -53,7 +55,8 @@ fun ScriptsScreen(
     windowSizeClass: WindowSizeClass? = null,
     scripts: List<Script> = emptyList(),
     onScriptClick: (String) -> Unit = {},
-    onNewScriptClick: () -> Unit = {}
+    onNewScriptClick: () -> Unit = {},
+    onBack: (() -> Unit)? = null
 ) {
     val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     val horizontalPadding = if (isExpanded) {
@@ -79,13 +82,14 @@ fun ScriptsScreen(
             .background(AnclaBackground)
             .padding(
                 horizontal = horizontalPadding,
-                vertical = ToolsScreenDimens.verticalPadding
             )
     ) {
-        Text(
-            text = stringResource(R.string.scripts_screen_title),
-            style = AnclaTextStyles.toolsTitle,
-            color = TextPrimary
+        AnclaTopBar(
+            title = stringResource(R.string.scripts_screen_title),
+            onNavigationClick = onBack,
+            centerTitle = false,
+            navigationContentDescription = stringResource(R.string.tasks_back_content_description),
+            windowInsets = WindowInsets(0)
         )
         Text(
             text = stringResource(R.string.scripts_screen_subtitle),

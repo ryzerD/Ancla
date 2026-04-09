@@ -1,64 +1,39 @@
 package co.ryzer.ancla.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.NotificationsNone
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.PersonOutline
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.DefaultToolOrder
 import co.ryzer.ancla.data.Script
 import co.ryzer.ancla.data.ToolOrderEntry
+import co.ryzer.ancla.ui.model.SettingsMenuItemUi
+import co.ryzer.ancla.ui.settings.components.SettingsMenuCard
+import co.ryzer.ancla.ui.settings.components.SettingsScreenHeader
+import co.ryzer.ancla.ui.settings.components.SettingsTipCard
 import co.ryzer.ancla.ui.theme.AnclaBackground
-import co.ryzer.ancla.ui.theme.AnclaTextStyles
 import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.theme.CardGreen
 import co.ryzer.ancla.ui.theme.CardLavender
 import co.ryzer.ancla.ui.theme.CardPeach
 import co.ryzer.ancla.ui.theme.CardRose
 import co.ryzer.ancla.ui.theme.SettingsScreenDimens
-import co.ryzer.ancla.ui.theme.SurfaceWhite
-import co.ryzer.ancla.ui.theme.TextPrimary
-import co.ryzer.ancla.ui.theme.TextSecondary
-
-private data class SettingsToolItem(
-    val number: Int,
-    val titleResId: Int,
-    val subtitleResId: Int,
-    val icon: ImageVector,
-    val badgeColor: Color,
-    val onClick: () -> Unit
-)
 
 @Composable
 @Suppress("UNUSED_PARAMETER")
@@ -76,7 +51,8 @@ fun SettingsScreen(
     onProfileClick: () -> Unit = {},
     onVisualPreferencesClick: () -> Unit = {},
     onToolsOrganizationClick: () -> Unit = {},
-    onNotificationsClick: () -> Unit = {}
+    onNotificationsClick: () -> Unit = {},
+    onBack: (() -> Unit)? = null
 ) {
     DisposableEffect(Unit) {
         onDispose { onDiscardPalettePreview() }
@@ -90,41 +66,37 @@ fun SettingsScreen(
     }
 
     val menuItems = listOf(
-        SettingsToolItem(
+        SettingsMenuItemUi(
             number = 1,
             titleResId = R.string.settings_profile_title,
-            subtitleResId = R.string.settings_profile_subtitle,
             icon = Icons.Outlined.PersonOutline,
             badgeColor = CardLavender,
             onClick = onProfileClick
         ),
-        SettingsToolItem(
+        SettingsMenuItemUi(
             number = 2,
             titleResId = R.string.settings_visual_title,
-            subtitleResId = R.string.settings_visual_subtitle,
             icon = Icons.Outlined.Palette,
             badgeColor = CardPeach,
             onClick = onVisualPreferencesClick
         ),
-        SettingsToolItem(
+        SettingsMenuItemUi(
             number = 3,
             titleResId = R.string.settings_tools_org_title,
-            subtitleResId = R.string.settings_tools_org_subtitle,
             icon = Icons.Outlined.FormatListNumbered,
             badgeColor = CardRose,
             onClick = onToolsOrganizationClick
         ),
-        SettingsToolItem(
+        SettingsMenuItemUi(
             number = 4,
             titleResId = R.string.settings_notifications_title,
-            subtitleResId = R.string.settings_notifications_subtitle,
             icon = Icons.Outlined.NotificationsNone,
             badgeColor = CardGreen,
             onClick = onNotificationsClick
         )
     )
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(AnclaBackground)
@@ -132,98 +104,27 @@ fun SettingsScreen(
                 horizontal = horizontalPadding,
                 vertical = SettingsScreenDimens.verticalPadding
             )
+            .fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(SettingsScreenDimens.menuItemSpacing)
     ) {
-        Text(
-            text = stringResource(R.string.settings_title),
-            style = if (isExpanded) {
-                AnclaTextStyles.toolsTitleExpanded.copy(fontWeight = FontWeight.Bold)
-            } else {
-                AnclaTextStyles.toolsTitle.copy(fontWeight = FontWeight.Bold)
-            },
-            color = TextPrimary
-        )
-        Spacer(modifier = Modifier.height(SettingsScreenDimens.titleBottomSpacing))
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(SettingsScreenDimens.menuItemSpacing)
-        ) {
-            menuItems.forEach { item ->
-                SettingsMenuCard(item = item)
-            }
+        item {
+            SettingsScreenHeader(isExpanded = isExpanded)
         }
-    }
-}
 
-@Composable
-private fun SettingsMenuCard(item: SettingsToolItem) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SettingsScreenDimens.badgeToCardSpacing)
-    ) {
-        Box(
-            modifier = Modifier
-                .size(SettingsScreenDimens.badgeSize)
-                .background(
-                    color = item.badgeColor,
-                    shape = RoundedCornerShape(SettingsScreenDimens.badgeCornerRadius)
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = "${item.number}.",
-                style = AnclaTextStyles.toolCardTitle,
-                color = TextPrimary
+        item {
+            androidx.compose.foundation.layout.Spacer(
+                modifier = Modifier.height(SettingsScreenDimens.titleBottomSpacing)
             )
         }
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-            shape = RoundedCornerShape(SettingsScreenDimens.menuCardCornerRadius),
-            elevation = CardDefaults.cardElevation(defaultElevation = SettingsScreenDimens.menuCardElevation),
-            modifier = Modifier
-                .weight(1f)
-                .clickable(onClick = item.onClick)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = SettingsScreenDimens.menuCardHorizontalPadding,
-                        vertical = SettingsScreenDimens.menuCardVerticalPadding
-                    ),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = item.icon,
-                    contentDescription = null,
-                    tint = TextPrimary,
-                    modifier = Modifier.size(SettingsScreenDimens.menuIconSize)
-                )
-                Spacer(modifier = Modifier.size(SettingsScreenDimens.iconTextSpacing))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(item.titleResId),
-                        style = AnclaTextStyles.toolsTitle.copy(fontWeight = FontWeight.Bold),
-                        color = TextPrimary
-                    )
-                    Text(
-                        text = stringResource(item.subtitleResId),
-                        style = AnclaTextStyles.toolCardSubtitle,
-                        color = TextSecondary
-                    )
-                }
-                Spacer(modifier = Modifier.size(SettingsScreenDimens.iconTextSpacing))
-                Icon(
-                    imageVector = Icons.Outlined.ChevronRight,
-                    contentDescription = null,
-                    tint = TextPrimary,
-                    modifier = Modifier.size(SettingsScreenDimens.chevronSize)
-                )
-            }
+        items(items = menuItems) { item ->
+            SettingsMenuCard(item = item)
+        }
+
+        item {
+            SettingsTipCard(
+                modifier = Modifier.padding(top = SettingsScreenDimens.menuItemSpacing)
+            )
         }
     }
 }

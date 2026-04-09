@@ -142,30 +142,6 @@ object AnclaTextStyles {
         lineHeight = 24.sp
     )
 
-    /** Empty-state title in compact layout */
-    val emptyStateTitle = TextStyle(
-        fontFamily = AnclaFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 24.sp,
-        lineHeight = 32.sp
-    )
-
-    /** Empty-state title in expanded layout */
-    val emptyStateTitleExpanded = TextStyle(
-        fontFamily = AnclaFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 28.sp,
-        lineHeight = 36.sp
-    )
-
-    /** Supporting text for the empty state */
-    val emptyStateSubtitle = TextStyle(
-        fontFamily = AnclaFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp
-    )
-
     /** Section label for the tools hub */
     val toolsSupportLabel = TextStyle(
         fontFamily = AnclaFontFamily,
@@ -178,8 +154,8 @@ object AnclaTextStyles {
     /** Main title for the tools hub in compact layout */
     val toolsTitle = TextStyle(
         fontFamily = AnclaFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 28.sp,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp,
         lineHeight = 36.sp
     )
 

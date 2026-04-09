@@ -20,10 +20,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,15 +38,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -60,13 +57,13 @@ import co.ryzer.ancla.R
 import co.ryzer.ancla.data.SensoryProfile
 import co.ryzer.ancla.data.repository.SensoryProfileRepository
 import co.ryzer.ancla.ui.components.AnclaTextField
+import co.ryzer.ancla.ui.components.SensoryPalettePicker
+import co.ryzer.ancla.ui.components.SensoryPalettePickerStyle
 import co.ryzer.ancla.ui.contacts.resolvePickedContact
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.theme.CardGreen
-import co.ryzer.ancla.ui.theme.CardLavender
 import co.ryzer.ancla.ui.theme.CardPeach
-import co.ryzer.ancla.ui.theme.CardRose
 import co.ryzer.ancla.ui.theme.OnboardingSensorialDimens
 import co.ryzer.ancla.ui.theme.ScriptReaderButton
 import co.ryzer.ancla.ui.theme.SurfaceWhite
@@ -304,9 +301,10 @@ fun OnboardingSensorialContent(
                 style = MaterialTheme.typography.bodyMedium,
                 color = TextSecondary
             )
-            OnboardingPaletteGrid(
+            SensoryPalettePicker(
                 selectedColorId = state.selectedColorId,
-                onColorSelected = onColorSelected
+                onColorSelected = onColorSelected,
+                style = SensoryPalettePickerStyle.LargeCircle
             )
         }
 
@@ -448,79 +446,6 @@ private fun OnboardingContactCard(
     }
 
 @Composable
-private fun OnboardingPaletteGrid(
-    selectedColorId: String,
-    onColorSelected: (String) -> Unit
-) {
-    val paletteOptions = listOf(
-        OnboardingPaletteOption(
-            id = "sage",
-            labelRes = R.string.palette_sage,
-            color = CardGreen
-        ),
-        OnboardingPaletteOption(
-            id = "lavender",
-            labelRes = R.string.palette_lavender,
-            color = CardLavender
-        ),
-        OnboardingPaletteOption(
-            id = "rose",
-            labelRes = R.string.palette_rose,
-            color = CardRose
-        ),
-        OnboardingPaletteOption(
-            id = "peach",
-            labelRes = R.string.palette_peach,
-            color = CardPeach
-        )
-    )
-
-    Column(
-        verticalArrangement = Arrangement.spacedBy(OnboardingSensorialDimens.pickerLargeGridSpacing)
-    ) {
-        paletteOptions.chunked(2).forEach { rowItems ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                rowItems.forEach { option ->
-                    val isSelected = option.id == selectedColorId
-                    Box(
-                        modifier = Modifier
-                            .size(OnboardingSensorialDimens.pickerLargeItemSize)
-                            .clip(CircleShape)
-                            .background(option.color)
-                            .clickable { onColorSelected(option.id) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(option.labelRes).uppercase(),
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontFamily = FontFamily.SansSerif,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isSelected) SurfaceWhite else TextPrimary.copy(alpha = 0.45f),
-                                textAlign = TextAlign.Center
-                            ),
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(bottom = OnboardingSensorialDimens.pickerLargeLabelBottomSpacing)
-                        )
-                        if (isSelected) {
-                            Icon(
-                                imageVector = Icons.Filled.CheckCircle,
-                                contentDescription = stringResource(option.labelRes),
-                                tint = SurfaceWhite,
-                                modifier = Modifier.size(OnboardingSensorialDimens.pickerSelectedIconSize)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun OnboardingPrimaryActionButton(
     enabled: Boolean,
     text: String,
@@ -569,11 +494,6 @@ private fun OnboardingPrimaryActionButton(
     }
 }
 
-private data class OnboardingPaletteOption(
-    val id: String,
-    val labelRes: Int,
-    val color: Color
-)
 
 @Composable
 fun CalmTextField(

@@ -2,6 +2,7 @@ package co.ryzer.ancla.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,8 +22,10 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.DefaultToolOrder
@@ -30,6 +33,7 @@ import co.ryzer.ancla.data.Script
 import co.ryzer.ancla.data.ToolIds
 import co.ryzer.ancla.data.ToolOrderEntry
 import co.ryzer.ancla.ui.components.SensoryPalettePicker
+import co.ryzer.ancla.ui.components.SensoryPalettePickerStyle
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
 import co.ryzer.ancla.ui.theme.AnclaTheme
@@ -261,46 +265,55 @@ fun SettingsVisualPreferencesScreen(
         verticalArrangement = Arrangement.spacedBy(ToolsScreenDimens.gridSpacing)
     ) {
         item {
-            Text(
-                text = stringResource(R.string.settings_palette_preview_title),
-                style = if (isExpanded) AnclaTextStyles.toolsTitleExpanded else AnclaTextStyles.toolsTitle,
-                color = TextPrimary
-            )
-            Spacer(modifier = Modifier.height(ToolsScreenDimens.iconToTextSpacer))
-            Text(
-                text = stringResource(R.string.settings_palette_preview_description),
-                style = AnclaTextStyles.toolCardSubtitle,
-                color = TextSecondary
-            )
-            Spacer(modifier = Modifier.height(ToolsScreenDimens.gridSpacing))
-
-            SensoryPalettePicker(
-                selectedColorId = selectedColorId,
-                onColorSelected = onPalettePreviewChanged
-            )
-
-            Spacer(modifier = Modifier.height(ToolsScreenDimens.iconToTextSpacer))
-            Text(
-                text = if (hasPendingPaletteChanges) {
-                    stringResource(R.string.settings_palette_unsaved_changes)
-                } else {
-                    stringResource(R.string.settings_palette_saved_state)
-                },
-                style = AnclaTextStyles.toolCardSubtitle,
-                color = TextSecondary
-            )
-
-            Spacer(modifier = Modifier.height(ToolsScreenDimens.gridSpacing))
-            Button(
-                onClick = onSavePalette,
-                enabled = hasPendingPaletteChanges,
-                shape = RoundedCornerShape(ToolsScreenDimens.cardCornerRadius),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CardGreen,
-                    contentColor = TextPrimary
-                )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = stringResource(R.string.settings_palette_save_button))
+                Text(
+                    text = stringResource(R.string.settings_palette_preview_title),
+                    style = if (isExpanded) AnclaTextStyles.toolsTitleExpanded else AnclaTextStyles.toolsTitle,
+                    color = TextPrimary,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(ToolsScreenDimens.iconToTextSpacer))
+                Text(
+                    text = stringResource(R.string.settings_palette_preview_description),
+                    style = AnclaTextStyles.toolCardSubtitle,
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(ToolsScreenDimens.gridSpacing))
+
+                SensoryPalettePicker(
+                    selectedColorId = selectedColorId,
+                    onColorSelected = onPalettePreviewChanged,
+                    style = SensoryPalettePickerStyle.LargeCircle
+                )
+
+                Spacer(modifier = Modifier.height(ToolsScreenDimens.gridSpacing))
+                Text(
+                    text = if (hasPendingPaletteChanges) {
+                        stringResource(R.string.settings_palette_unsaved_changes)
+                    } else {
+                        stringResource(R.string.settings_palette_saved_state)
+                    },
+                    style = AnclaTextStyles.toolCardSubtitle,
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(ToolsScreenDimens.gridSpacing))
+                Button(
+                    onClick = onSavePalette,
+                    enabled = hasPendingPaletteChanges,
+                    shape = RoundedCornerShape(ToolsScreenDimens.cardCornerRadius),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = CardGreen,
+                        contentColor = TextPrimary
+                    )
+                ) {
+                    Text(text = stringResource(R.string.settings_palette_save_button))
+                }
             }
         }
     }

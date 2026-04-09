@@ -4,24 +4,27 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import co.ryzer.ancla.R
+import co.ryzer.ancla.ui.components.AnclaTopBar
 import co.ryzer.ancla.ui.screening.components.ResponseOptionCard
-import co.ryzer.ancla.ui.screening.components.ScreeningHeader
 import co.ryzer.ancla.ui.screening.components.ScreeningNavigationBar
 import co.ryzer.ancla.ui.screening.components.ScreeningProgress
 import co.ryzer.ancla.ui.theme.AnclaBackground
 import co.ryzer.ancla.ui.theme.AnclaTextStyles
 import co.ryzer.ancla.ui.theme.TextPrimary
 import co.ryzer.ancla.ui.theme.ToolsScreenDimens
-import androidx.compose.material3.Text
 
 @Composable
 internal fun ScreeningQuestionScreen(
@@ -44,7 +47,14 @@ internal fun ScreeningQuestionScreen(
                 vertical = ToolsScreenDimens.verticalPadding
             )
     ) {
-        ScreeningHeader(onClose = onClose)
+        AnclaTopBar(
+            title = stringResource(R.string.tool_calm_map_title),
+            onNavigationClick = onClose,
+            navigationContentDescription = stringResource(R.string.tasks_back_content_description),
+            centerTitle = true,
+            windowInsets = WindowInsets(0)
+        )
+
         ScreeningProgress(currentQuestion = uiState.currentQuestion)
 
         Spacer(modifier = Modifier.height(ToolsScreenDimens.headerBottomSpacer))

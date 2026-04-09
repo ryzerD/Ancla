@@ -1,13 +1,13 @@
 package co.ryzer.ancla.ui.screens
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.isImeVisible
@@ -15,27 +15,23 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,12 +39,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import co.ryzer.ancla.R
 import co.ryzer.ancla.data.Task
+import co.ryzer.ancla.ui.components.AnclaTopBar
 import co.ryzer.ancla.ui.tasks.TasksUiState
 import co.ryzer.ancla.ui.tasks.TasksViewModel
 import co.ryzer.ancla.ui.theme.AnclaBackground
@@ -56,7 +52,6 @@ import co.ryzer.ancla.ui.theme.AnclaTextStyles
 import co.ryzer.ancla.ui.theme.AnclaTheme
 import co.ryzer.ancla.ui.theme.ScriptReaderButton
 import co.ryzer.ancla.ui.theme.SurfaceWhite
-import co.ryzer.ancla.ui.theme.TextPrimary
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 
@@ -405,30 +400,11 @@ fun TaskManagementContent(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TaskManagementTopBar(onBack: () -> Unit) {
-    TopAppBar(
-        title = {
-            Text(
-                stringResource(R.string.tasks_screen_title),
-                style = AnclaTextStyles.sectionLabel,
-                fontWeight = FontWeight.SemiBold,
-                color = TextPrimary
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = onBack) {
-                Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.tasks_back_content_description),
-                    tint = TextPrimary
-                )
-            }
-        },
-        windowInsets = WindowInsets(0),
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = AnclaBackground,
-            titleContentColor = TextPrimary,
-            navigationIconContentColor = TextPrimary
-        )
+    AnclaTopBar(
+        title = stringResource(R.string.tasks_screen_title),
+        onNavigationClick = onBack,
+        navigationContentDescription = stringResource(R.string.tasks_back_content_description),
+        windowInsets = WindowInsets(0)
     )
 }
 

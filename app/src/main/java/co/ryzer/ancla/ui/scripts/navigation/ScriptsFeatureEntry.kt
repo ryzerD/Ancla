@@ -35,7 +35,8 @@ class ScriptsFeatureEntry(
                 },
                 onNewScriptClick = {
                     navController.navigate(NavigationRoutes.NEW_SCRIPT)
-                }
+                },
+                onBack = { navController.popBackStack() }
             )
         }
 
