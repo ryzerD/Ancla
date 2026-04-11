@@ -2,6 +2,7 @@ package co.ryzer.ancla.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -108,22 +109,29 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(SettingsScreenDimens.menuItemSpacing)
     ) {
         item {
-            SettingsScreenHeader(isExpanded = isExpanded)
+            SettingsScreenHeader(
+                isExpanded = isExpanded
+            )
         }
 
         item {
             androidx.compose.foundation.layout.Spacer(
-                modifier = Modifier.height(SettingsScreenDimens.titleBottomSpacing)
+                modifier = Modifier
+                    .height(SettingsScreenDimens.titleBottomSpacing)
             )
         }
 
         items(items = menuItems) { item ->
-            SettingsMenuCard(item = item)
+            Box(
+            ) {
+                SettingsMenuCard(item = item)
+            }
         }
 
         item {
             SettingsTipCard(
-                modifier = Modifier.padding(top = SettingsScreenDimens.menuItemSpacing)
+                modifier = Modifier
+                    .padding(top = SettingsScreenDimens.menuItemSpacing)
             )
         }
     }

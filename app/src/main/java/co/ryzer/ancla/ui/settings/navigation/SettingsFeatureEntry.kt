@@ -57,7 +57,10 @@ class SettingsFeatureEntry(
                 toolOrder = toolOrder,
                 scripts = scripts,
                 onToolsOrderChanged = onToolsOrderChanged,
-                onScriptsOrderChanged = onScriptsOrderChanged
+                onScriptsOrderChanged = onScriptsOrderChanged,
+                onNavigationClick = {
+                    navController.navigate(NavigationRoutes.SETTINGS)
+                }
             )
         }
 
@@ -68,7 +71,10 @@ class SettingsFeatureEntry(
                 hasPendingPaletteChanges = hasPendingPaletteChanges,
                 onPalettePreviewChanged = onPalettePreviewChanged,
                 onSavePalette = onSavePalette,
-                onDiscardPalettePreview = onDiscardPalettePreview
+                onDiscardPalettePreview = onDiscardPalettePreview,
+                onNavigationClick = {
+                    navController.navigate(NavigationRoutes.SETTINGS)
+                }
             )
         }
     }

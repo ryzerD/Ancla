@@ -32,6 +32,7 @@ import co.ryzer.ancla.data.DefaultToolOrder
 import co.ryzer.ancla.data.Script
 import co.ryzer.ancla.data.ToolIds
 import co.ryzer.ancla.data.ToolOrderEntry
+import co.ryzer.ancla.ui.components.AnclaTopBar
 import co.ryzer.ancla.ui.components.SensoryPalettePicker
 import co.ryzer.ancla.ui.components.SensoryPalettePickerStyle
 import co.ryzer.ancla.ui.theme.AnclaBackground
@@ -69,7 +70,8 @@ fun SettingsToolsOrderScreen(
     toolOrder: List<ToolOrderEntry> = DefaultToolOrder,
     scripts: List<Script> = emptyList(),
     onToolsOrderChanged: (List<ToolOrderEntry>) -> Unit = {},
-    onScriptsOrderChanged: (List<String>) -> Unit = {}
+    onScriptsOrderChanged: (List<String>) -> Unit = {},
+    onNavigationClick: () -> Unit = {}
 ) {
     val isExpanded = windowSizeClass?.widthSizeClass == WindowWidthSizeClass.Expanded
     val horizontalPadding = if (isExpanded) {
@@ -94,13 +96,22 @@ fun SettingsToolsOrderScreen(
         .map { script -> SettingsScriptOrderItem(scriptId = script.id, title = script.title) }
     val orderedScriptIds = orderedScripts.map { it.scriptId }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(AnclaBackground)
-            .padding(horizontal = horizontalPadding, vertical = ToolsScreenDimens.verticalPadding),
-        verticalArrangement = Arrangement.spacedBy(ToolsScreenDimens.gridSpacing)
     ) {
+        AnclaTopBar(
+            title = stringResource(R.string.settings_tools_order_title),
+            onNavigationClick = onNavigationClick,
+            navigationContentDescription = stringResource(R.string.tool_move_up)
+        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = horizontalPadding, vertical = ToolsScreenDimens.verticalPadding),
+            verticalArrangement = Arrangement.spacedBy(ToolsScreenDimens.gridSpacing)
+        ) {
         item {
             Text(
                 text = stringResource(R.string.settings_tools_order_label),
@@ -234,6 +245,7 @@ fun SettingsToolsOrderScreen(
                 }
             }
         }
+        }
     }
 }
 
@@ -244,7 +256,8 @@ fun SettingsVisualPreferencesScreen(
     hasPendingPaletteChanges: Boolean = false,
     onPalettePreviewChanged: (String) -> Unit = {},
     onSavePalette: () -> Unit = {},
-    onDiscardPalettePreview: () -> Unit = {}
+    onDiscardPalettePreview: () -> Unit = {},
+    onNavigationClick: () -> Unit = {}
 ) {
     DisposableEffect(Unit) {
         onDispose { onDiscardPalettePreview() }
@@ -257,13 +270,22 @@ fun SettingsVisualPreferencesScreen(
         ToolsScreenDimens.horizontalPaddingCompact
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
             .background(AnclaBackground)
-            .padding(horizontal = horizontalPadding, vertical = ToolsScreenDimens.verticalPadding),
-        verticalArrangement = Arrangement.spacedBy(ToolsScreenDimens.gridSpacing)
     ) {
+        AnclaTopBar(
+            title = stringResource(R.string.settings_palette_preview_title),
+            onNavigationClick = onNavigationClick,
+            navigationContentDescription = stringResource(R.string.tool_move_up)
+        )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = horizontalPadding, vertical = ToolsScreenDimens.verticalPadding),
+            verticalArrangement = Arrangement.spacedBy(ToolsScreenDimens.gridSpacing)
+        ) {
         item {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -313,6 +335,7 @@ fun SettingsVisualPreferencesScreen(
                     )
                 ) {
                     Text(text = stringResource(R.string.settings_palette_save_button))
+                }
                 }
             }
         }

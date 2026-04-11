@@ -4,48 +4,84 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
+ * Common dimension tokens used across all screens.
+ * These are the single source of truth for consistent spacing throughout the app.
+ */
+object CommonDimens {
+    // ── Responsive Padding ──────────────────────────────────────────────────
+    val horizontalPaddingCompact = 24.dp
+    val horizontalPaddingExpanded = 48.dp
+    val verticalPadding = 24.dp
+
+    // ── Common Spacing ──────────────────────────────────────────────────────
+    val spacingSmall = 8.dp     // Small spacing
+    val spacingMedium = 12.dp   // Medium spacing
+    val spacingBase = 16.dp     // Base spacing unit
+    val spacingLarge = 20.dp    // Large spacing
+    val spacingXLarge = 24.dp   // Extra large spacing
+    val spacingXXLarge = 32.dp  // 2x large spacing
+
+    // ── Common Radii ────────────────────────────────────────────────────────
+    val radiusSmall = 10.dp
+    val radiusMedium = 12.dp
+    val radiusLarge = 16.dp
+    val radiusXLarge = 20.dp
+    val radiusXXLarge = 28.dp
+    val radiusFull = 999.dp
+
+    // ── Common Sizes ────────────────────────────────────────────────────────
+    val iconSize = 18.dp
+    val iconSizeLarge = 28.dp
+    val badgeSize = 42.dp
+
+    // ── Common Elevation ────────────────────────────────────────────────────
+    val elevationSmall = 2.dp
+    val elevationNone = 0.dp
+}
+
+/**
  * Dimension tokens for HomeScreen.
  * Compact = phone portrait · Expanded = tablet or wide landscape.
  */
 object HomeScreenDimens {
 
     // ── Layout ──────────────────────────────────────────────────────────────
-    val horizontalPaddingCompact  = 24.dp
-    val horizontalPaddingExpanded = 80.dp
+    val horizontalPaddingCompact  = CommonDimens.horizontalPaddingCompact
+    val horizontalPaddingExpanded = 80.dp  // Home-specific wider padding
 
-    val topSpacerCompact  = 48.dp
+    val topSpacerCompact  = CommonDimens.spacingXXLarge
     val topSpacerExpanded = 64.dp
 
-    val periodGreetingBottomPadding = 8.dp
-    val greetingBottomPadding = 16.dp
-    val bottomSpacer          = 48.dp
+    val periodGreetingBottomPadding = CommonDimens.spacingSmall
+    val greetingBottomPadding = CommonDimens.spacingBase
+    val bottomSpacer          = CommonDimens.spacingXXLarge
 
     // ── TaskCard ─────────────────────────────────────────────────────────────
     val cardMaxWidthCompact  = 500.dp
     val cardMaxWidthExpanded = 600.dp
-    val cardCornerRadius     = 28.dp
-    val cardElevation        = 2.dp
+    val cardCornerRadius     = CommonDimens.radiusXXLarge
+    val cardElevation        = CommonDimens.elevationSmall
     val cardPaddingCompact   = 32.dp
-    val cardPaddingExpanded  = 48.dp
+    val cardPaddingExpanded  = CommonDimens.spacingXXLarge
 
     val taskIconSizeCompact  = 72.dp
     val taskIconSizeExpanded = 96.dp
 
-    val iconToContentSpacerCompact  = 24.dp
-    val iconToContentSpacerExpanded = 32.dp
+    val iconToContentSpacerCompact  = CommonDimens.spacingXXLarge
+    val iconToContentSpacerExpanded = CommonDimens.spacingXXLarge
 
-    val taskTitleVerticalPadding = 8.dp
-    val descriptionTopSpacer     = 16.dp
+    val taskTitleVerticalPadding = CommonDimens.spacingSmall
+    val descriptionTopSpacer     = CommonDimens.spacingBase
 
     val contentToButtonSpacerCompact  = 40.dp
     val contentToButtonSpacerExpanded = 56.dp
 
     val buttonMinHeight    = 60.dp
-    val buttonCornerRadius = 20.dp
+    val buttonCornerRadius = CommonDimens.radiusXLarge
 
     // ── RestCard ─────────────────────────────────────────────────────────────
     val restCardCornerRadius = 44.dp
-    val restCardElevation = 0.dp
+    val restCardElevation = CommonDimens.elevationNone
     const val restCardAspectRatioCompact = 1f
     const val restCardAspectRatioExpanded = 1.1f
     val restCardPadding = 30.dp
@@ -59,10 +95,10 @@ object HomeScreenDimens {
 
     // ── Home state wiring visuals ───────────────────────────────────────────
     const val preparingCardAlpha = 0.78f
-    val overlapBannerSpacing = 10.dp
-    val overlapBannerCornerRadius = 12.dp
-    val overlapBannerHorizontalPadding = 12.dp
-    val overlapBannerVerticalPadding = 8.dp
+    val overlapBannerSpacing = CommonDimens.spacingSmall
+    val overlapBannerCornerRadius = CommonDimens.radiusMedium
+    val overlapBannerHorizontalPadding = CommonDimens.spacingSmall
+    val overlapBannerVerticalPadding = CommonDimens.spacingSmall
 
 }
 
@@ -72,26 +108,26 @@ object HomeScreenDimens {
  */
 object ToolsScreenDimens {
 
-    // -- Responsive rules --
-    val horizontalPaddingCompact = 24.dp
-    val horizontalPaddingExpanded = 48.dp
-    val verticalPadding = 24.dp
-    val headerBottomSpacer = 24.dp
+    // -- Responsive rules (use CommonDimens) --
+    val horizontalPaddingCompact = CommonDimens.horizontalPaddingCompact
+    val horizontalPaddingExpanded = CommonDimens.horizontalPaddingExpanded
+    val verticalPadding = CommonDimens.verticalPadding
+    val headerBottomSpacer = CommonDimens.spacingXLarge
 
     // -- Grid --
     const val columnsCompact = 2
     const val columnsExpanded = 3
-    val gridSpacing = 16.dp
+    val gridSpacing = CommonDimens.spacingBase
 
     // -- Tool card --
     const val cardAspectRatio = 0.9f
-    val cardCornerRadius = 20.dp
-    val cardContentPadding = 16.dp
+    val cardCornerRadius = CommonDimens.radiusXLarge
+    val cardContentPadding = CommonDimens.spacingBase
     val iconPlaceholderSize = 48.dp
-    val iconPlaceholderCornerRadius = 12.dp
+    val iconPlaceholderCornerRadius = CommonDimens.radiusMedium
     const val iconPlaceholderAlpha = 0.05f
-    val iconToTextSpacer = 12.dp
-    val orderControlsSpacing = 8.dp
+    val iconToTextSpacer = CommonDimens.spacingMedium
+    val orderControlsSpacing = CommonDimens.spacingSmall
 }
 
 /**
@@ -103,13 +139,13 @@ object ScreeningResultsDimens {
     const val disclaimerWidthFraction = 0.92f
     const val actionButtonsWidthFraction = 0.85f
 
-    val resultTitleTopPadding = 16.dp
+    val resultTitleTopPadding = CommonDimens.spacingBase
     val scoreCardHeight = 70.dp
-    val scoreCardContentPadding = 16.dp
-    val descriptionTopPadding = 8.dp
-    val disclaimerTopPadding = 16.dp
-    val actionsTopPadding = 12.dp
-    val actionsSpacing = 12.dp
+    val scoreCardContentPadding = CommonDimens.spacingBase
+    val descriptionTopPadding = CommonDimens.spacingSmall
+    val disclaimerTopPadding = CommonDimens.spacingBase
+    val actionsTopPadding = CommonDimens.spacingMedium
+    val actionsSpacing = CommonDimens.spacingMedium
     val actionButtonHeight = 48.dp
 }
 
@@ -121,11 +157,11 @@ object ScriptReaderScreenDimens {
 
     // -- Layout --
     val horizontalPadding = 28.dp
-    val verticalPadding = 24.dp
+    val verticalPadding = CommonDimens.verticalPadding
     val emergencyTextTopSpacer = 28.dp
 
     // -- Button --
-    val closeButtonCornerRadius = 20.dp
+    val closeButtonCornerRadius = CommonDimens.radiusXLarge
 
     // -- Typography --
     val mainTextFontSize = 60.sp
@@ -144,11 +180,11 @@ object NewScriptScreenDimens {
 
     // -- Layout --
     val textFieldMinHeight = 120.dp
-    val sectionSpacing = 20.dp
-    val chipSpacing = 12.dp
-    val swatchSpacing = 12.dp
+    val sectionSpacing = CommonDimens.spacingLarge
+    val chipSpacing = CommonDimens.spacingMedium
+    val swatchSpacing = CommonDimens.spacingMedium
     val buttonTopSpacing = 28.dp
-    val closeActionTopSpacing = 8.dp
+    val closeActionTopSpacing = CommonDimens.spacingSmall
 
     // -- Shapes --
     val chipCornerRadius = 18.dp
@@ -163,47 +199,47 @@ object NewScriptScreenDimens {
  * Dimension tokens for OnboardingSensorialScreen.
  */
 object OnboardingSensorialDimens {
-    val screenPadding = 24.dp
-    val topPadding = 48.dp
+    val screenPadding = CommonDimens.horizontalPaddingCompact
+    val topPadding = CommonDimens.spacingXXLarge
     val contentBottomPadding = 140.dp
-    val sectionSpacing = 24.dp
-    val titleToSubtitleSpacing = 8.dp
+    val sectionSpacing = CommonDimens.horizontalPaddingCompact
+    val titleToSubtitleSpacing = CommonDimens.spacingSmall
     val sectionTitleToFieldSpacing = 10.dp
-    val sectionBadgeSize = 42.dp
+    val sectionBadgeSize = CommonDimens.badgeSize
     val sectionTitleTextSpacing = 14.dp
 
-    val textFieldCornerRadius = 12.dp
+    val textFieldCornerRadius = CommonDimens.radiusMedium
     val textFieldMinHeight = 58.dp
-    val contactCardCornerRadius = 28.dp
-    val contactCardPadding = 20.dp
+    val contactCardCornerRadius = CommonDimens.radiusXXLarge
+    val contactCardPadding = CommonDimens.spacingLarge
     val contactFieldSpacing = 14.dp
 
     val pickerItemSize = 92.dp
     val pickerLargeItemSize = 170.dp
-    val pickerLargeGridSpacing = 12.dp
-    val pickerLargeLabelBottomSpacing = 16.dp
-    val pickerItemCornerRadius = 16.dp
-    val pickerGridSpacing = 12.dp
+    val pickerLargeGridSpacing = CommonDimens.spacingMedium
+    val pickerLargeLabelBottomSpacing = CommonDimens.spacingBase
+    val pickerItemCornerRadius = CommonDimens.radiusLarge
+    val pickerGridSpacing = CommonDimens.spacingMedium
     val pickerSelectedBorderWidth = 3.dp
     val pickerUnselectedBorderWidth = 1.dp
     val pickerIconSize = 30.dp
     val pickerSelectedIconSize = 28.dp
     val ctaMinHeight = 56.dp
-    val ctaButtonCornerRadius = 999.dp
-    val ctaButtonHorizontalPadding = 24.dp
-    val ctaButtonVerticalPadding = 24.dp
+    val ctaButtonCornerRadius = CommonDimens.radiusFull
+    val ctaButtonHorizontalPadding = CommonDimens.horizontalPaddingCompact
+    val ctaButtonVerticalPadding = CommonDimens.horizontalPaddingCompact
 }
 
 /**
  * Dimension tokens for BreathingScreen.
  */
 object BreathingScreenDimens {
-    val screenPadding = 24.dp
-    val topTextBottomSpacing = 24.dp
-    val phaseTextBottomSpacing = 8.dp
-    val phaseTimerBottomSpacing = 12.dp
+    val screenPadding = CommonDimens.horizontalPaddingCompact
+    val topTextBottomSpacing = CommonDimens.horizontalPaddingCompact
+    val phaseTextBottomSpacing = CommonDimens.spacingSmall
+    val phaseTimerBottomSpacing = CommonDimens.spacingMedium
     val circleSize = 220.dp
-    val circleBottomSpacing = 20.dp
+    val circleBottomSpacing = CommonDimens.spacingLarge
     val exitIconSize = 22.dp
 }
 
@@ -211,23 +247,23 @@ object BreathingScreenDimens {
  * Dimension tokens for SettingsScreen.
  */
 object SettingsScreenDimens {
-    val horizontalPaddingCompact = 24.dp
-    val horizontalPaddingExpanded = 48.dp
-    val verticalPadding = 24.dp
+    val horizontalPaddingCompact = CommonDimens.horizontalPaddingCompact
+    val horizontalPaddingExpanded = CommonDimens.horizontalPaddingExpanded
+    val verticalPadding = CommonDimens.verticalPadding
 
-    val titleBottomSpacing = 24.dp
+    val titleBottomSpacing = CommonDimens.horizontalPaddingCompact
 
-    val menuItemSpacing = 16.dp
+    val menuItemSpacing = CommonDimens.horizontalPaddingCompact
     val badgeToCardSpacing = 10.dp
-    val badgeSize = 42.dp
-    val badgeCornerRadius = 10.dp
+    val badgeSize = CommonDimens.badgeSize
+    val badgeCornerRadius = CommonDimens.radiusSmall
 
-    val menuCardCornerRadius = 16.dp
-    val menuCardElevation = 2.dp
-    val menuCardHorizontalPadding = 16.dp
+    val menuCardCornerRadius = CommonDimens.radiusLarge
+    val menuCardElevation = CommonDimens.elevationSmall
+    val menuCardHorizontalPadding = CommonDimens.spacingBase
     val menuCardVerticalPadding = 14.dp
-    val menuIconSize = 28.dp
-    val iconTextSpacing = 12.dp
+    val menuIconSize = CommonDimens.iconSizeLarge
+    val iconTextSpacing = CommonDimens.spacingMedium
     val chevronSize = 30.dp
 
 }
@@ -245,10 +281,10 @@ object CalmaTotalScreenDimens {
  */
 object AnclaButtonDimens {
     val minHeight = 48.dp
-    val iconSize = 18.dp
-    val contentSpacing = 8.dp
-    val pillCornerRadius = 999.dp
-    val outlinedCornerRadius = 16.dp
+    val iconSize = CommonDimens.iconSize
+    val contentSpacing = CommonDimens.spacingSmall
+    val pillCornerRadius = CommonDimens.radiusFull
+    val outlinedCornerRadius = CommonDimens.radiusLarge
     val borderWidth = 1.dp
 }
 
@@ -256,21 +292,21 @@ object AnclaButtonDimens {
  * Dimension tokens for AnclaTimePickerField.
  */
 object AnclaTimePickerDimens {
-    val fieldCornerRadius = 999.dp
-    val fieldHorizontalPadding = 12.dp
+    val fieldCornerRadius = CommonDimens.radiusFull
+    val fieldHorizontalPadding = CommonDimens.spacingMedium
     val fieldVerticalPadding = 10.dp
-    val fieldIconSize = 18.dp
+    val fieldIconSize = CommonDimens.iconSize
 
-    val dialogCornerRadius = 28.dp
-    val dialogTonalElevation = 0.dp
-    val dialogShadowElevation = 0.dp
+    val dialogCornerRadius = CommonDimens.radiusXXLarge
+    val dialogTonalElevation = CommonDimens.elevationNone
+    val dialogShadowElevation = CommonDimens.elevationNone
     val dialogMinWidth = 320.dp
     val dialogMaxWidth = 360.dp
-    val dialogPadding = 24.dp
-    val titleBottomSpacing = 20.dp
+    val dialogPadding = CommonDimens.horizontalPaddingCompact
+    val titleBottomSpacing = CommonDimens.spacingLarge
 
-    val actionsTopSpacing = 20.dp
+    val actionsTopSpacing = CommonDimens.spacingLarge
     val actionsSpacing = 10.dp
-    val actionButtonCornerRadius = 10.dp
+    val actionButtonCornerRadius = CommonDimens.radiusSmall
 }
 
