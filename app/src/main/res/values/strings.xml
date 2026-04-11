@@ -59,8 +59,8 @@
     <string name="settings_screen_tip_title">Recuerda ir a tu ritmo</string>
     <string name="settings_screen_tip_body">Puedes ajustar estas opciones poco a poco cuando te sientas en calma.</string>
     <string name="settings_tools_order_label">Personalizacion</string>
-    <string name="settings_tools_order_title">Orden de caja de herramientas</string>
-    <string name="settings_tools_order_description">Puedes ajustar el orden cuando te sientas en calma. Este orden se reflejará en Herramientas.</string>
+    <string name="settings_tools_order_title">Organiza tu flujo</string>
+    <string name="settings_tools_order_description">Organiza tus herramientas en el orden que te sea mas comodo para navegar tu dia con calma.</string>
     <string name="settings_scripts_order_title">Orden de mis guiones</string>
     <string name="settings_scripts_order_description">Reordena tus tarjetas para que aparezcan primero las frases que usas más seguido.</string>
     <string name="settings_palette_preview_title">Vista previa inmediata de paleta</string>
